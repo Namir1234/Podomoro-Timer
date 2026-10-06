@@ -178,16 +178,8 @@ function endFocusSequence() {
 function showLockImage(src, done) {
   const ov = $("lockOverlay");
   $("lockOverlayImg").src = src;
-  let left = 10;
-  const willLock = +settings.lock && lockConnected;
-  const label = () => { $("lockCountdown").textContent = `${willLock ? "Gerät wird gesperrt" : "Weiter"} in ${left} s`; };
-  label();
   ov.classList.add("show");
-  const iv = setInterval(() => {
-    left--;
-    label();
-    if (left <= 0) { clearInterval(iv); ov.classList.remove("show"); done(); }
-  }, 1000);
+  setTimeout(() => { ov.classList.remove("show"); done(); }, 5000);
 }
 
 function beep() {
@@ -211,12 +203,7 @@ function lockDevice() {
 
 let lockConnected = false;
 function checkLock() {
-  fetch(LOCK_URL + "/status").then(r => r.ok, () => false).then(ok => {
-    lockConnected = ok;
-    $("lockStatus").textContent = ok
-      ? "Fokus-Sperre: verbunden. Nach jedem Fokus-Block wird Windows gesperrt."
-      : "Fokus-Sperre: nicht gestartet. Ohne das Sperr-Programm wird das Gerät nicht gesperrt.";
-  });
+  fetch(LOCK_URL + "/status").then(r => r.ok, () => false).then(ok => { lockConnected = ok; });
 }
 window.addEventListener("focus", checkLock);
 checkLock();
@@ -266,7 +253,7 @@ function showImagePreview() {
     $("imagePreview").innerHTML = `<img src="${img}" alt="Vorschau des gewählten Bildes"> <button type="button" class="link-btn" id="removeImage">Bild entfernen</button>`;
     $("removeImage").onclick = () => { try { localStorage.removeItem("pomo_lockImage"); } catch {} $("setImage").value = ""; showImagePreview(); };
   } else {
-    $("imagePreview").textContent = "Standardbild wird 10 Sek. gezeigt. Wähle ein eigenes Bild, um es zu ersetzen.";
+    $("imagePreview").textContent = "Standardbild wird 5 Sek. gezeigt. Wähle ein eigenes Bild, um es zu ersetzen.";
   }
 }
 $("setImage").onchange = e => {

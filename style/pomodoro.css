@@ -154,7 +154,6 @@ h2 .icon { margin-right: 8px; }
 }
 .lock-overlay.show { display: flex; }
 .lock-overlay img { max-width: 92vw; max-height: 82vh; object-fit: contain; border-radius: 14px; }
-.lock-count { color: #fff; font-size: 1.1rem; letter-spacing: .3px; }
 #imagePreview img { max-width: 120px; max-height: 80px; border-radius: 8px; vertical-align: middle; margin-right: 10px; }
 
 .settings input[type="file"] { grid-column: 1 / -1; width: 100%; font-size: .85rem; color: var(--muted); }
