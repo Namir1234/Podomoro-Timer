@@ -50,3 +50,5 @@ footer { text-align: center; color: var(--muted); font-size: .8rem; margin-top: 
 .lead { color: var(--muted); max-width: 520px; margin: -8px auto 22px; line-height: 1.5; }
 .offline { color: var(--muted); font-size: .85rem; margin-top: 22px; }
 .offline a { color: var(--text); }
+
+.monks .trans { margin-top: 10px; color: var(--text); font-size: .9rem; line-height: 1.5; opacity: .82; }

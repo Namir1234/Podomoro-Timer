@@ -25,10 +25,6 @@ if ($Install) {
     $shortcut.Description = 'Fokus-Sperre fuer den Pomodoro-Timer'
     $shortcut.Save()
     Start-Process $shortcutPath
-    Write-Host "Die Sperre laeuft jetzt unsichtbar im Hintergrund."
-    Write-Host "Sie startet ab sofort automatisch bei jeder Windows-Anmeldung."
-    Write-Host "Zum Entfernen: Pomodoro-Timer-entfernen.bat doppelklicken."
-    Start-Sleep -Seconds 6
     exit
 }
 
