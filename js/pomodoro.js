@@ -169,7 +169,7 @@ function finish() {
 // Standardbild (im Projekt gespeichert). Wird gezeigt, wenn niemand ein eigenes Bild gewählt hat.
 const DEFAULT_LOCK_IMG = "../img/sperrbild.png";
 
-// Nach einem Fokus-Block: erst 5 Sek. das feste Bild zeigen, dann sperren und zur Pause wechseln.
+// Nach einem Fokus-Block: erst 3 Sek. das feste Bild zeigen, dann sperren und zur Pause wechseln.
 function endFocusSequence() {
   showLockImage(DEFAULT_LOCK_IMG, () => { lockDevice(); afterFocus(); });
 }
@@ -178,7 +178,7 @@ function showLockImage(src, done) {
   const ov = $("lockOverlay");
   $("lockOverlayImg").src = src;
   ov.classList.add("show");
-  setTimeout(() => { ov.classList.remove("show"); done(); }, 5000);
+  setTimeout(() => { ov.classList.remove("show"); done(); }, 3000);
 }
 
 function beep() {
