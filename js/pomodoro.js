@@ -87,6 +87,7 @@ let running = false;
 let endTime = 0;
 let tick = null;
 let ringFrame = null;
+let locked = false;                 // Vollbild-Sperre der Seite aktiv?
 let focusDone = 0;                  // Fokus-Sessions im aktuellen Zyklus (0 bis settings.rounds)
 
 function fmt(s) {
@@ -116,6 +117,7 @@ function draw() {
   $("startBtn").textContent = running ? "Pause" : (remaining < totalSec ? "Weiter" : "Start");
   $("dots").innerHTML = Array.from({ length: settings.rounds }, (_, i) => `<div class="dot ${i < focusDone ? "done" : ""}"></div>`).join("");
   $("cycleHint").textContent = `Ablauf: ${settings.rounds}× ${fmtDur("focus")} Fokus, dazwischen ${fmtDur("short")} Pause, danach ${fmtDur("long")} lange Pause.`;
+  if (locked && mode !== "focus") $("lockMsg").textContent = "Pause läuft – noch " + fmt(remaining);
 }
 
 // Nach einer Fokus-Runde: kurze Pause, nach der letzten Runde des Zyklus die lange Pause
@@ -160,8 +162,9 @@ function finish() {
     save("pomo_subject", $("subject").value.trim());
     save("pomo_sessions", sessions);
     updateSubjectList();
-    endFocusSequence();
+    startLockSequence();
   } else {
+    endLock();
     setMode("focus");
   }
 }
@@ -169,16 +172,29 @@ function finish() {
 // Standardbild (im Projekt gespeichert). Wird gezeigt, wenn niemand ein eigenes Bild gewählt hat.
 const DEFAULT_LOCK_IMG = "../img/sperrbild.png";
 
-// Nach einem Fokus-Block: erst 3 Sek. das feste Bild zeigen, dann sperren und zur Pause wechseln.
-function endFocusSequence() {
-  showLockImage(DEFAULT_LOCK_IMG, () => { lockDevice(); afterFocus(); });
+// Fokus geschafft: Bild 3 Sek. zeigen, dann die Seite für die ganze Pause "sperren"
+// (Vollbild-Überlagerung mit Pausen-Countdown). Zusätzlich echte Gerätesperre, falls das Programm läuft.
+function startLockSequence() {
+  locked = true;
+  const ov = $("lockOverlay");
+  $("lockOverlayImg").src = DEFAULT_LOCK_IMG;
+  $("lockOverlayImg").style.display = "";
+  $("lockMsg").textContent = "Fokus geschafft!";
+  ov.classList.add("show");
+  try { document.documentElement.requestFullscreen().catch(() => {}); } catch {}
+  setTimeout(() => {
+    $("lockOverlayImg").style.display = "none";   // Bild nur 3 Sekunden
+    lockDevice();                                 // echte Sperre, falls Hintergrund-Programm läuft
+    afterFocus();                                 // zu kurzer/langer Pause wechseln
+    start();                                      // Pause automatisch starten
+  }, 3000);
 }
 
-function showLockImage(src, done) {
-  const ov = $("lockOverlay");
-  $("lockOverlayImg").src = src;
-  ov.classList.add("show");
-  setTimeout(() => { ov.classList.remove("show"); done(); }, 3000);
+function endLock() {
+  locked = false;
+  $("lockOverlay").classList.remove("show");
+  $("lockOverlayImg").style.display = "";
+  try { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); } catch {}
 }
 
 function beep() {

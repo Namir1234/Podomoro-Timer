@@ -157,3 +157,5 @@ h2 .icon { margin-right: 8px; }
 #imagePreview img { max-width: 120px; max-height: 80px; border-radius: 8px; vertical-align: middle; margin-right: 10px; }
 
 .settings input[type="file"] { grid-column: 1 / -1; width: 100%; font-size: .85rem; color: var(--muted); }
+
+.lock-msg { color: #fff; font-size: 2rem; font-weight: 700; letter-spacing: .3px; text-align: center; }
