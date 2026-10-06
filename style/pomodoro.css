@@ -159,3 +159,5 @@ h2 .icon { margin-right: 8px; }
 .settings input[type="file"] { grid-column: 1 / -1; width: 100%; font-size: .85rem; color: var(--muted); }
 
 .lock-msg { color: #fff; font-size: 2rem; font-weight: 700; letter-spacing: .3px; text-align: center; }
+
+.quote-list .q .orig { display: block; color: var(--muted); font-style: italic; margin-top: 3px; }

@@ -44,6 +44,22 @@ const MONK_QUOTES = [
   { t: "일생 동안 남녀의 무리를 속여서 하늘을 넘치는 죄업은 수미산을 지나친다.", a: "성철 (Seongcheol, Abschiedsvers)", lang: "ko", l: "Koreanisch" }
 ];
 
+// Zitate berühmter Revolutionäre (deutsch, mit Original wo bekannt)
+const REVO_QUOTES = [
+  { t: "Seien wir realistisch – verlangen wir das Unmögliche.", a: "Che Guevara (zugeschrieben)", o: "Seamos realistas, exijamos lo imposible." },
+  { t: "Freiheit ist immer die Freiheit der Andersdenkenden.", a: "Rosa Luxemburg" },
+  { t: "Nach dem Erklimmen eines hohen Berges entdeckt man nur, dass es noch viele weitere Berge zu erklimmen gibt.", a: "Nelson Mandela", o: "After climbing a great hill, one only finds that there are many more hills to climb." },
+  { t: "Die Geschichte wird mich freisprechen.", a: "Fidel Castro", o: "La historia me absolverá." },
+  { t: "Das Vaterland oder den Tod – wir werden siegen.", a: "Thomas Sankara", o: "La patrie ou la mort, nous vaincrons." },
+  { t: "Nichts ist kostbarer als Unabhängigkeit und Freiheit.", a: "Hồ Chí Minh", o: "Không có gì quý hơn độc lập, tự do." },
+  { t: "Lieber im Stehen sterben als auf den Knien leben.", a: "Emiliano Zapata (zugeschrieben)", o: "Prefiero morir de pie que vivir de rodillas." },
+  { t: "Die Philosophen haben die Welt nur verschieden interpretiert; es kommt aber darauf an, sie zu verändern.", a: "Karl Marx" },
+  { t: "Die Zukunft gehört denen, die sich heute darauf vorbereiten.", a: "Malcolm X", o: "The future belongs to those who prepare for it today." },
+  { t: "Die Kunst zu siegen lernt man in den Niederlagen.", a: "Simón Bolívar", o: "El arte de vencer se aprende en las derrotas." },
+  { t: "Sei selbst die Veränderung, die du dir für die Welt wünschst.", a: "Mahatma Gandhi (zugeschrieben)", o: "Be the change that you wish to see in the world." },
+  { t: "Mit meinem Sturz hat man nur den Stamm des Freiheitsbaumes gefällt – er treibt aus den Wurzeln neu aus, denn sie sind tief und zahlreich.", a: "Toussaint Louverture" }
+];
+
 const DEFAULTS = { focus: 25, focusSec: 0, short: 5, shortSec: 0, long: 15, longSec: 0, rounds: 4, sound: 1, lock: 1 };
 const LOCK_URL = "http://localhost:47600";   // Adresse der Fokus-Sperre (PowerShell-Skript auf dem eigenen PC)
 const load = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
@@ -377,6 +393,28 @@ function renderMonkList() {
 $("nextMonk").onclick = showMonkQuote;
 
 /* ============================================================
+   REVOLUTIONÄRE
+   ============================================================ */
+let currentRevo = -1;
+
+function showRevoQuote() {
+  let i;
+  do { i = Math.floor(Math.random() * REVO_QUOTES.length); } while (i === currentRevo && REVO_QUOTES.length > 1);
+  currentRevo = i;
+  $("rText").textContent = "«" + REVO_QUOTES[i].t + "»";
+  $("rAuthor").textContent = "– " + REVO_QUOTES[i].a;
+}
+
+function renderRevoList() {
+  $("revoList").innerHTML = REVO_QUOTES.map(q => `
+    <div class="q">
+      «${esc(q.t)}»${q.o ? `<span class="orig">${esc(q.o)}</span>` : ""}<small>– ${esc(q.a)}</small>
+    </div>`).join("");
+}
+
+$("nextRevo").onclick = showRevoQuote;
+
+/* ============================================================
    START
    ============================================================ */
 draw();
@@ -384,3 +422,5 @@ showQuote();
 renderQuoteList();
 showMonkQuote();
 renderMonkList();
+showRevoQuote();
+renderRevoList();
