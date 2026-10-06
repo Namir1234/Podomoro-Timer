@@ -186,7 +186,7 @@ function finish() {
 }
 
 // Standardbild (im Projekt gespeichert). Wird gezeigt, wenn niemand ein eigenes Bild gewählt hat.
-const DEFAULT_LOCK_IMG = "../img/sperrbild.png";
+const DEFAULT_LOCK_IMG = "../img/sperren-bild.jpeg";
 
 // Fokus geschafft: Bild 3 Sek. zeigen, dann die Seite für die ganze Pause "sperren"
 // (Vollbild-Überlagerung mit Pausen-Countdown). Zusätzlich echte Gerätesperre, falls das Programm läuft.
