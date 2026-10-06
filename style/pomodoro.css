@@ -146,3 +146,15 @@ h2 .icon { margin-right: 8px; }
 .back .icon { opacity: .6; }
 .back:hover .icon { opacity: 1; }
 @media (max-width: 720px) { .back { margin-top: 6px; text-align: center; } }
+
+/* ===== Vollbild-Bild vor der Gerätesperre ===== */
+.lock-overlay {
+  position: fixed; inset: 0; background: #000; z-index: 1000;
+  display: none; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
+}
+.lock-overlay.show { display: flex; }
+.lock-overlay img { max-width: 92vw; max-height: 82vh; object-fit: contain; border-radius: 14px; }
+.lock-count { color: #fff; font-size: 1.1rem; letter-spacing: .3px; }
+#imagePreview img { max-width: 120px; max-height: 80px; border-radius: 8px; vertical-align: middle; margin-right: 10px; }
+
+.settings input[type="file"] { grid-column: 1 / -1; width: 100%; font-size: .85rem; color: var(--muted); }

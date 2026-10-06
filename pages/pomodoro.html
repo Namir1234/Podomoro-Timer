@@ -68,11 +68,20 @@
         <select class="wide" id="setSound"><option value="1">An</option><option value="0">Aus</option></select>
         <label for="setLock">Gerät sperren nach Fokus</label>
         <select class="wide" id="setLock"><option value="1">An</option><option value="0">Aus</option></select>
+        <label for="setImage">Bild vor der Sperre (10 Sek.)</label>
+        <input class="wide" type="file" id="setImage" accept="image/*">
       </div>
+      <p class="hint" id="imagePreview"></p>
       <p class="hint" id="cycleHint"></p>
       <p class="hint" id="lockStatus"></p>
     </div>
   </section>
+
+  <!-- Vollbild: zeigt nach einem Fokus-Block das gewählte Bild -->
+  <div id="lockOverlay" class="lock-overlay">
+    <img id="lockOverlayImg" alt="">
+    <div id="lockCountdown" class="lock-count"></div>
+  </div>
 
   <!-- ================= STATISTIK ================= -->
   <section id="stats" class="page">

@@ -160,11 +160,33 @@ function finish() {
     save("pomo_subject", $("subject").value.trim());
     save("pomo_sessions", sessions);
     updateSubjectList();
-    lockDevice();
-    afterFocus();
+    endFocusSequence();
   } else {
     setMode("focus");
   }
+}
+
+// Standardbild (im Projekt gespeichert). Wird gezeigt, wenn niemand ein eigenes Bild gewählt hat.
+const DEFAULT_LOCK_IMG = "../img/sperrbild.png";
+
+// Nach einem Fokus-Block: erst 10 Sek. das Bild zeigen, dann sperren und zur Pause wechseln.
+function endFocusSequence() {
+  const img = load("pomo_lockImage", "") || DEFAULT_LOCK_IMG;
+  showLockImage(img, () => { lockDevice(); afterFocus(); });
+}
+
+function showLockImage(src, done) {
+  const ov = $("lockOverlay");
+  $("lockOverlayImg").src = src;
+  let left = 10;
+  const label = () => { $("lockCountdown").textContent = `${+settings.lock ? "Gerät wird gesperrt" : "Weiter"} in ${left} s`; };
+  label();
+  ov.classList.add("show");
+  const iv = setInterval(() => {
+    left--;
+    label();
+    if (left <= 0) { clearInterval(iv); ov.classList.remove("show"); done(); }
+  }, 1000);
 }
 
 function beep() {
@@ -233,6 +255,28 @@ $("setSound").value = settings.sound;
 $("setSound").onchange = e => { settings.sound = +e.target.value; save("pomo_settings", settings); };
 $("setLock").value = settings.lock;
 $("setLock").onchange = e => { settings.lock = +e.target.value; save("pomo_settings", settings); };
+
+// Bild, das nach einem Fokus-Block 10 Sek. gezeigt wird (im Browser gespeichert)
+function showImagePreview() {
+  const img = load("pomo_lockImage", "");
+  if (img) {
+    $("imagePreview").innerHTML = `<img src="${img}" alt="Vorschau des gewählten Bildes"> <button type="button" class="link-btn" id="removeImage">Bild entfernen</button>`;
+    $("removeImage").onclick = () => { try { localStorage.removeItem("pomo_lockImage"); } catch {} $("setImage").value = ""; showImagePreview(); };
+  } else {
+    $("imagePreview").textContent = "Standardbild wird 10 Sek. gezeigt. Wähle ein eigenes Bild, um es zu ersetzen.";
+  }
+}
+$("setImage").onchange = e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try { save("pomo_lockImage", reader.result); showImagePreview(); }
+    catch { alert("Das Bild ist zu gross zum Speichern. Bitte ein kleineres Bild wählen."); }
+  };
+  reader.readAsDataURL(file);
+};
+showImagePreview();
 
 // Fach-Vorschläge
 $("subject").value = load("pomo_subject", "");
