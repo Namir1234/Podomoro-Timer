@@ -49,15 +49,27 @@ while ($listener.IsListening) {
     $request = $context.Request
     $response = $context.Response
 
-    # Erlaubt der Timer-Seite im Browser, dieses Skript anzusprechen
+    # CORS + Private Network Access: erlaubt auch der gehosteten HTTPS-Seite,
+    # dieses Programm auf localhost anzusprechen.
     $response.Headers.Add("Access-Control-Allow-Origin", "*")
     $response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+    $response.Headers.Add("Access-Control-Allow-Headers", "*")
     $response.Headers.Add("Access-Control-Allow-Private-Network", "true")
+    $response.Headers.Add("Access-Control-Max-Age", "86400")
 
-    if ($request.HttpMethod -eq "POST" -and $request.Url.AbsolutePath -eq "/lock") {
+    if ($request.HttpMethod -eq "OPTIONS") {
+        # Vorab-Anfrage des Browsers: nur bestaetigen, nicht sperren.
+        $response.StatusCode = 200
+    }
+    elseif ($request.Url.AbsolutePath -eq "/lock") {
+        # Sperren per GET oder POST (zweiter Sende-Weg der Seite als Absicherung).
         rundll32.exe user32.dll,LockWorkStation
+        $response.StatusCode = 200
+    }
+    else {
+        $response.StatusCode = 204
     }
 
-    $response.StatusCode = 204
+    $response.ContentLength64 = 0
     $response.Close()
 }

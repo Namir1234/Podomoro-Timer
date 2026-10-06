@@ -195,10 +195,12 @@ function beep() {
   } catch {}
 }
 
-// Gerätesperre: schickt ein Signal an die Fokus-Sperre. Läuft das Skript nicht, passiert einfach nichts.
+// Gerätesperre: schickt ein Signal an die Fokus-Sperre. Läuft das Programm nicht, passiert einfach nichts.
+// Zwei Wege: zuerst fetch, bei Blockade ein Bild-Aufruf als Absicherung (umgeht manche Browser-Sperren).
 function lockDevice() {
   if (!+settings.lock) return;
-  fetch(LOCK_URL + "/lock", { method: "POST" }).catch(() => {});
+  fetch(LOCK_URL + "/lock", { method: "POST", mode: "cors", keepalive: true })
+    .catch(() => { try { new Image().src = LOCK_URL + "/lock?t=" + Date.now(); } catch {} });
 }
 
 let lockConnected = false;
