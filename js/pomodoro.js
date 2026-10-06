@@ -179,7 +179,8 @@ function showLockImage(src, done) {
   const ov = $("lockOverlay");
   $("lockOverlayImg").src = src;
   let left = 10;
-  const label = () => { $("lockCountdown").textContent = `${+settings.lock ? "Gerät wird gesperrt" : "Weiter"} in ${left} s`; };
+  const willLock = +settings.lock && lockConnected;
+  const label = () => { $("lockCountdown").textContent = `${willLock ? "Gerät wird gesperrt" : "Weiter"} in ${left} s`; };
   label();
   ov.classList.add("show");
   const iv = setInterval(() => {
@@ -208,8 +209,10 @@ function lockDevice() {
   fetch(LOCK_URL + "/lock", { method: "POST" }).catch(() => {});
 }
 
+let lockConnected = false;
 function checkLock() {
   fetch(LOCK_URL + "/status").then(r => r.ok, () => false).then(ok => {
+    lockConnected = ok;
     $("lockStatus").textContent = ok
       ? "Fokus-Sperre: verbunden. Nach jedem Fokus-Block wird Windows gesperrt."
       : "Fokus-Sperre: nicht gestartet. Ohne das Sperr-Programm wird das Gerät nicht gesperrt.";
