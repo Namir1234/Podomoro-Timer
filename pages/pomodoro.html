@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fokus – Pomodoro Timer</title>
+<link rel="stylesheet" href="../style/pomodoro.css">
+</head>
+<body>
+
+<aside class="sidebar">
+  <h1><img class="icon" src="../img/logo.svg" alt="">Fokus</h1>
+  <nav>
+    <button data-page="timer" class="active"><img class="icon" src="../img/timer.svg" alt="">Timer</button>
+    <button data-page="stats"><img class="icon" src="../img/stats.svg" alt="">Statistik</button>
+    <button data-page="quotes"><img class="icon" src="../img/quote.svg" alt="">Zitate</button>
+    <button data-page="monks"><img class="icon" src="../img/monk.svg" alt="">Mönchs-Zitate</button>
+  </nav>
+  <a class="back" href="index.html"><img class="icon" src="../img/back.svg" alt="">Zur Startseite</a>
+</aside>
+
+<main>
+
+  <!-- ================= TIMER ================= -->
+  <section id="timer" class="page active">
+    <div class="card">
+      <div class="modes">
+        <button data-mode="focus" class="active">Fokus</button>
+        <button data-mode="short">Kurze Pause</button>
+        <button data-mode="long">Lange Pause</button>
+      </div>
+
+      <div class="ring-wrap">
+        <svg class="ring" viewBox="0 0 260 260">
+          <circle class="bg" cx="130" cy="130" r="114"/>
+          <circle class="fg" id="ringFg" cx="130" cy="130" r="114"/>
+        </svg>
+        <div class="time">
+          <div class="digits" id="digits">25:00</div>
+          <div class="label" id="modeLabel">Zeit zum Fokussieren</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn" id="startBtn">Start</button>
+        <button class="btn secondary" id="resetBtn">Reset</button>
+        <button class="btn secondary" id="skipBtn">Skip</button>
+      </div>
+
+      <div class="dots" id="dots"></div>
+
+      <div class="subject-row">
+        <label for="subject">Fach / Thema:</label>
+        <input id="subject" list="subjectList" placeholder="z.B. Modul 101, Mathe, BMS" maxlength="30">
+        <datalist id="subjectList"></datalist>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><img class="icon" src="../img/settings.svg" alt="">Zeiten einstellen</h2>
+      <div class="settings">
+        <span></span><span class="unit">Min</span><span class="unit">Sek</span>
+        <label for="setFocus">Fokus</label><input type="number" id="setFocus" min="0" max="120" aria-label="Fokus Minuten"><input type="number" id="setFocusSec" min="0" max="59" aria-label="Fokus Sekunden">
+        <label for="setShort">Kurze Pause</label><input type="number" id="setShort" min="0" max="120" aria-label="Kurze Pause Minuten"><input type="number" id="setShortSec" min="0" max="59" aria-label="Kurze Pause Sekunden">
+        <label for="setLong">Lange Pause</label><input type="number" id="setLong" min="0" max="120" aria-label="Lange Pause Minuten"><input type="number" id="setLongSec" min="0" max="59" aria-label="Lange Pause Sekunden">
+        <label for="setRounds">Fokus-Runden bis zur langen Pause</label><input class="wide" type="number" id="setRounds" min="1" max="12">
+        <label for="setSound">Ton am Ende</label>
+        <select class="wide" id="setSound"><option value="1">An</option><option value="0">Aus</option></select>
+        <label for="setLock">Gerät sperren nach Fokus</label>
+        <select class="wide" id="setLock"><option value="1">An</option><option value="0">Aus</option></select>
+      </div>
+      <p class="hint" id="cycleHint"></p>
+      <p class="hint" id="lockStatus"></p>
+    </div>
+  </section>
+
+  <!-- ================= STATISTIK ================= -->
+  <section id="stats" class="page">
+    <div class="card">
+      <h2>Übersicht</h2>
+      <div class="stat-grid">
+        <div class="stat"><div class="num" id="stToday">0</div><div class="desc">Minuten heute</div></div>
+        <div class="stat"><div class="num" id="stWeek">0</div><div class="desc">Minuten diese Woche</div></div>
+        <div class="stat"><div class="num" id="stStreak">0</div><div class="desc"><img class="icon" src="../img/streak.svg" alt="">Tage Streak</div></div>
+        <div class="stat"><div class="num" id="stTotal">0</div><div class="desc">Fokus-Sessions total</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Letzte 7 Tage (Minuten)</h2>
+      <div class="chart" id="chart"></div>
+    </div>
+
+    <div class="card">
+      <h2>Nach Fach</h2>
+      <div id="subjectStats"></div>
+    </div>
+
+    <div class="card">
+      <h2>Letzte Sessions</h2>
+      <ul class="history" id="history"></ul>
+      <button class="link-btn" id="clearBtn">Alle Daten löschen</button>
+    </div>
+  </section>
+
+  <!-- ================= ZITATE ================= -->
+  <section id="quotes" class="page">
+    <div class="card quote-main">
+      <blockquote id="qText"></blockquote>
+      <cite id="qAuthor"></cite>
+      <div class="controls"><button class="btn" id="nextQuote">Neues Zitat</button></div>
+    </div>
+
+    <div class="card">
+      <h2>Alle Zitate</h2>
+      <div class="chips">
+        <button class="active" data-filter="all">Alle</button>
+        <button data-filter="fav">★ Favoriten</button>
+      </div>
+      <div class="quote-list" id="quoteList"></div>
+    </div>
+  </section>
+
+  <!-- ================= MÖNCHS-ZITATE ================= -->
+  <section id="monks" class="page">
+    <div class="card quote-main">
+      <blockquote id="mText"></blockquote>
+      <cite id="mAuthor"></cite>
+      <div class="controls"><button class="btn" id="nextMonk">Neues Zitat</button></div>
+    </div>
+
+    <div class="card">
+      <h2>Alle Mönchs-Zitate</h2>
+      <div class="quote-list" id="monkList"></div>
+    </div>
+  </section>
+
+</main>
+
+<script src="../js/pomodoro.js"></script>
+</body>
+</html>
