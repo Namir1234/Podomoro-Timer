@@ -1,16 +1,16 @@
 /* ===== Farben und Grundlagen (hier kannst du das Design ändern) ===== */
 :root {
-  --bg: #eef3ea;          /* helles Salbeigrün */
-  --card: #ffffff;        /* Karten */
-  --inset: #f1f6ec;       /* Eingaben, Editor, Kacheln */
-  --border: #cdddc3;      /* zarte Linien */
-  --hover: #e3ecdb;       /* Hover-Flächen */
-  --secondary: #dbe6d0;   /* zweitrangige Knöpfe */
-  --track: #d4e2cb;       /* Ringe, inaktive Punkte */
-  --text: #2c3a2c;        /* dunkles Kräutergrün */
-  --muted: #5f7359;       /* gedämpftes Grün */
-  --accent: #4f7a53;      /* Fokus-Farbe (Kräutergrün) */
-  --break: #7aa37c;       /* Pausen-Farbe (helleres Grün) */
+  --bg: #0e1a13;          /* dunkles Regenwaldgrün */
+  --card: #15241a;        /* Karten */
+  --inset: #0f1f15;       /* Eingaben, Editor, Kacheln */
+  --border: #2b4433;      /* zarte Linien */
+  --hover: #1f3526;       /* Hover-Flächen */
+  --secondary: #26402e;   /* zweitrangige Knöpfe */
+  --track: #2b4433;       /* Ringe, inaktive Punkte */
+  --text: #e7efe8;        /* weiches Hellgrün-Weiss */
+  --muted: #8aa591;       /* gedämpftes Salbeigrün */
+  --accent: #3a9a63;      /* frisches Blattgrün */
+  --break: #68bd9a;       /* Pausen-Farbe */
   --radius: 18px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -146,10 +146,9 @@ input, select {
 .chips button.active { border-color: var(--accent); color: var(--accent); }
 
 /* ===== Piktogramme (SVG-Dateien aus dem Ordner img) ===== */
-.icon { width: 18px; height: 18px; vertical-align: -3px; margin-right: 10px; filter: brightness(0); }
-nav .icon { opacity: .55; }
-nav button:hover .icon { opacity: 1; }
-nav button.active .icon { opacity: 1; filter: none; }   /* weiss auf grünem Knopf */
+.icon { width: 18px; height: 18px; vertical-align: -3px; margin-right: 10px; }
+nav .icon { opacity: .6; }
+nav button:hover .icon, nav button.active .icon { opacity: 1; }
 h1 .icon { width: 24px; height: 24px; vertical-align: -4px; }
 h2 .icon { margin-right: 8px; }
 .stat .desc .icon { width: 14px; height: 14px; margin-right: 5px; opacity: .6; }
