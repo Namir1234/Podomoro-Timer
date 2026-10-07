@@ -1,12 +1,12 @@
 /* ===== Farben und Grundlagen (hier kannst du das Design ändern) ===== */
 :root {
-  --bg: #0e1a13;          /* dunkles Regenwaldgrün */
-  --card: #15241a;        /* Karten */
-  --inset: #0f1f15;       /* Eingaben, Editor, Kacheln */
-  --border: #2b4433;      /* zarte Linien */
-  --hover: #1f3526;       /* Hover-Flächen */
-  --secondary: #26402e;   /* zweitrangige Knöpfe */
-  --track: #2b4433;       /* Ringe, inaktive Punkte */
+  --bg: #0a140d;          /* sehr dunkles Waldgrün */
+  --card: #1b3022;        /* deutlich hellere Karten */
+  --inset: #10241a;       /* Eingaben, Editor, Kacheln */
+  --border: #345240;      /* klarere Linien */
+  --hover: #254633;       /* Hover-Flächen */
+  --secondary: #2d4d37;   /* zweitrangige Knöpfe */
+  --track: #345240;       /* Ringe, inaktive Punkte */
   --text: #e7efe8;        /* weiches Hellgrün-Weiss */
   --muted: #8aa591;       /* gedämpftes Salbeigrün */
   --accent: #3a9a63;      /* frisches Blattgrün */
@@ -62,7 +62,7 @@ main { flex: 1; min-width: 0; margin-left: 76px; padding: 24px 24px 60px; }
 }
 .page { display: none; }
 .page.active { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; align-items: start; }
-.card { background: var(--card); border-radius: var(--radius); padding: 24px; min-width: 0; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; min-width: 0; }
 h2 { font-size: 1.1rem; margin-bottom: 14px; }
 
 /* ===== Timer ===== */
