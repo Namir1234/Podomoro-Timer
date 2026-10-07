@@ -271,3 +271,24 @@ h2 .icon { margin-right: 8px; }
 .qtabs button.active { border-color: var(--accent); background: var(--accent); color: #fff; }
 .qview { display: none; }
 .qview.active { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; align-items: start; }
+
+/* ===== Timer-Seite: Übersicht ===== */
+#timer.page.active { display: block; }
+.timer-main { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; align-items: start; }
+.timer-extra { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 16px; align-items: stretch; }
+
+.today-stats { display: flex; gap: 10px; }
+.today-stats > div { flex: 1; background: var(--inset); border: 1px solid var(--border); border-radius: 12px; padding: 14px 8px; text-align: center; }
+.today-stats strong { display: block; font-size: 1.55rem; font-weight: 700; color: var(--accent); line-height: 1.1; }
+.today-stats span { color: var(--muted); font-size: .76rem; }
+
+.goal { margin-top: 20px; }
+.goal-head { display: flex; justify-content: space-between; font-size: .85rem; color: var(--muted); margin-bottom: 8px; }
+.goal-bar { height: 10px; background: var(--inset); border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+.goal-fill { height: 100%; width: 0; background: var(--accent); border-radius: 999px; transition: width .4s ease; }
+.goal-ctrl { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 14px; font-size: .85rem; color: var(--muted); }
+.goal-ctrl button { width: 30px; height: 30px; border: 1px solid var(--border); background: var(--inset); color: var(--text); border-radius: 8px; cursor: pointer; font-size: 1.1rem; line-height: 1; }
+.goal-ctrl button:hover { border-color: var(--accent); color: var(--accent); }
+
+.quote-card blockquote { font-size: 1.15rem; line-height: 1.6; font-weight: 500; }
+.quote-card cite { display: block; margin-top: 14px; color: var(--accent); font-style: normal; font-weight: 600; font-size: .9rem; }

@@ -28,6 +28,7 @@
 
   <!-- ================= TIMER ================= -->
   <section id="timer" class="page active">
+    <div class="timer-main">
     <div class="card">
       <div class="modes">
         <button data-mode="focus" class="active">Fokus</button>
@@ -77,6 +78,29 @@
       <label class="toggle"><input type="checkbox" id="setSeconds"><span class="switch"></span>Sekunden anzeigen</label>
       <label class="toggle"><input type="checkbox" id="setSound"><span class="switch"></span>Ton am Ende</label>
       <p class="hint" id="cycleHint"></p>
+    </div>
+    </div><!-- /.timer-main -->
+
+    <div class="timer-extra">
+      <div class="card today-card">
+        <h2>Heute</h2>
+        <div class="today-stats">
+          <div><strong id="tMin">0</strong><span>Min fokussiert</span></div>
+          <div><strong id="tSessions">0</strong><span>Sessions</span></div>
+          <div><strong id="tStreak">0</strong><span>Tage Streak</span></div>
+        </div>
+        <div class="goal">
+          <div class="goal-head"><span>Tagesziel</span><span id="goalCount">0 / 4</span></div>
+          <div class="goal-bar"><div class="goal-fill" id="goalFill"></div></div>
+          <div class="goal-ctrl"><button type="button" id="goalMinus" aria-label="weniger">−</button><span>Ziel: <output id="goalVal">4</output> Sessions</span><button type="button" id="goalPlus" aria-label="mehr">+</button></div>
+        </div>
+      </div>
+
+      <div class="card quote-card">
+        <h2>Zum Fokussieren</h2>
+        <blockquote id="tQuote"></blockquote>
+        <cite id="tQuoteAuthor"></cite>
+      </div>
     </div>
   </section>
 

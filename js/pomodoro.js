@@ -60,7 +60,7 @@ const REVO_QUOTES = [
   { t: "Mit meinem Sturz hat man nur den Stamm des Freiheitsbaumes gefällt – er treibt aus den Wurzeln neu aus, denn sie sind tief und zahlreich.", a: "Toussaint Louverture" }
 ];
 
-const DEFAULTS = { focus: 25, focusSec: 0, short: 5, shortSec: 0, long: 15, longSec: 0, rounds: 4, sound: 1, useSeconds: false };
+const DEFAULTS = { focus: 25, focusSec: 0, short: 5, shortSec: 0, long: 15, longSec: 0, rounds: 4, sound: 1, useSeconds: false, goal: 4 };
 const load = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
 const save = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} };
 
@@ -199,6 +199,7 @@ function finish() {
     save("pomo_subject", $("subject").value.trim());
     save("pomo_sessions", sessions);
     updateSubjectList();
+    renderToday();
     afterFocus();
   } else {
     setMode("focus");
@@ -701,6 +702,34 @@ $("projImgInput").onchange = e => {
 };
 
 /* ============================================================
+   TIMER-ÜBERSICHT: Heute-Werte, Tagesziel, Zitat
+   ============================================================ */
+function renderToday() {
+  const sumFor = k => sessions.filter(s => s.date === k).reduce((a, s) => a + s.min, 0);
+  const todayKey = dayKey(new Date());
+  const todays = sessions.filter(s => s.date === todayKey);
+  $("tMin").textContent = round1(sumFor(todayKey));
+  $("tSessions").textContent = todays.length;
+  let streak = 0; const d = new Date();
+  if (!sumFor(dayKey(d))) d.setDate(d.getDate() - 1);
+  while (sumFor(dayKey(d)) > 0) { streak++; d.setDate(d.getDate() - 1); }
+  $("tStreak").textContent = streak;
+  const goal = settings.goal || 4;
+  $("goalVal").textContent = goal;
+  $("goalCount").textContent = `${todays.length} / ${goal}`;
+  $("goalFill").style.width = Math.min(100, todays.length / goal * 100) + "%";
+}
+
+$("goalMinus").onclick = () => { settings.goal = Math.max((settings.goal || 4) - 1, 1); save("pomo_settings", settings); renderToday(); };
+$("goalPlus").onclick = () => { settings.goal = Math.min((settings.goal || 4) + 1, 12); save("pomo_settings", settings); renderToday(); };
+
+function showTimerQuote() {
+  const q = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+  $("tQuote").textContent = "«" + q.t + "»";
+  $("tQuoteAuthor").textContent = "– " + q.a;
+}
+
+/* ============================================================
    START
    ============================================================ */
 draw();
@@ -715,3 +744,5 @@ renderFolders();
 loadEditor();
 renderProjectList();
 renderProject();
+renderToday();
+showTimerQuote();
