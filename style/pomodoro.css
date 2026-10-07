@@ -187,3 +187,5 @@ h2 .icon { margin-right: 8px; }
   .notes-card { flex-direction: column; }
   .notes-folders { width: auto; border-right: 0; border-bottom: 1px solid #2a2e41; padding-right: 0; padding-bottom: 12px; }
 }
+
+.editor-toolbar button.active { background: var(--accent); border-color: var(--accent); color: #fff; }

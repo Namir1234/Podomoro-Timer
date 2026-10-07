@@ -479,10 +479,28 @@ $("addFolder").onclick = () => {
   loadEditor();
 };
 
+// Zeigt an den Knöpfen, welche Formatierung an der Cursor-Stelle gerade aktiv ist
+function updateToolbar() {
+  document.querySelectorAll(".editor-toolbar button[data-cmd]").forEach(b => {
+    let active = false;
+    try {
+      if (b.dataset.cmd === "formatBlock") {
+        active = (document.queryCommandValue("formatBlock") || "").toLowerCase() === (b.dataset.val || "").toLowerCase();
+      } else {
+        active = document.queryCommandState(b.dataset.cmd);
+      }
+    } catch {}
+    b.classList.toggle("active", active);
+  });
+}
+
 $("notesEditor").addEventListener("input", persistNotes);
+["keyup", "mouseup", "focus"].forEach(ev => $("notesEditor").addEventListener(ev, updateToolbar));
+$("notesEditor").addEventListener("blur", () => document.querySelectorAll(".editor-toolbar button[data-cmd]").forEach(b => b.classList.remove("active")));
+document.addEventListener("selectionchange", () => { if (document.activeElement === $("notesEditor")) updateToolbar(); });
 document.querySelectorAll(".editor-toolbar button[data-cmd]").forEach(b => {
   b.onmousedown = e => e.preventDefault();   // Auswahl im Editor nicht verlieren
-  b.onclick = () => { $("notesEditor").focus(); document.execCommand(b.dataset.cmd, false, b.dataset.val || null); persistNotes(); };
+  b.onclick = () => { $("notesEditor").focus(); document.execCommand(b.dataset.cmd, false, b.dataset.val || null); persistNotes(); updateToolbar(); };
 });
 $("insertImg").onmousedown = e => e.preventDefault();
 $("insertImg").onclick = () => $("notesImgInput").click();
