@@ -109,10 +109,14 @@ function fmt(s) {
   return String(m).padStart(2, "0") + ":" + String(r).padStart(2, "0");
 }
 
-// Farbe des Rings je nach Restanteil: erste Hälfte grün, danach immer röter (Signal: Zeit läuft ab)
-function ringColor(frac) {
-  const hue = frac >= 0.5 ? 140 : (frac / 0.5) * 140;   // 140 = grün … 0 = rot
-  return `hsl(${hue}, 60%, 48%)`;
+// Akzentfarbe je nach Restanteil: erste Hälfte volles Blattgrün, danach immer röter.
+// Wird auf die ganze Oberfläche angewendet (Ring, Knöpfe, aktiver Menüpunkt … alle nutzen --accent).
+function warmAccent(frac) {
+  const green = [58, 154, 99];    // #3a9a63 Blattgrün
+  const red = [208, 64, 47];      // Warnrot
+  const t = Math.max(0, Math.min(1, (0.5 - frac) / 0.5));
+  const c = green.map((v, i) => Math.round(v + (red[i] - v) * t));
+  return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
 }
 
 // Ring wird mit der genauen Restzeit (inkl. Millisekunden) gezeichnet → läuft gleichmässig statt im Sekundentakt
@@ -120,7 +124,7 @@ function drawRing() {
   const left = running ? Math.max(0, (endTime - Date.now()) / 1000) : remaining;
   const frac = totalSec ? left / totalSec : 0;
   $("ringFg").style.strokeDashoffset = CIRC * (1 - frac);
-  $("ringFg").style.stroke = ringColor(frac);
+  document.body.style.setProperty("--accent", warmAccent(frac));
 }
 
 function animateRing() {
