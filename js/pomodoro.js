@@ -109,10 +109,18 @@ function fmt(s) {
   return String(m).padStart(2, "0") + ":" + String(r).padStart(2, "0");
 }
 
+// Farbe des Rings je nach Restanteil: erste Hälfte grün, danach immer röter (Signal: Zeit läuft ab)
+function ringColor(frac) {
+  const hue = frac >= 0.5 ? 140 : (frac / 0.5) * 140;   // 140 = grün … 0 = rot
+  return `hsl(${hue}, 60%, 48%)`;
+}
+
 // Ring wird mit der genauen Restzeit (inkl. Millisekunden) gezeichnet → läuft gleichmässig statt im Sekundentakt
 function drawRing() {
   const left = running ? Math.max(0, (endTime - Date.now()) / 1000) : remaining;
-  $("ringFg").style.strokeDashoffset = CIRC * (1 - left / totalSec);
+  const frac = totalSec ? left / totalSec : 0;
+  $("ringFg").style.strokeDashoffset = CIRC * (1 - frac);
+  $("ringFg").style.stroke = ringColor(frac);
 }
 
 function animateRing() {
