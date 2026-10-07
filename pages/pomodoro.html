@@ -13,6 +13,7 @@
   <nav>
     <button data-page="timer" class="active"><img class="icon" src="../img/timer.svg" alt="">Timer</button>
     <button data-page="todo"><img class="icon" src="../img/todo.svg" alt="">To-do</button>
+    <button data-page="notes"><img class="icon" src="../img/notes.svg" alt="">Notizen</button>
     <button data-page="stats"><img class="icon" src="../img/stats.svg" alt="">Statistik</button>
     <button data-page="quotes"><img class="icon" src="../img/quote.svg" alt="">Zitate</button>
     <button data-page="monks"><img class="icon" src="../img/monk.svg" alt="">Mönchs-Zitate</button>
@@ -83,6 +84,30 @@
       </form>
       <ul class="todo-list" id="todoList"></ul>
       <button class="link-btn" id="clearDone">Erledigte entfernen</button>
+    </div>
+  </section>
+
+  <!-- ================= NOTIZEN ================= -->
+  <section id="notes" class="page">
+    <div class="card notes-card">
+      <div class="notes-folders">
+        <h2>Ordner</h2>
+        <ul class="folder-list" id="folderList"></ul>
+        <button class="link-btn" id="addFolder">+ Neuer Ordner</button>
+      </div>
+      <div class="notes-main">
+        <div class="editor-toolbar">
+          <button type="button" data-cmd="bold" title="Fett"><b>F</b></button>
+          <button type="button" data-cmd="italic" title="Kursiv"><i>K</i></button>
+          <button type="button" data-cmd="underline" title="Unterstrichen"><u>U</u></button>
+          <button type="button" data-cmd="formatBlock" data-val="h3" title="Überschrift">H</button>
+          <button type="button" data-cmd="insertUnorderedList" title="Aufzählung">Liste</button>
+          <button type="button" id="insertImg" title="Bild einfügen">Bild</button>
+        </div>
+        <div class="editor" id="notesEditor" contenteditable="true"></div>
+        <input type="file" id="notesImgInput" accept="image/*" hidden>
+        <p class="hint" id="notesStatus">Automatisch gespeichert.</p>
+      </div>
     </div>
   </section>
 

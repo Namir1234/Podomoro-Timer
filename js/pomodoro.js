@@ -412,6 +412,90 @@ $("todoForm").onsubmit = e => {
 $("clearDone").onclick = () => { todos = todos.filter(t => !t.done); saveTodos(); renderTodos(); };
 
 /* ============================================================
+   NOTIZEN (Ordner + Word-ähnlicher Editor, im Browser gespeichert)
+   ============================================================ */
+let notebooks = load("pomo_notebooks", null);
+if (!Array.isArray(notebooks) || !notebooks.length) notebooks = [{ id: Date.now(), name: "Allgemein", html: "" }];
+let currentNb = load("pomo_current_nb", notebooks[0].id);
+if (!notebooks.some(n => n.id === currentNb)) currentNb = notebooks[0].id;
+
+const curNotebook = () => notebooks.find(n => n.id === currentNb) || notebooks[0];
+const stashEditor = () => { const nb = curNotebook(); if (nb) nb.html = $("notesEditor").innerHTML; };
+
+function persistNotes() {
+  stashEditor();
+  try {
+    localStorage.setItem("pomo_notebooks", JSON.stringify(notebooks));
+    localStorage.setItem("pomo_current_nb", JSON.stringify(currentNb));
+    $("notesStatus").textContent = "Automatisch gespeichert.";
+  } catch {
+    $("notesStatus").textContent = "⚠ Konnte nicht speichern – die Bilder sind vermutlich zu gross.";
+  }
+}
+
+function renderFolders() {
+  $("folderList").innerHTML = notebooks.map(n => `
+    <li class="${n.id === currentNb ? "active" : ""}" data-id="${n.id}">
+      <span class="folder-name">${esc(n.name)}</span>
+      <button class="folder-del" title="Ordner löschen" aria-label="Löschen">✕</button>
+    </li>`).join("");
+  $("folderList").querySelectorAll("li").forEach(li => {
+    const id = +li.dataset.id;
+    li.querySelector(".folder-name").onclick = () => switchNotebook(id);
+    li.querySelector(".folder-del").onclick = e => { e.stopPropagation(); deleteNotebook(id); };
+  });
+}
+
+function loadEditor() { $("notesEditor").innerHTML = curNotebook().html || ""; }
+
+function switchNotebook(id) {
+  stashEditor();
+  currentNb = id;
+  persistNotes();
+  renderFolders();
+  loadEditor();
+}
+
+function deleteNotebook(id) {
+  if (notebooks.length <= 1) { alert("Es muss mindestens ein Ordner bleiben."); return; }
+  const nb = notebooks.find(n => n.id === id);
+  if (!confirm(`Ordner „${nb ? nb.name : ""}" mit allen Notizen löschen?`)) return;
+  notebooks = notebooks.filter(n => n.id !== id);
+  if (currentNb === id) currentNb = notebooks[0].id;
+  persistNotes();
+  renderFolders();
+  loadEditor();
+}
+
+$("addFolder").onclick = () => {
+  const name = prompt("Name des neuen Ordners (z. B. ein Fach):");
+  if (!name || !name.trim()) return;
+  stashEditor();
+  const nb = { id: Date.now(), name: name.trim(), html: "" };
+  notebooks.push(nb);
+  currentNb = nb.id;
+  persistNotes();
+  renderFolders();
+  loadEditor();
+};
+
+$("notesEditor").addEventListener("input", persistNotes);
+document.querySelectorAll(".editor-toolbar button[data-cmd]").forEach(b => {
+  b.onmousedown = e => e.preventDefault();   // Auswahl im Editor nicht verlieren
+  b.onclick = () => { $("notesEditor").focus(); document.execCommand(b.dataset.cmd, false, b.dataset.val || null); persistNotes(); };
+});
+$("insertImg").onmousedown = e => e.preventDefault();
+$("insertImg").onclick = () => $("notesImgInput").click();
+$("notesImgInput").onchange = e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => { $("notesEditor").focus(); document.execCommand("insertImage", false, reader.result); persistNotes(); };
+  reader.readAsDataURL(file);
+  e.target.value = "";
+};
+
+/* ============================================================
    START
    ============================================================ */
 draw();
@@ -422,3 +506,5 @@ renderMonkList();
 showRevoQuote();
 renderRevoList();
 renderTodos();
+renderFolders();
+loadEditor();
