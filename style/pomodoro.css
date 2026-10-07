@@ -17,32 +17,43 @@ body {
 }
 body.pause { --accent: var(--break); }
 
-/* Seitenmenü links */
+/* Seitenmenü links – schmal, wird beim Darüberfahren breiter */
 .sidebar {
-  width: 230px; flex-shrink: 0; background: var(--card);
-  position: sticky; top: 0; height: 100vh; padding: 24px 14px; overflow-y: auto;
+  width: 76px; background: var(--card);
+  position: fixed; left: 0; top: 0; height: 100vh; z-index: 100;
+  padding: 24px 14px; overflow: hidden; white-space: nowrap;
   display: flex; flex-direction: column;
+  transition: width .22s ease;
 }
-h1 { font-size: 1.4rem; letter-spacing: .5px; padding: 0 10px 18px; }
+.sidebar:hover { width: 230px; box-shadow: 6px 0 28px rgba(0,0,0,.45); }
+
+/* Beschriftungen nur sichtbar, wenn die Leiste aufgeklappt ist */
+.sidebar .label { opacity: 0; transition: opacity .15s ease; }
+.sidebar:hover .label { opacity: 1; }
+
+h1 { font-size: 1.4rem; letter-spacing: .5px; padding: 0 14px 18px; display: flex; align-items: center; }
 
 /* Navigation */
 nav { display: flex; flex-direction: column; gap: 6px; }
 nav button {
+  display: flex; align-items: center;
   border: 0; background: transparent; color: var(--muted); text-align: left;
   padding: 12px 14px; border-radius: 12px; font-size: .95rem; cursor: pointer; font-weight: 600;
 }
 nav button:hover { background: #2a2e41; color: var(--text); }
 nav button.active { background: var(--accent); color: #fff; }
 
-main { flex: 1; min-width: 0; padding: 24px 24px 60px; }
+main { flex: 1; min-width: 0; margin-left: 76px; padding: 24px 24px 60px; }
 
-/* Schmale Bildschirme: Menü wandert nach oben */
+/* Schmale Bildschirme: Menü wandert nach oben, immer ausgeklappt */
 @media (max-width: 720px) {
   body { flex-direction: column; align-items: stretch; }
-  .sidebar { width: 100%; height: auto; position: static; padding: 16px 12px; }
+  .sidebar, .sidebar:hover { width: 100%; height: auto; position: static; padding: 16px 12px; box-shadow: none; }
+  .sidebar .label { opacity: 1; }
   h1 { padding-bottom: 12px; }
   nav { flex-direction: row; flex-wrap: wrap; }
-  nav button { flex: 1; text-align: center; white-space: nowrap; }
+  nav button { flex: 1; text-align: center; white-space: nowrap; justify-content: center; }
+  main { margin-left: 0; }
 }
 .page { display: none; }
 .page.active { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; align-items: start; }
@@ -139,13 +150,13 @@ h2 .icon { margin-right: 8px; }
 
 /* ===== Zurück zur Startseite (unten im Seitenmenü) ===== */
 .back {
-  display: block; margin-top: auto; color: var(--muted); text-decoration: none;
+  display: flex; align-items: center; margin-top: auto; color: var(--muted); text-decoration: none;
   padding: 12px 14px; border-radius: 12px; font-size: .95rem; font-weight: 600;
 }
 .back:hover { background: #2a2e41; color: var(--text); }
 .back .icon { opacity: .6; }
 .back:hover .icon { opacity: 1; }
-@media (max-width: 720px) { .back { margin-top: 6px; text-align: center; } }
+@media (max-width: 720px) { .back { margin-top: 6px; justify-content: center; } }
 
 .quote-list .q .orig { display: block; color: var(--muted); font-style: italic; margin-top: 3px; }
 
