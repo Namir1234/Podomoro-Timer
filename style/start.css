@@ -1,13 +1,13 @@
 /* ===== Startseite (gleiche Farben wie der Timer) ===== */
 :root {
-  --bg: #0a140d;
-  --card: #1b3022;
-  --border: #345240;
-  --secondary: #2d4d37;
-  --text: #e7efe8;
-  --muted: #8aa591;
-  --accent: #3a9a63;
-  --radius: 18px;
+  --bg: #1b2119;
+  --card: #242b20;
+  --border: #3b4733;
+  --secondary: #353f2d;
+  --text: #ebe9df;
+  --muted: #9aa088;
+  --accent: #5f7d47;
+  --radius: 16px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -18,7 +18,7 @@ body {
 }
 
 header { text-align: center; margin-bottom: 44px; }
-h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -.03em; }
+h1 { font-size: 2.4rem; font-weight: 700; letter-spacing: -.01em; }
 h1 .icon { width: 40px; height: 40px; vertical-align: -6px; margin-right: 12px; }
 .tagline { color: var(--muted); margin-top: 12px; font-size: 1.05rem; }
 

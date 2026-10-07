@@ -112,14 +112,14 @@ function fmt(s) {
 // Alle grünen Farbvariablen (Hintergrund, Karten, Linien, Akzent …) wandern gegen Ende ins Rote.
 // Jeweils [Grünwert, Rotwert] als RGB. Erste Hälfte voll grün, danach langsam immer röter.
 const WARM_VARS = {
-  "--bg":        [[10, 20, 13],  [22, 10, 10]],
-  "--card":      [[27, 48, 34],  [48, 26, 26]],
-  "--inset":     [[16, 36, 26],  [36, 16, 16]],
-  "--border":    [[52, 82, 64],  [90, 52, 52]],
-  "--hover":     [[37, 70, 51],  [70, 37, 37]],
-  "--secondary": [[45, 77, 55],  [77, 45, 45]],
-  "--track":     [[52, 82, 64],  [90, 52, 52]],
-  "--accent":    [[58, 154, 99], [208, 64, 47]]
+  "--bg":        [[27, 33, 25],  [38, 24, 22]],
+  "--card":      [[36, 43, 32],  [54, 34, 31]],
+  "--inset":     [[31, 38, 28],  [46, 29, 27]],
+  "--border":    [[59, 71, 51],  [96, 60, 54]],
+  "--hover":     [[45, 53, 39],  [70, 44, 40]],
+  "--secondary": [[53, 63, 45],  [84, 52, 47]],
+  "--track":     [[59, 71, 51],  [96, 60, 54]],
+  "--accent":    [[95, 125, 71], [184, 72, 54]]
 };
 
 function applyWarmth(frac) {

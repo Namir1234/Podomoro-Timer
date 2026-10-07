@@ -1,17 +1,17 @@
 /* ===== Farben und Grundlagen (hier kannst du das Design ändern) ===== */
 :root {
-  --bg: #0a140d;          /* sehr dunkles Waldgrün */
-  --card: #1b3022;        /* deutlich hellere Karten */
-  --inset: #10241a;       /* Eingaben, Editor, Kacheln */
-  --border: #345240;      /* klarere Linien */
-  --hover: #254633;       /* Hover-Flächen */
-  --secondary: #2d4d37;   /* zweitrangige Knöpfe */
-  --track: #345240;       /* Ringe, inaktive Punkte */
-  --text: #e7efe8;        /* weiches Hellgrün-Weiss */
-  --muted: #8aa591;       /* gedämpftes Salbeigrün */
-  --accent: #3a9a63;      /* frisches Blattgrün */
-  --break: #68bd9a;       /* Pausen-Farbe */
-  --radius: 18px;
+  --bg: #1b2119;          /* warmes dunkles Olivgrün */
+  --card: #242b20;        /* warme Karte */
+  --inset: #1f261c;       /* Eingaben, Editor, Kacheln */
+  --border: #3b4733;      /* ruhige Linien */
+  --hover: #2d3527;       /* Hover-Flächen */
+  --secondary: #353f2d;   /* zweitrangige Knöpfe */
+  --track: #3b4733;       /* Ringe, inaktive Punkte */
+  --text: #ebe9df;        /* warmes Cremeweiss */
+  --muted: #9aa088;       /* warmes Salbeigrau */
+  --accent: #5f7d47;      /* gedämpftes Moos-/Olivgrün */
+  --break: #86a861;       /* helleres Moosgrün */
+  --radius: 16px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -37,7 +37,7 @@ body.pause { --accent: var(--break); }
 .sidebar .label { opacity: 0; transition: opacity .15s ease; }
 .sidebar:hover .label { opacity: 1; }
 
-h1 { font-size: 1.35rem; font-weight: 800; letter-spacing: -.02em; padding: 0 14px 20px; display: flex; align-items: center; }
+h1 { font-size: 1.35rem; font-weight: 700; letter-spacing: 0; padding: 0 14px 20px; display: flex; align-items: center; }
 
 /* Navigation */
 nav { display: flex; flex-direction: column; gap: 6px; }
@@ -66,7 +66,7 @@ main { flex: 1; min-width: 0; margin-left: 76px; padding: 24px 24px 60px; }
 .page { display: none; }
 .page.active { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; align-items: start; }
 .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; min-width: 0; box-shadow: 0 1px 2px rgba(0,0,0,.25), 0 10px 30px rgba(0,0,0,.16); }
-h2 { font-size: 1.05rem; font-weight: 700; letter-spacing: -.01em; margin-bottom: 16px; }
+h2 { font-size: 1.05rem; font-weight: 600; letter-spacing: 0; margin-bottom: 16px; }
 
 /* ===== Timer ===== */
 .modes { display: flex; width: fit-content; margin: 0 auto 26px; gap: 4px; background: var(--inset); border: 1px solid var(--border); padding: 4px; border-radius: 12px; }
@@ -87,7 +87,7 @@ svg.ring { width: 100%; height: 100%; transform: rotate(-90deg); }
   position: absolute; inset: 0; display: flex; flex-direction: column;
   align-items: center; justify-content: center;
 }
-.time .digits { font-size: clamp(3rem, 11vw, 4.2rem); font-weight: 800; letter-spacing: -2px; font-variant-numeric: tabular-nums; line-height: 1; }
+.time .digits { font-size: clamp(3rem, 11vw, 4.2rem); font-weight: 700; letter-spacing: -1px; font-variant-numeric: tabular-nums; line-height: 1; }
 .time .label { color: var(--muted); font-size: .88rem; font-weight: 500; margin-top: 8px; }
 
 .controls { display: flex; gap: 10px; justify-content: center; margin-top: 26px; }
