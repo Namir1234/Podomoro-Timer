@@ -60,15 +60,18 @@
 
     <div class="card">
       <h2><img class="icon" src="../img/settings.svg" alt="">Zeiten einstellen</h2>
-      <div class="settings">
-        <span></span><span class="unit">Min</span><span class="unit">Sek</span>
-        <label for="setFocus">Fokus</label><input type="number" id="setFocus" min="0" max="120" aria-label="Fokus Minuten"><input type="number" id="setFocusSec" min="0" max="59" aria-label="Fokus Sekunden">
-        <label for="setShort">Kurze Pause</label><input type="number" id="setShort" min="0" max="120" aria-label="Kurze Pause Minuten"><input type="number" id="setShortSec" min="0" max="59" aria-label="Kurze Pause Sekunden">
-        <label for="setLong">Lange Pause</label><input type="number" id="setLong" min="0" max="120" aria-label="Lange Pause Minuten"><input type="number" id="setLongSec" min="0" max="59" aria-label="Lange Pause Sekunden">
-        <label for="setRounds">Fokus-Runden bis zur langen Pause</label><input class="wide" type="number" id="setRounds" min="1" max="12">
-        <label for="setSound">Ton am Ende</label>
-        <select class="wide" id="setSound"><option value="1">An</option><option value="0">Aus</option></select>
+      <div class="presets">
+        <button type="button" data-preset="25,5,15">Klassisch<small>25 / 5</small></button>
+        <button type="button" data-preset="50,10,30">Deep Work<small>50 / 10</small></button>
+        <button type="button" data-preset="15,3,10">Kurz<small>15 / 3</small></button>
       </div>
+      <div class="steppers">
+        <div class="step-row" data-key="focus"><span>Fokus</span><button type="button" data-d="-1" aria-label="weniger">−</button><output></output><button type="button" data-d="1" aria-label="mehr">+</button></div>
+        <div class="step-row" data-key="short"><span>Kurze Pause</span><button type="button" data-d="-1" aria-label="weniger">−</button><output></output><button type="button" data-d="1" aria-label="mehr">+</button></div>
+        <div class="step-row" data-key="long"><span>Lange Pause</span><button type="button" data-d="-1" aria-label="weniger">−</button><output></output><button type="button" data-d="1" aria-label="mehr">+</button></div>
+        <div class="step-row" data-key="rounds"><span>Runden bis zur langen Pause</span><button type="button" data-d="-1" aria-label="weniger">−</button><output></output><button type="button" data-d="1" aria-label="mehr">+</button></div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="setSound"><span class="switch"></span>Ton am Ende</label>
       <p class="hint" id="cycleHint"></p>
     </div>
   </section>

@@ -227,32 +227,48 @@ $("skipBtn").onclick = () => {
 };
 document.querySelectorAll(".modes button").forEach(b => b.onclick = () => setMode(b.dataset.mode));
 
-// Einstellungen: jede Phase hat Minuten und Sekunden
-["focus", "short", "long"].forEach(key => {
-  const id = "set" + key[0].toUpperCase() + key.slice(1);
-  const elMin = $(id), elSec = $(id + "Sec");
-  const show = () => { elMin.value = settings[key]; elSec.value = settings[key + "Sec"]; };
-  show();
-  elMin.onchange = elSec.onchange = () => {
-    settings[key] = Math.min(Math.max(Math.round(+elMin.value) || 0, 0), 120);
-    settings[key + "Sec"] = Math.min(Math.max(Math.round(+elSec.value) || 0, 0), 59);
-    if (!settings[key] && !settings[key + "Sec"]) settings[key] = DEFAULTS[key];   // 0:00 ist nicht erlaubt
-    show();
-    save("pomo_settings", settings);
-    if (!running && mode === key) setMode(mode);
-    else draw();
-  };
-});
-$("setRounds").value = settings.rounds;
-$("setRounds").onchange = e => {
-  settings.rounds = Math.min(Math.max(Math.round(+e.target.value) || DEFAULTS.rounds, 1), 12);
-  e.target.value = settings.rounds;
-  focusDone = Math.min(focusDone, settings.rounds - 1);
+// Einfache Zeiteinstellung: Vorlagen + Plus/Minus-Knöpfe
+const STEP_LIMITS = { focus: [1, 120], short: [1, 60], long: [1, 120], rounds: [1, 12] };
+
+function showSteppers() {
+  document.querySelectorAll(".step-row").forEach(row => {
+    const key = row.dataset.key;
+    row.querySelector("output").textContent = key === "rounds" ? settings.rounds : settings[key] + " Min";
+  });
+  const current = `${settings.focus},${settings.short},${settings.long}`;
+  document.querySelectorAll(".presets button").forEach(b => b.classList.toggle("active", b.dataset.preset === current));
+}
+
+function changeStep(key, delta) {
+  const [min, max] = STEP_LIMITS[key];
+  if (key === "rounds") {
+    settings.rounds = Math.min(Math.max(settings.rounds + delta, min), max);
+    focusDone = Math.min(focusDone, settings.rounds - 1);
+  } else {
+    settings[key] = Math.min(Math.max(settings[key] + delta, min), max);
+    settings[key + "Sec"] = 0;
+  }
   save("pomo_settings", settings);
-  draw();
-};
-$("setSound").value = settings.sound;
-$("setSound").onchange = e => { settings.sound = +e.target.value; save("pomo_settings", settings); };
+  if (key !== "rounds" && !running && mode === key) setMode(mode); else draw();
+  showSteppers();
+}
+
+document.querySelectorAll(".step-row").forEach(row => {
+  row.querySelectorAll("button").forEach(b => b.onclick = () => changeStep(row.dataset.key, +b.dataset.d));
+});
+
+document.querySelectorAll(".presets button").forEach(b => b.onclick = () => {
+  const [f, s, l] = b.dataset.preset.split(",").map(Number);
+  Object.assign(settings, { focus: f, focusSec: 0, short: s, shortSec: 0, long: l, longSec: 0 });
+  save("pomo_settings", settings);
+  if (!running) setMode(mode); else draw();
+  showSteppers();
+});
+
+$("setSound").checked = !!+settings.sound;
+$("setSound").onchange = e => { settings.sound = e.target.checked ? 1 : 0; save("pomo_settings", settings); };
+
+showSteppers();
 
 // Fach-Vorschläge
 $("subject").value = load("pomo_subject", "");
