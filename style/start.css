@@ -1,10 +1,11 @@
 /* ===== Startseite (gleiche Farben wie der Timer) ===== */
 :root {
-  --bg: #12141c;
-  --card: #1c1f2b;
-  --text: #eef0f6;
-  --muted: #8b90a5;
-  --accent: #ff6b57;
+  --bg: #eef3ea;
+  --card: #ffffff;
+  --secondary: #dbe6d0;
+  --text: #2c3a2c;
+  --muted: #5f7359;
+  --accent: #4f7a53;
   --radius: 18px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -16,7 +17,7 @@ body {
 
 header { text-align: center; margin-bottom: 40px; }
 h1 { font-size: 2.4rem; letter-spacing: .5px; }
-h1 .icon { width: 40px; height: 40px; vertical-align: -6px; margin-right: 12px; }
+h1 .icon { width: 40px; height: 40px; vertical-align: -6px; margin-right: 12px; filter: brightness(0); }
 .tagline { color: var(--muted); margin-top: 10px; font-size: 1.05rem; }
 
 main { padding: 0 8px; }
@@ -38,7 +39,7 @@ h2 { font-size: 1.3rem; margin-bottom: 20px; }
   display: inline-block; padding: 14px 28px; border-radius: 999px; font-size: 1rem; font-weight: 700;
   background: var(--accent); color: #fff; text-decoration: none;
 }
-.btn.secondary { background: #2a2e41; color: var(--text); }
+.btn.secondary { background: var(--secondary); color: var(--text); }
 .btn:active { transform: scale(.97); }
 .steps { margin-top: 24px; color: var(--muted); font-size: .92rem; }
 
