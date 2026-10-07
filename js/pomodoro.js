@@ -60,7 +60,7 @@ const REVO_QUOTES = [
   { t: "Mit meinem Sturz hat man nur den Stamm des Freiheitsbaumes gefällt – er treibt aus den Wurzeln neu aus, denn sie sind tief und zahlreich.", a: "Toussaint Louverture" }
 ];
 
-const DEFAULTS = { focus: 25, focusSec: 0, short: 5, shortSec: 0, long: 15, longSec: 0, rounds: 4, sound: 1 };
+const DEFAULTS = { focus: 25, focusSec: 0, short: 5, shortSec: 0, long: 15, longSec: 0, rounds: 4, sound: 1, useSeconds: false };
 const load = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
 const save = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} };
 
@@ -227,34 +227,52 @@ $("skipBtn").onclick = () => {
 };
 document.querySelectorAll(".modes button").forEach(b => b.onclick = () => setMode(b.dataset.mode));
 
-// Einfache Zeiteinstellung: Vorlagen + Plus/Minus-Knöpfe
-const STEP_LIMITS = { focus: [1, 120], short: [1, 60], long: [1, 120], rounds: [1, 12] };
+// Zeiteinstellung: Vorlagen, Plus/Minus, tippbare Felder und optionale Sekunden
+const STEP_LIMITS = { focus: [1, 180], short: [1, 120], long: [1, 180], rounds: [1, 12] };
+
+function clampVal(key, field, raw) {
+  const n = Math.round(+raw) || 0;
+  if (field === "sec") return Math.min(Math.max(n, 0), 59);
+  const [min, max] = STEP_LIMITS[key];
+  return Math.min(Math.max(n, min), max);
+}
 
 function showSteppers() {
   document.querySelectorAll(".step-row").forEach(row => {
     const key = row.dataset.key;
-    row.querySelector("output").textContent = key === "rounds" ? settings.rounds : settings[key] + " Min";
+    row.querySelector('[data-field="min"]').value = key === "rounds" ? settings.rounds : settings[key];
+    const secInput = row.querySelector('[data-field="sec"]');
+    if (secInput) secInput.value = String(settings[key + "Sec"] || 0).padStart(2, "0");
   });
   const current = `${settings.focus},${settings.short},${settings.long}`;
   document.querySelectorAll(".presets button").forEach(b => b.classList.toggle("active", b.dataset.preset === current));
 }
 
-function changeStep(key, delta) {
-  const [min, max] = STEP_LIMITS[key];
-  if (key === "rounds") {
-    settings.rounds = Math.min(Math.max(settings.rounds + delta, min), max);
-    focusDone = Math.min(focusDone, settings.rounds - 1);
-  } else {
-    settings[key] = Math.min(Math.max(settings[key] + delta, min), max);
-    settings[key + "Sec"] = 0;
-  }
+function commitKey(key) {
   save("pomo_settings", settings);
   if (key !== "rounds" && !running && mode === key) setMode(mode); else draw();
   showSteppers();
 }
 
+function setValue(key, field, raw) {
+  if (key === "rounds") {
+    settings.rounds = clampVal("rounds", "min", raw);
+    focusDone = Math.min(focusDone, settings.rounds - 1);
+  } else if (field === "sec") {
+    settings[key + "Sec"] = clampVal(key, "sec", raw);
+  } else {
+    settings[key] = clampVal(key, "min", raw);
+  }
+  commitKey(key);
+}
+
 document.querySelectorAll(".step-row").forEach(row => {
-  row.querySelectorAll("button").forEach(b => b.onclick = () => changeStep(row.dataset.key, +b.dataset.d));
+  const key = row.dataset.key;
+  row.querySelectorAll("button").forEach(b => b.onclick = () => {
+    const cur = key === "rounds" ? settings.rounds : settings[key];
+    setValue(key, "min", cur + (+b.dataset.d));
+  });
+  row.querySelectorAll(".step-val").forEach(inp => inp.onchange = () => setValue(key, inp.dataset.field, inp.value));
 });
 
 document.querySelectorAll(".presets button").forEach(b => b.onclick = () => {
@@ -264,6 +282,18 @@ document.querySelectorAll(".presets button").forEach(b => b.onclick = () => {
   if (!running) setMode(mode); else draw();
   showSteppers();
 });
+
+// Sekunden anzeigen (Ein/Aus)
+$("setSeconds").checked = !!settings.useSeconds;
+$("steppers").classList.toggle("with-seconds", !!settings.useSeconds);
+$("setSeconds").onchange = e => {
+  settings.useSeconds = e.target.checked;
+  if (!settings.useSeconds) Object.assign(settings, { focusSec: 0, shortSec: 0, longSec: 0 });
+  $("steppers").classList.toggle("with-seconds", settings.useSeconds);
+  save("pomo_settings", settings);
+  if (!running) setMode(mode); else draw();
+  showSteppers();
+};
 
 $("setSound").checked = !!+settings.sound;
 $("setSound").onchange = e => { settings.sound = e.target.checked ? 1 : 0; save("pomo_settings", settings); };

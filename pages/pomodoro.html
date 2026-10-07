@@ -65,12 +65,13 @@
         <button type="button" data-preset="50,10,30">Deep Work<small>50 / 10</small></button>
         <button type="button" data-preset="15,3,10">Kurz<small>15 / 3</small></button>
       </div>
-      <div class="steppers">
-        <div class="step-row" data-key="focus"><span>Fokus</span><button type="button" data-d="-1" aria-label="weniger">−</button><output></output><button type="button" data-d="1" aria-label="mehr">+</button></div>
-        <div class="step-row" data-key="short"><span>Kurze Pause</span><button type="button" data-d="-1" aria-label="weniger">−</button><output></output><button type="button" data-d="1" aria-label="mehr">+</button></div>
-        <div class="step-row" data-key="long"><span>Lange Pause</span><button type="button" data-d="-1" aria-label="weniger">−</button><output></output><button type="button" data-d="1" aria-label="mehr">+</button></div>
-        <div class="step-row" data-key="rounds"><span>Runden bis zur langen Pause</span><button type="button" data-d="-1" aria-label="weniger">−</button><output></output><button type="button" data-d="1" aria-label="mehr">+</button></div>
+      <div class="steppers" id="steppers">
+        <div class="step-row" data-key="focus"><span>Fokus</span><button type="button" data-d="-1" aria-label="weniger">−</button><input class="step-val" data-field="min" type="text" inputmode="numeric" aria-label="Fokus Minuten"><span class="sec-part"><span class="colon">:</span><input class="step-val sec" data-field="sec" type="text" inputmode="numeric" aria-label="Fokus Sekunden"></span><button type="button" data-d="1" aria-label="mehr">+</button></div>
+        <div class="step-row" data-key="short"><span>Kurze Pause</span><button type="button" data-d="-1" aria-label="weniger">−</button><input class="step-val" data-field="min" type="text" inputmode="numeric" aria-label="Kurze Pause Minuten"><span class="sec-part"><span class="colon">:</span><input class="step-val sec" data-field="sec" type="text" inputmode="numeric" aria-label="Kurze Pause Sekunden"></span><button type="button" data-d="1" aria-label="mehr">+</button></div>
+        <div class="step-row" data-key="long"><span>Lange Pause</span><button type="button" data-d="-1" aria-label="weniger">−</button><input class="step-val" data-field="min" type="text" inputmode="numeric" aria-label="Lange Pause Minuten"><span class="sec-part"><span class="colon">:</span><input class="step-val sec" data-field="sec" type="text" inputmode="numeric" aria-label="Lange Pause Sekunden"></span><button type="button" data-d="1" aria-label="mehr">+</button></div>
+        <div class="step-row" data-key="rounds"><span>Runden bis zur langen Pause</span><button type="button" data-d="-1" aria-label="weniger">−</button><input class="step-val" data-field="min" type="text" inputmode="numeric" aria-label="Runden"><button type="button" data-d="1" aria-label="mehr">+</button></div>
       </div>
+      <label class="toggle"><input type="checkbox" id="setSeconds"><span class="switch"></span>Sekunden anzeigen</label>
       <label class="toggle"><input type="checkbox" id="setSound"><span class="switch"></span>Ton am Ende</label>
       <p class="hint" id="cycleHint"></p>
     </div>
