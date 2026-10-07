@@ -60,8 +60,7 @@ const REVO_QUOTES = [
   { t: "Mit meinem Sturz hat man nur den Stamm des Freiheitsbaumes gefällt – er treibt aus den Wurzeln neu aus, denn sie sind tief und zahlreich.", a: "Toussaint Louverture" }
 ];
 
-const DEFAULTS = { focus: 25, focusSec: 0, short: 5, shortSec: 0, long: 15, longSec: 0, rounds: 4, sound: 1, lock: 1 };
-const LOCK_URL = "http://localhost:47600";   // Adresse der Fokus-Sperre (PowerShell-Skript auf dem eigenen PC)
+const DEFAULTS = { focus: 25, focusSec: 0, short: 5, shortSec: 0, long: 15, longSec: 0, rounds: 4, sound: 1 };
 const load = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
 const save = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} };
 
@@ -103,7 +102,6 @@ let running = false;
 let endTime = 0;
 let tick = null;
 let ringFrame = null;
-let locked = false;                 // Vollbild-Sperre der Seite aktiv?
 let focusDone = 0;                  // Fokus-Sessions im aktuellen Zyklus (0 bis settings.rounds)
 
 function fmt(s) {
@@ -133,7 +131,6 @@ function draw() {
   $("startBtn").textContent = running ? "Pause" : (remaining < totalSec ? "Weiter" : "Start");
   $("dots").innerHTML = Array.from({ length: settings.rounds }, (_, i) => `<div class="dot ${i < focusDone ? "done" : ""}"></div>`).join("");
   $("cycleHint").textContent = `Ablauf: ${settings.rounds}× ${fmtDur("focus")} Fokus, dazwischen ${fmtDur("short")} Pause, danach ${fmtDur("long")} lange Pause.`;
-  if (locked && mode !== "focus") $("lockMsg").textContent = "Pause läuft – noch " + fmt(remaining);
 }
 
 // Nach einer Fokus-Runde: kurze Pause, nach der letzten Runde des Zyklus die lange Pause
@@ -178,39 +175,10 @@ function finish() {
     save("pomo_subject", $("subject").value.trim());
     save("pomo_sessions", sessions);
     updateSubjectList();
-    startLockSequence();
+    afterFocus();
   } else {
-    endLock();
     setMode("focus");
   }
-}
-
-// Standardbild (im Projekt gespeichert). Wird gezeigt, wenn niemand ein eigenes Bild gewählt hat.
-const DEFAULT_LOCK_IMG = "../img/sperren-bild.jpeg";
-
-// Fokus geschafft: Bild 3 Sek. zeigen, dann die Seite für die ganze Pause "sperren"
-// (Vollbild-Überlagerung mit Pausen-Countdown). Zusätzlich echte Gerätesperre, falls das Programm läuft.
-function startLockSequence() {
-  locked = true;
-  const ov = $("lockOverlay");
-  $("lockOverlayImg").src = DEFAULT_LOCK_IMG;
-  $("lockOverlayImg").style.display = "";
-  $("lockMsg").textContent = "Fokus geschafft!";
-  ov.classList.add("show");
-  try { document.documentElement.requestFullscreen().catch(() => {}); } catch {}
-  setTimeout(() => {
-    $("lockOverlayImg").style.display = "none";   // Bild nur 3 Sekunden
-    lockDevice();                                 // echte Sperre, falls Hintergrund-Programm läuft
-    afterFocus();                                 // zu kurzer/langer Pause wechseln
-    start();                                      // Pause automatisch starten
-  }, 3000);
-}
-
-function endLock() {
-  locked = false;
-  $("lockOverlay").classList.remove("show");
-  $("lockOverlayImg").style.display = "";
-  try { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); } catch {}
 }
 
 function beep() {
@@ -224,13 +192,6 @@ function beep() {
       o.start(ctx.currentTime + delay); o.stop(ctx.currentTime + delay + 0.18);
     });
   } catch {}
-}
-
-// Gerätesperre: schickt ein Signal an die Fokus-Sperre. Läuft das Programm nicht, passiert einfach nichts.
-// Zwei Wege: zuerst fetch, bei Blockade ein Bild-Aufruf als Absicherung (umgeht manche Browser-Sperren).
-function lockDevice() {
-  fetch(LOCK_URL + "/lock", { method: "POST", mode: "cors", keepalive: true })
-    .catch(() => { try { new Image().src = LOCK_URL + "/lock?t=" + Date.now(); } catch {} });
 }
 
 $("startBtn").onclick = () => running ? (stop(), draw()) : start();
@@ -415,6 +376,42 @@ function renderRevoList() {
 $("nextRevo").onclick = showRevoQuote;
 
 /* ============================================================
+   TO-DO (im Browser gespeichert)
+   ============================================================ */
+let todos = load("pomo_todos", []);   // [{ id, text, done }]
+const saveTodos = () => save("pomo_todos", todos);
+
+function renderTodos() {
+  $("todoList").innerHTML = todos.length
+    ? todos.map(t => `
+      <li class="${t.done ? "done" : ""}" data-id="${t.id}">
+        <label><input type="checkbox" ${t.done ? "checked" : ""}><span>${esc(t.text)}</span></label>
+        <button class="todo-del" title="Löschen" aria-label="Löschen">✕</button>
+      </li>`).join("")
+    : '<li class="empty">Noch keine Aufgaben. Trag oben deine erste ein.</li>';
+  $("todoList").querySelectorAll("li[data-id]").forEach(li => {
+    const id = +li.dataset.id;
+    li.querySelector("input").onchange = e => {
+      const t = todos.find(x => x.id === id);
+      if (t) { t.done = e.target.checked; saveTodos(); renderTodos(); }
+    };
+    li.querySelector(".todo-del").onclick = () => {
+      todos = todos.filter(x => x.id !== id); saveTodos(); renderTodos();
+    };
+  });
+}
+
+$("todoForm").onsubmit = e => {
+  e.preventDefault();
+  const text = $("todoInput").value.trim();
+  if (!text) return;
+  todos.push({ id: Date.now(), text, done: false });
+  $("todoInput").value = "";
+  saveTodos(); renderTodos();
+};
+$("clearDone").onclick = () => { todos = todos.filter(t => !t.done); saveTodos(); renderTodos(); };
+
+/* ============================================================
    START
    ============================================================ */
 draw();
@@ -424,3 +421,4 @@ showMonkQuote();
 renderMonkList();
 showRevoQuote();
 renderRevoList();
+renderTodos();

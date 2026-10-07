@@ -12,6 +12,7 @@
   <h1><img class="icon" src="../img/logo.svg" alt="">Fokus</h1>
   <nav>
     <button data-page="timer" class="active"><img class="icon" src="../img/timer.svg" alt="">Timer</button>
+    <button data-page="todo"><img class="icon" src="../img/todo.svg" alt="">To-do</button>
     <button data-page="stats"><img class="icon" src="../img/stats.svg" alt="">Statistik</button>
     <button data-page="quotes"><img class="icon" src="../img/quote.svg" alt="">Zitate</button>
     <button data-page="monks"><img class="icon" src="../img/monk.svg" alt="">Mönchs-Zitate</button>
@@ -72,11 +73,18 @@
     </div>
   </section>
 
-  <!-- Vollbild-Sperre: Bild nach dem Fokus-Block, danach Pausen-Countdown -->
-  <div id="lockOverlay" class="lock-overlay">
-    <img id="lockOverlayImg" alt="">
-    <div id="lockMsg" class="lock-msg"></div>
-  </div>
+  <!-- ================= TO-DO ================= -->
+  <section id="todo" class="page">
+    <div class="card">
+      <h2>To-do</h2>
+      <form id="todoForm" class="todo-add">
+        <input id="todoInput" type="text" placeholder="Neue Aufgabe…" maxlength="120" autocomplete="off">
+        <button class="btn" type="submit">Hinzufügen</button>
+      </form>
+      <ul class="todo-list" id="todoList"></ul>
+      <button class="link-btn" id="clearDone">Erledigte entfernen</button>
+    </div>
+  </section>
 
   <!-- ================= STATISTIK ================= -->
   <section id="stats" class="page">
