@@ -16,9 +16,7 @@
     <button data-page="notes"><img class="icon" src="../img/notes.svg" alt="">Notizen</button>
     <button data-page="projects"><img class="icon" src="../img/projects.svg" alt="">Projekte</button>
     <button data-page="stats"><img class="icon" src="../img/stats.svg" alt="">Statistik</button>
-    <button data-page="quotes"><img class="icon" src="../img/quote.svg" alt="">Zitate</button>
-    <button data-page="monks"><img class="icon" src="../img/monk.svg" alt="">Mönchs-Zitate</button>
-    <button data-page="revo"><img class="icon" src="../img/revo.svg" alt="">Revolutionäre</button>
+    <button data-page="zitate"><img class="icon" src="../img/quote.svg" alt="">Zitate</button>
   </nav>
   <a class="back" href="index.html"><img class="icon" src="../img/back.svg" alt="">Zur Startseite</a>
 </aside>
@@ -175,48 +173,54 @@
   </section>
 
   <!-- ================= ZITATE ================= -->
-  <section id="quotes" class="page">
-    <div class="card quote-main">
-      <blockquote id="qText"></blockquote>
-      <cite id="qAuthor"></cite>
-      <div class="controls"><button class="btn" id="nextQuote">Neues Zitat</button></div>
+  <section id="zitate" class="page">
+    <div class="qtabs">
+      <button class="active" data-qtab="general">Allgemein</button>
+      <button data-qtab="monks">Mönche</button>
+      <button data-qtab="revo">Revolutionäre</button>
     </div>
 
-    <div class="card">
-      <h2>Alle Zitate</h2>
-      <div class="chips">
-        <button class="active" data-filter="all">Alle</button>
-        <button data-filter="fav">★ Favoriten</button>
+    <!-- Allgemein -->
+    <div class="qview active" id="qview-general">
+      <div class="card quote-main">
+        <blockquote id="qText"></blockquote>
+        <cite id="qAuthor"></cite>
+        <div class="controls"><button class="btn" id="nextQuote">Neues Zitat</button></div>
       </div>
-      <div class="quote-list" id="quoteList"></div>
-    </div>
-  </section>
-
-  <!-- ================= MÖNCHS-ZITATE ================= -->
-  <section id="monks" class="page">
-    <div class="card quote-main">
-      <blockquote id="mText"></blockquote>
-      <cite id="mAuthor"></cite>
-      <div class="controls"><button class="btn" id="nextMonk">Neues Zitat</button></div>
+      <div class="card">
+        <h2>Alle Zitate</h2>
+        <div class="chips">
+          <button class="active" data-filter="all">Alle</button>
+          <button data-filter="fav">★ Favoriten</button>
+        </div>
+        <div class="quote-list" id="quoteList"></div>
+      </div>
     </div>
 
-    <div class="card">
-      <h2>Alle Mönchs-Zitate</h2>
-      <div class="quote-list" id="monkList"></div>
+    <!-- Mönche -->
+    <div class="qview" id="qview-monks">
+      <div class="card quote-main">
+        <blockquote id="mText"></blockquote>
+        <cite id="mAuthor"></cite>
+        <div class="controls"><button class="btn" id="nextMonk">Neues Zitat</button></div>
+      </div>
+      <div class="card">
+        <h2>Alle Mönchs-Zitate</h2>
+        <div class="quote-list" id="monkList"></div>
+      </div>
     </div>
-  </section>
 
-  <!-- ================= REVOLUTIONÄRE ================= -->
-  <section id="revo" class="page">
-    <div class="card quote-main">
-      <blockquote id="rText"></blockquote>
-      <cite id="rAuthor"></cite>
-      <div class="controls"><button class="btn" id="nextRevo">Neues Zitat</button></div>
-    </div>
-
-    <div class="card">
-      <h2>Alle Revolutions-Zitate</h2>
-      <div class="quote-list" id="revoList"></div>
+    <!-- Revolutionäre -->
+    <div class="qview" id="qview-revo">
+      <div class="card quote-main">
+        <blockquote id="rText"></blockquote>
+        <cite id="rAuthor"></cite>
+        <div class="controls"><button class="btn" id="nextRevo">Neues Zitat</button></div>
+      </div>
+      <div class="card">
+        <h2>Alle Revolutions-Zitate</h2>
+        <div class="quote-list" id="revoList"></div>
+      </div>
     </div>
   </section>
 

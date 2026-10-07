@@ -329,6 +329,14 @@ document.querySelectorAll(".chips button").forEach(b => b.onclick = () => {
 });
 $("nextQuote").onclick = showQuote;
 
+// Umschalten zwischen den drei Zitat-Arten auf der einen Zitate-Seite
+document.querySelectorAll(".qtabs button").forEach(b => b.onclick = () => {
+  document.querySelectorAll(".qtabs button").forEach(x => x.classList.remove("active"));
+  document.querySelectorAll(".qview").forEach(v => v.classList.remove("active"));
+  b.classList.add("active");
+  $("qview-" + b.dataset.qtab).classList.add("active");
+});
+
 /* ============================================================
    MÖNCHS-ZITATE (in der Originalsprache)
    ============================================================ */

@@ -202,3 +202,12 @@ h2 .icon { margin-right: 8px; }
   .proj-card { flex-direction: column; }
   .proj-list-col { width: auto; border-right: 0; border-bottom: 1px solid #2a2e41; padding-right: 0; padding-bottom: 12px; }
 }
+
+/* ===== Zitate: eine Seite, drei Arten ===== */
+#zitate.page.active { display: block; }
+.qtabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.qtabs button { border: 1px solid #343850; background: transparent; color: var(--muted); padding: 10px 18px; border-radius: 999px; cursor: pointer; font-size: .95rem; font-weight: 600; }
+.qtabs button:hover { color: var(--text); }
+.qtabs button.active { border-color: var(--accent); background: var(--accent); color: #fff; }
+.qview { display: none; }
+.qview.active { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; align-items: start; }
