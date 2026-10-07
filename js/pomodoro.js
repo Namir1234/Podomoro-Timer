@@ -109,14 +109,26 @@ function fmt(s) {
   return String(m).padStart(2, "0") + ":" + String(r).padStart(2, "0");
 }
 
-// Akzentfarbe je nach Restanteil: erste Hälfte volles Blattgrün, danach immer röter.
-// Wird auf die ganze Oberfläche angewendet (Ring, Knöpfe, aktiver Menüpunkt … alle nutzen --accent).
-function warmAccent(frac) {
-  const green = [58, 154, 99];    // #3a9a63 Blattgrün
-  const red = [208, 64, 47];      // Warnrot
-  const t = Math.max(0, Math.min(1, (0.5 - frac) / 0.5));
-  const c = green.map((v, i) => Math.round(v + (red[i] - v) * t));
-  return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
+// Alle grünen Farbvariablen (Hintergrund, Karten, Linien, Akzent …) wandern gegen Ende ins Rote.
+// Jeweils [Grünwert, Rotwert] als RGB. Erste Hälfte voll grün, danach langsam immer röter.
+const WARM_VARS = {
+  "--bg":        [[10, 20, 13],  [22, 10, 10]],
+  "--card":      [[27, 48, 34],  [48, 26, 26]],
+  "--inset":     [[16, 36, 26],  [36, 16, 16]],
+  "--border":    [[52, 82, 64],  [90, 52, 52]],
+  "--hover":     [[37, 70, 51],  [70, 37, 37]],
+  "--secondary": [[45, 77, 55],  [77, 45, 45]],
+  "--track":     [[52, 82, 64],  [90, 52, 52]],
+  "--accent":    [[58, 154, 99], [208, 64, 47]]
+};
+
+function applyWarmth(frac) {
+  const t = Math.max(0, Math.min(1, (0.5 - frac) / 0.5));   // 0 = grün (erste Hälfte) … 1 = rot (Ende)
+  for (const v in WARM_VARS) {
+    const [g, r] = WARM_VARS[v];
+    const c = g.map((x, i) => Math.round(x + (r[i] - x) * t));
+    document.body.style.setProperty(v, `rgb(${c[0]},${c[1]},${c[2]})`);
+  }
 }
 
 // Ring wird mit der genauen Restzeit (inkl. Millisekunden) gezeichnet → läuft gleichmässig statt im Sekundentakt
@@ -124,7 +136,7 @@ function drawRing() {
   const left = running ? Math.max(0, (endTime - Date.now()) / 1000) : remaining;
   const frac = totalSec ? left / totalSec : 0;
   $("ringFg").style.strokeDashoffset = CIRC * (1 - frac);
-  document.body.style.setProperty("--accent", warmAccent(frac));
+  applyWarmth(frac);
 }
 
 function animateRing() {
