@@ -514,6 +514,115 @@ $("notesImgInput").onchange = e => {
 };
 
 /* ============================================================
+   PROJEKTE (jedes Projekt hat eigene To-dos und Notizen)
+   ============================================================ */
+let projects = load("pomo_projects", null);
+if (!Array.isArray(projects) || !projects.length) projects = [{ id: Date.now(), name: "Mein Projekt", todos: [], notesHtml: "" }];
+let currentProj = load("pomo_current_project", projects[0].id);
+if (!projects.some(p => p.id === currentProj)) currentProj = projects[0].id;
+
+const curProject = () => projects.find(p => p.id === currentProj) || projects[0];
+const stashProjEditor = () => { const p = curProject(); if (p) p.notesHtml = $("projEditor").innerHTML; };
+
+function persistProjects() {
+  stashProjEditor();
+  try {
+    localStorage.setItem("pomo_projects", JSON.stringify(projects));
+    localStorage.setItem("pomo_current_project", JSON.stringify(currentProj));
+  } catch {}
+}
+
+function renderProjectList() {
+  $("projList").innerHTML = projects.map(p => `
+    <li class="${p.id === currentProj ? "active" : ""}" data-id="${p.id}">
+      <span class="folder-name">${esc(p.name)}</span>
+      <button class="folder-del" title="Projekt löschen" aria-label="Löschen">✕</button>
+    </li>`).join("");
+  $("projList").querySelectorAll("li").forEach(li => {
+    const id = +li.dataset.id;
+    li.querySelector(".folder-name").onclick = () => switchProject(id);
+    li.querySelector(".folder-del").onclick = e => { e.stopPropagation(); deleteProject(id); };
+  });
+}
+
+function renderProject() {
+  const p = curProject();
+  $("projTitle").textContent = p.name;
+  $("projTodoList").innerHTML = p.todos.length
+    ? p.todos.map(t => `
+      <li class="${t.done ? "done" : ""}" data-id="${t.id}">
+        <label><input type="checkbox" ${t.done ? "checked" : ""}><span>${esc(t.text)}</span></label>
+        <button class="todo-del" title="Löschen" aria-label="Löschen">✕</button>
+      </li>`).join("")
+    : '<li class="empty">Noch keine Aufgaben.</li>';
+  $("projTodoList").querySelectorAll("li[data-id]").forEach(li => {
+    const id = +li.dataset.id;
+    li.querySelector("input").onchange = e => { const t = p.todos.find(x => x.id === id); if (t) { t.done = e.target.checked; persistProjects(); renderProject(); } };
+    li.querySelector(".todo-del").onclick = () => { p.todos = p.todos.filter(x => x.id !== id); persistProjects(); renderProject(); };
+  });
+  $("projEditor").innerHTML = p.notesHtml || "";
+}
+
+function switchProject(id) { stashProjEditor(); currentProj = id; persistProjects(); renderProjectList(); renderProject(); }
+
+function deleteProject(id) {
+  if (projects.length <= 1) { alert("Es muss mindestens ein Projekt bleiben."); return; }
+  const p = projects.find(x => x.id === id);
+  if (!confirm(`Projekt „${p ? p.name : ""}" mit To-dos und Notizen löschen?`)) return;
+  projects = projects.filter(x => x.id !== id);
+  if (currentProj === id) currentProj = projects[0].id;
+  persistProjects(); renderProjectList(); renderProject();
+}
+
+$("addProject").onclick = () => {
+  const name = prompt("Name des neuen Projekts:");
+  if (!name || !name.trim()) return;
+  stashProjEditor();
+  const p = { id: Date.now(), name: name.trim(), todos: [], notesHtml: "" };
+  projects.push(p); currentProj = p.id;
+  persistProjects(); renderProjectList(); renderProject();
+};
+
+$("projTodoForm").onsubmit = e => {
+  e.preventDefault();
+  const text = $("projTodoInput").value.trim();
+  if (!text) return;
+  curProject().todos.push({ id: Date.now(), text, done: false });
+  $("projTodoInput").value = "";
+  persistProjects(); renderProject();
+};
+
+function updateProjToolbar() {
+  document.querySelectorAll('.proj-main .editor-toolbar button[data-pcmd]').forEach(b => {
+    let active = false;
+    try {
+      active = b.dataset.pcmd === "formatBlock"
+        ? (document.queryCommandValue("formatBlock") || "").toLowerCase() === (b.dataset.val || "").toLowerCase()
+        : document.queryCommandState(b.dataset.pcmd);
+    } catch {}
+    b.classList.toggle("active", active);
+  });
+}
+$("projEditor").addEventListener("input", persistProjects);
+["keyup", "mouseup", "focus"].forEach(ev => $("projEditor").addEventListener(ev, updateProjToolbar));
+$("projEditor").addEventListener("blur", () => document.querySelectorAll('.proj-main .editor-toolbar button[data-pcmd]').forEach(b => b.classList.remove("active")));
+document.addEventListener("selectionchange", () => { if (document.activeElement === $("projEditor")) updateProjToolbar(); });
+document.querySelectorAll('.proj-main .editor-toolbar button[data-pcmd]').forEach(b => {
+  b.onmousedown = e => e.preventDefault();
+  b.onclick = () => { $("projEditor").focus(); document.execCommand(b.dataset.pcmd, false, b.dataset.val || null); persistProjects(); updateProjToolbar(); };
+});
+$("projInsertImg").onmousedown = e => e.preventDefault();
+$("projInsertImg").onclick = () => $("projImgInput").click();
+$("projImgInput").onchange = e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => { $("projEditor").focus(); document.execCommand("insertImage", false, reader.result); persistProjects(); };
+  reader.readAsDataURL(file);
+  e.target.value = "";
+};
+
+/* ============================================================
    START
    ============================================================ */
 draw();
@@ -526,3 +635,5 @@ renderRevoList();
 renderTodos();
 renderFolders();
 loadEditor();
+renderProjectList();
+renderProject();

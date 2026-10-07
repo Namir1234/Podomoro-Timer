@@ -14,6 +14,7 @@
     <button data-page="timer" class="active"><img class="icon" src="../img/timer.svg" alt="">Timer</button>
     <button data-page="todo"><img class="icon" src="../img/todo.svg" alt="">To-do</button>
     <button data-page="notes"><img class="icon" src="../img/notes.svg" alt="">Notizen</button>
+    <button data-page="projects"><img class="icon" src="../img/projects.svg" alt="">Projekte</button>
     <button data-page="stats"><img class="icon" src="../img/stats.svg" alt="">Statistik</button>
     <button data-page="quotes"><img class="icon" src="../img/quote.svg" alt="">Zitate</button>
     <button data-page="monks"><img class="icon" src="../img/monk.svg" alt="">Mönchs-Zitate</button>
@@ -107,6 +108,39 @@
         <div class="editor" id="notesEditor" contenteditable="true"></div>
         <input type="file" id="notesImgInput" accept="image/*" hidden>
         <p class="hint" id="notesStatus">Automatisch gespeichert.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PROJEKTE ================= -->
+  <section id="projects" class="page">
+    <div class="card proj-card">
+      <div class="proj-list-col">
+        <h2>Projekte</h2>
+        <ul class="folder-list" id="projList"></ul>
+        <button class="link-btn" id="addProject">+ Neues Projekt</button>
+      </div>
+      <div class="proj-main">
+        <h2 class="proj-title" id="projTitle"></h2>
+
+        <h3 class="proj-sub">To-do</h3>
+        <form id="projTodoForm" class="todo-add">
+          <input id="projTodoInput" type="text" placeholder="Neue Aufgabe…" maxlength="120" autocomplete="off">
+          <button class="btn" type="submit">Hinzufügen</button>
+        </form>
+        <ul class="todo-list" id="projTodoList"></ul>
+
+        <h3 class="proj-sub">Notizen</h3>
+        <div class="editor-toolbar">
+          <button type="button" data-pcmd="bold" title="Fett"><b>F</b></button>
+          <button type="button" data-pcmd="italic" title="Kursiv"><i>K</i></button>
+          <button type="button" data-pcmd="underline" title="Unterstrichen"><u>U</u></button>
+          <button type="button" data-pcmd="formatBlock" data-val="h3" title="Überschrift">H</button>
+          <button type="button" data-pcmd="insertUnorderedList" title="Aufzählung">Liste</button>
+          <button type="button" id="projInsertImg" title="Bild einfügen">Bild</button>
+        </div>
+        <div class="editor" id="projEditor" contenteditable="true"></div>
+        <input type="file" id="projImgInput" accept="image/*" hidden>
       </div>
     </div>
   </section>

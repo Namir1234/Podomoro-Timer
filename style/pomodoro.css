@@ -189,3 +189,16 @@ h2 .icon { margin-right: 8px; }
 }
 
 .editor-toolbar button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ===== Projekte ===== */
+.proj-card { display: flex; gap: 20px; align-items: stretch; }
+.proj-list-col { width: 190px; flex-shrink: 0; border-right: 1px solid #2a2e41; padding-right: 16px; }
+.proj-list-col h2 { font-size: 1rem; margin-bottom: 12px; }
+.proj-main { flex: 1; min-width: 0; }
+.proj-title { font-size: 1.3rem; margin-bottom: 12px; }
+.proj-sub { font-size: 1rem; color: var(--muted); margin: 20px 0 10px; }
+#projEditor { min-height: 220px; }
+@media (max-width: 720px) {
+  .proj-card { flex-direction: column; }
+  .proj-list-col { width: auto; border-right: 0; border-bottom: 1px solid #2a2e41; padding-right: 0; padding-bottom: 12px; }
+}
