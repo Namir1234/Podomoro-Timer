@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style/pomodoro.css">
+<link rel="stylesheet" href="../style/pomodoro.css?v=2">
 </head>
 <body>
 
@@ -22,6 +22,7 @@
     <button data-page="zitate"><img class="icon" src="../img/quote.svg" alt=""><span class="label">Zitate</span></button>
   </nav>
   <div class="sidebar-foot">
+    <button class="back" id="layoutEditBtn" type="button"><img class="icon" src="../img/layout.svg" alt=""><span class="label">Felder anordnen</span></button>
     <button class="back" id="menuEditBtn" type="button"><img class="icon" src="../img/edit.svg" alt=""><span class="label">Menü anpassen</span></button>
     <a class="back" href="index.html"><img class="icon" src="../img/back.svg" alt=""><span class="label">Zur Startseite</span></a>
   </div>
@@ -31,7 +32,6 @@
 
   <!-- ================= TIMER ================= -->
   <section id="timer" class="page active">
-    <div class="timer-main">
     <div class="card">
       <div class="modes">
         <button data-mode="focus" class="active">Fokus</button>
@@ -82,9 +82,7 @@
       <label class="toggle"><input type="checkbox" id="setSound"><span class="switch"></span>Ton am Ende</label>
       <p class="hint" id="cycleHint"></p>
     </div>
-    </div><!-- /.timer-main -->
 
-    <div class="timer-extra">
       <div class="card today-card">
         <h2>Heute</h2>
         <div class="today-stats">
@@ -104,7 +102,6 @@
         <blockquote id="tQuote"></blockquote>
         <cite id="tQuoteAuthor"></cite>
       </div>
-    </div>
   </section>
 
   <!-- ================= TO-DO ================= -->
@@ -113,6 +110,7 @@
       <h2>To-do</h2>
       <form id="todoForm" class="todo-add">
         <input id="todoInput" type="text" placeholder="Neue Aufgabe…" maxlength="120" autocomplete="off">
+        <input id="todoDate" type="date" title="Fällig am (optional)" aria-label="Fällig am (optional)">
         <button class="btn" type="submit">Hinzufügen</button>
       </form>
       <ul class="todo-list" id="todoList"></ul>
@@ -158,6 +156,7 @@
         <h3 class="proj-sub">To-do</h3>
         <form id="projTodoForm" class="todo-add">
           <input id="projTodoInput" type="text" placeholder="Neue Aufgabe…" maxlength="120" autocomplete="off">
+          <input id="projTodoDate" type="date" title="Fällig am (optional)" aria-label="Fällig am (optional)">
           <button class="btn" type="submit">Hinzufügen</button>
         </form>
         <ul class="todo-list" id="projTodoList"></ul>
@@ -279,6 +278,13 @@
   </div>
 </div>
 
-<script src="../js/pomodoro.js"></script>
+<!-- Felder anordnen -->
+<div class="layout-bar" id="layoutBar" hidden>
+  <span>Feld ziehen = verschieben · Ecke unten rechts ziehen = Grösse ändern</span>
+  <button class="btn secondary" type="button" id="layoutReset">Zurücksetzen</button>
+  <button class="btn" type="button" id="layoutDone">Fertig</button>
+</div>
+
+<script src="../js/pomodoro.js?v=2"></script>
 </body>
 </html>

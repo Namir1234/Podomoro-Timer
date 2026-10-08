@@ -550,14 +550,28 @@ $("nextRevo").onclick = showRevoQuote;
 /* ============================================================
    TO-DO (im Browser gespeichert)
    ============================================================ */
-let todos = load("pomo_todos", []);   // [{ id, text, done }]
+let todos = load("pomo_todos", []);   // [{ id, text, done, due }]  (due: "2026-10-31" oder leer)
 const saveTodos = () => save("pomo_todos", todos);
+
+// Deadline als kleines Schild: Datum + wie lange noch
+const validDate = v => /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : "";
+function dueBadge(t) {
+  if (!validDate(t.due || "")) return "";
+  const [y, m, d] = t.due.split("-").map(Number);
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const diff = Math.round((new Date(y, m - 1, d) - today) / 864e5);
+  const rel = diff === 0 ? "heute" : diff === 1 ? "morgen" : diff > 1 ? `in ${diff} Tagen`
+    : diff === -1 ? "seit gestern überfällig" : `seit ${-diff} Tagen überfällig`;
+  const cls = t.done ? "" : diff < 0 ? "late" : diff <= 1 ? "soon" : "";
+  return `<span class="due ${cls}" title="Fällig am">${String(d).padStart(2, "0")}.${String(m).padStart(2, "0")}.${y} · ${rel}</span>`;
+}
 
 function renderTodos() {
   $("todoList").innerHTML = todos.length
     ? todos.map(t => `
       <li class="${t.done ? "done" : ""}" data-id="${t.id}">
         <label><input type="checkbox" ${t.done ? "checked" : ""}><span>${esc(t.text)}</span></label>
+        ${dueBadge(t)}
         <button class="todo-del" title="Löschen" aria-label="Löschen">✕</button>
       </li>`).join("")
     : '<li class="empty">Noch keine Aufgaben. Trag oben deine erste ein.</li>';
@@ -577,8 +591,8 @@ $("todoForm").onsubmit = e => {
   e.preventDefault();
   const text = $("todoInput").value.trim();
   if (!text) return;
-  todos.push({ id: Date.now(), text, done: false });
-  $("todoInput").value = "";
+  todos.push({ id: Date.now(), text, done: false, due: validDate($("todoDate").value) });
+  $("todoInput").value = ""; $("todoDate").value = "";
   saveTodos(); renderTodos();
 };
 $("clearDone").onclick = () => { todos = todos.filter(t => !t.done); saveTodos(); renderTodos(); };
@@ -724,6 +738,7 @@ function renderProject() {
     ? p.todos.map(t => `
       <li class="${t.done ? "done" : ""}" data-id="${t.id}">
         <label><input type="checkbox" ${t.done ? "checked" : ""}><span>${esc(t.text)}</span></label>
+        ${dueBadge(t)}
         <button class="todo-del" title="Löschen" aria-label="Löschen">✕</button>
       </li>`).join("")
     : '<li class="empty">Noch keine Aufgaben.</li>';
@@ -759,8 +774,8 @@ $("projTodoForm").onsubmit = e => {
   e.preventDefault();
   const text = $("projTodoInput").value.trim();
   if (!text) return;
-  curProject().todos.push({ id: Date.now(), text, done: false });
-  $("projTodoInput").value = "";
+  curProject().todos.push({ id: Date.now(), text, done: false, due: validDate($("projTodoDate").value) });
+  $("projTodoInput").value = ""; $("projTodoDate").value = "";
   persistProjects(); renderProject();
 };
 
@@ -883,9 +898,128 @@ normalizeMenu();
 applyMenu();
 
 /* ============================================================
-   START
+   FELDER ANORDNEN: Karten verschieben und in der Grösse ändern
+   Jede Seite ist ein Raster mit 12 Spalten. Pro Karte wird die
+   Reihenfolge, die Breite (Spalten) und die Höhe (px) gespeichert.
    ============================================================ */
-draw();
+const GRID_COLS = 12;
+let layout = load("pomo_layout", {});   // { seitenId: { order: [kartenId…], size: { kartenId: { w, h } } } }
+const layoutBoxes = [...document.querySelectorAll(".page, .qview")].filter(box => box.querySelector(":scope > .card"));
+
+layoutBoxes.forEach(box => [...box.children].forEach((card, i) => {
+  card.dataset.card = box.id + "-" + i;
+  card.dataset.pos = i;
+  const grip = document.createElement("span");
+  grip.className = "card-resize";
+  grip.title = "Ziehen: Grösse ändern · Doppelklick: Höhe zurücksetzen";
+  card.appendChild(grip);
+}));
+
+function sizeCard(card, s) {
+  if (s && s.w) card.style.setProperty("--span", s.w); else card.style.removeProperty("--span");
+  card.style.height = s && s.h ? s.h + "px" : "";
+  card.classList.toggle("sized", !!(s && s.h));
+}
+
+function applyLayout() {
+  layoutBoxes.forEach(box => {
+    const cfg = layout[box.id] || {};
+    const order = Array.isArray(cfg.order) ? cfg.order : [];
+    const rank = c => { const i = order.indexOf(c.dataset.card); return i < 0 ? 1000 + +c.dataset.pos : i; };
+    [...box.children].sort((a, b) => rank(a) - rank(b)).forEach(card => {
+      box.appendChild(card);
+      sizeCard(card, (cfg.size || {})[card.dataset.card]);
+    });
+  });
+}
+
+function boxCfg(box) {
+  const cfg = layout[box.id] || (layout[box.id] = {});
+  cfg.size = cfg.size || {};
+  return cfg;
+}
+const saveLayout = () => save("pomo_layout", layout);
+
+function dragUntilUp(onMove, onEnd) {
+  const end = () => {
+    document.removeEventListener("pointermove", onMove);
+    document.removeEventListener("pointerup", end);
+    document.removeEventListener("pointercancel", end);
+    onEnd();
+  };
+  document.addEventListener("pointermove", onMove);
+  document.addEventListener("pointerup", end);
+  document.addEventListener("pointercancel", end);
+}
+
+function startMove(card) {
+  const box = card.parentElement;
+  let lastOver = null;   // verhindert Hin-und-her-Springen, solange der Zeiger auf derselben Karte bleibt
+  card.classList.add("dragging");
+  dragUntilUp(e => {
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const over = el && el.closest(".card");
+    if (!over || over === card || over.parentElement !== box) { lastOver = null; return; }
+    if (over === lastOver) return;
+    lastOver = over;
+    const after = card.compareDocumentPosition(over) & Node.DOCUMENT_POSITION_FOLLOWING;
+    box.insertBefore(card, after ? over.nextSibling : over);
+  }, () => {
+    card.classList.remove("dragging");
+    boxCfg(box).order = [...box.children].map(c => c.dataset.card);
+    saveLayout();
+  });
+}
+
+function startResize(card, start) {
+  const box = card.parentElement, cfg = boxCfg(box), key = card.dataset.card;
+  const rect = card.getBoundingClientRect();
+  const gap = parseFloat(getComputedStyle(box).columnGap) || 0;
+  const colW = (box.clientWidth - gap * (GRID_COLS - 1)) / GRID_COLS;
+  const s = { ...cfg.size[key] };
+  let heightTouched = false;
+  dragUntilUp(e => {
+    const dx = e.clientX - start.clientX, dy = e.clientY - start.clientY;
+    s.w = Math.min(GRID_COLS, Math.max(3, Math.round((rect.width + dx + gap) / (colW + gap))));
+    if (Math.abs(dy) > 8) heightTouched = true;   // nur seitlich gezogen → Höhe bleibt automatisch
+    if (heightTouched) s.h = Math.max(120, Math.round((rect.height + dy) / 10) * 10);
+    sizeCard(card, s);
+  }, () => { cfg.size[key] = s; saveLayout(); });
+}
+
+document.addEventListener("pointerdown", e => {
+  if (!document.body.classList.contains("layout-edit")) return;
+  const card = e.target.closest(".page .card");
+  if (!card) return;
+  e.preventDefault();
+  if (e.target.closest(".card-resize")) startResize(card, e); else startMove(card);
+});
+
+document.addEventListener("dblclick", e => {
+  const grip = e.target.closest(".card-resize");
+  if (!grip || !document.body.classList.contains("layout-edit")) return;
+  const card = grip.parentElement, cfg = boxCfg(card.parentElement);
+  const s = { ...cfg.size[card.dataset.card] };
+  delete s.h;
+  cfg.size[card.dataset.card] = s;
+  sizeCard(card, s);
+  saveLayout();
+});
+
+function setLayoutEdit(on) {
+  document.body.classList.toggle("layout-edit", on);
+  $("layoutBar").hidden = !on;
+}
+$("layoutEditBtn").onclick = () => setLayoutEdit(!document.body.classList.contains("layout-edit"));
+$("layoutDone").onclick = () => setLayoutEdit(false);
+$("layoutReset").onclick = () => { layout = {}; saveLayout(); applyLayout(); };
+document.addEventListener("keydown", e => { if (e.key === "Escape") setLayoutEdit(false); });
+
+applyLayout();
+
+/* ============================================================
+   START
+   ============================================================ */draw();
 showQuote();
 renderQuoteList();
 showMonkQuote();
