@@ -11,60 +11,83 @@
 </head>
 <body>
 
-<header>
-  <h1><img class="icon" src="../img/logo.svg" alt="">Fokus</h1>
-  <p class="tagline">Der Pomodoro-Timer mit Statistik – und der Weisheit alter Mönche.</p>
-</header>
+<main class="layout">
 
-<main>
+  <!-- ================= INTRO ================= -->
+  <section class="intro">
+    <h1><img class="icon" src="../img/logo.svg" alt="">Fokus</h1>
+    <p class="tagline">Der Pomodoro-Timer mit Statistik – und der Weisheit alter Mönche.</p>
 
-  <!-- ================= MÖNCHE ================= -->
-  <section class="monks">
-    <figure>
-      <img src="../img/monk-ikkyu.jpg" alt="Porträt von Ikkyū Sōjun">
-      <figcaption>
-        <blockquote lang="ja">門松は冥土の旅の一里塚　めでたくもありめでたくもなし</blockquote>
-        <p class="trans">«Die Neujahrskiefer am Tor ist ein Meilenstein auf der Reise ins Totenreich – erfreulich und auch wieder nicht.»</p>
-        <cite>一休宗純 (Ikkyū Sōjun)</cite>
-      </figcaption>
-    </figure>
-    <figure>
-      <img src="../img/monk-linji.jpg" alt="Porträt von Linji Yixuan">
-      <figcaption>
-        <blockquote lang="zh-Hant">逢佛殺佛，逢祖殺祖。</blockquote>
-        <p class="trans">«Triffst du den Buddha, töte den Buddha; triffst du den Patriarchen, töte den Patriarchen.»</p>
-        <cite>臨濟義玄 (Linji Yixuan)</cite>
-      </figcaption>
-    </figure>
-    <figure>
-      <img src="../img/monk-yunmen.jpg" alt="Porträt von Yunmen Wenyan">
-      <figcaption>
-        <blockquote lang="zh-Hant">「如何是佛？」「乾屎橛。」</blockquote>
-        <p class="trans">«Was ist der Buddha?» – «Ein getrockneter Kotstab.»</p>
-        <cite>雲門文偃 (Yunmen Wenyan)</cite>
-      </figcaption>
-    </figure>
-    <figure>
-      <img src="../img/monk-zhaozhou.jpg" alt="Porträt von Zhaozhou Congshen">
-      <figcaption>
-        <blockquote lang="zh-Hant">「喫粥了也未？」「喫粥了也。」「洗鉢盂去。」</blockquote>
-        <p class="trans">«Hast du den Reisbrei schon gegessen?» – «Ja.» – «Dann wasch deine Schale.»</p>
-        <cite>趙州從諗 (Zhaozhou Congshen)</cite>
-      </figcaption>
-    </figure>
+    <p class="lead">
+      Fokus hilft dir, konzentriert zu lernen: Du arbeitest 25 Minuten am Stück
+      und machst dann eine kurze Pause. Nach vier Runden gibt es eine längere Pause.
+      So bleibst du länger dran, ohne auszubrennen.
+    </p>
+
+    <ul class="features">
+      <li><img src="../img/timer.svg" alt="">Timer mit eigenen Zeiten und Tagesziel</li>
+      <li><img src="../img/todo.svg" alt="">To-dos, Notizen und Projekte</li>
+      <li><img src="../img/stats.svg" alt="">Statistik: wie viel du pro Tag und Fach lernst</li>
+    </ul>
+
+    <a class="btn" href="pomodoro.html">Timer öffnen</a>
+    <p class="note">Kostenlos, ohne Anmeldung. Deine Daten bleiben in deinem Browser.</p>
   </section>
 
-  <!-- ================= START ================= -->
-  <section class="card download">
-    <h2>Loslegen</h2>
-    <div class="buttons">
-      <a class="btn" href="pomodoro.html">Timer öffnen</a>
-    </div>
-  </section>
+  <!-- ================= ZITAT (dezent) ================= -->
+  <aside class="quote" aria-label="Zitat">
+    <img id="qImg" src="../img/monk-ikkyu.jpg" alt="">
+    <blockquote id="qText"></blockquote>
+    <p class="trans" id="qTrans"></p>
+    <cite id="qCite"></cite>
+    <button class="next" id="qNext" type="button">Nächstes Zitat</button>
+  </aside>
 
 </main>
 
 <footer>Bilder: Wikimedia Commons, gemeinfrei.</footer>
+
+<script>
+  // Mönchs-Zitate: es wird immer nur eines gezeigt
+  const MONKS = [
+    { img: "monk-ikkyu.jpg", lang: "ja",
+      text: "門松は冥土の旅の一里塚　めでたくもありめでたくもなし",
+      trans: "«Die Neujahrskiefer am Tor ist ein Meilenstein auf der Reise ins Totenreich – erfreulich und auch wieder nicht.»",
+      cite: "一休宗純 (Ikkyū Sōjun)" },
+    { img: "monk-linji.jpg", lang: "zh-Hant",
+      text: "逢佛殺佛，逢祖殺祖。",
+      trans: "«Triffst du den Buddha, töte den Buddha; triffst du den Patriarchen, töte den Patriarchen.»",
+      cite: "臨濟義玄 (Linji Yixuan)" },
+    { img: "monk-yunmen.jpg", lang: "zh-Hant",
+      text: "「如何是佛？」「乾屎橛。」",
+      trans: "«Was ist der Buddha?» – «Ein getrockneter Kotstab.»",
+      cite: "雲門文偃 (Yunmen Wenyan)" },
+    { img: "monk-zhaozhou.jpg", lang: "zh-Hant",
+      text: "「喫粥了也未？」「喫粥了也。」「洗鉢盂去。」",
+      trans: "«Hast du den Reisbrei schon gegessen?» – «Ja.» – «Dann wasch deine Schale.»",
+      cite: "趙州從諗 (Zhaozhou Congshen)" }
+  ];
+
+  let current = Math.floor(Math.random() * MONKS.length);
+
+  function showQuote(i) {
+    const m = MONKS[i];
+    document.getElementById("qImg").src = "../img/" + m.img;
+    document.getElementById("qImg").alt = "Porträt von " + m.cite;
+    const q = document.getElementById("qText");
+    q.textContent = m.text;
+    q.lang = m.lang;
+    document.getElementById("qTrans").textContent = m.trans;
+    document.getElementById("qCite").textContent = m.cite;
+  }
+
+  document.getElementById("qNext").addEventListener("click", () => {
+    current = (current + 1) % MONKS.length;
+    showQuote(current);
+  });
+
+  showQuote(current);
+</script>
 
 </body>
 </html>
