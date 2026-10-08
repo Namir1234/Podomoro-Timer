@@ -905,6 +905,7 @@ applyMenu();
      - size: { [kartenId]: { w: Spalten (3..12), h: Höhe in px (oder weggelassen für Auto) } }
    ============================================================ */
 const GRID_COLS = 12;
+const MIN_SPAN = 3;
 let layout = load("pomo_layout", {});
 const layoutBoxes = [...document.querySelectorAll(".page, .qview")].filter(box => box.querySelector(":scope > .card"));
 
@@ -947,12 +948,17 @@ function getCardSize(card) {
   return { ...(cfg.size[card.dataset.card] || {}) };
 }
 
+function getCardSpan(card) {
+  const s = getCardSize(card);
+  return (s && s.w) ? s.w : 6;
+}
+
 function setCardSize(card, s) {
   const box = card.parentElement;
   if (!box) return;
   const cfg = boxCfg(box);
   const clean = {};
-  if (s && s.w) clean.w = Math.min(GRID_COLS, Math.max(3, s.w));
+  if (s && s.w) clean.w = Math.min(GRID_COLS, Math.max(MIN_SPAN, s.w));
   if (s && s.h) clean.h = Math.max(140, Math.round(s.h / 10) * 10);
   cfg.size[card.dataset.card] = clean;
 }
@@ -970,6 +976,159 @@ function applyCardSize(card, s) {
     card.style.removeProperty("height");
     card.classList.remove("sized");
   }
+}
+
+// Ermittelt die Karten, die in derselben Zeile wie die gegebene Karte liegen
+function getRowCards(card) {
+  const box = card.parentElement;
+  if (!box) return [card];
+  const cards = getBoxCards(box);
+  let currentRow = [];
+  let currentUsed = 0;
+  for (const c of cards) {
+    const w = getCardSpan(c);
+    if (currentRow.length > 0 && currentUsed + w > GRID_COLS) {
+      if (currentRow.includes(card)) {
+        return currentRow;
+      }
+      currentRow = [];
+      currentUsed = 0;
+    }
+    currentRow.push(c);
+    currentUsed += w;
+  }
+  return currentRow;
+}
+
+// Stellt sicher, dass Paare in einer Zeile nicht über 12 Spalten überlaufen und nach unten springen
+function sanitizeBoxSizes(box) {
+  const cards = getBoxCards(box);
+  const cfg = boxCfg(box);
+  let currentRow = [];
+  let currentUsed = 0;
+
+  for (let i = 0; i < cards.length; i++) {
+    const card = cards[i];
+    const s = cfg.size[card.dataset.card] || {};
+    let w = s.w || 6;
+
+    if (w >= GRID_COLS) {
+      currentRow = [];
+      currentUsed = 0;
+      continue;
+    }
+
+    if (currentRow.length > 0 && currentUsed + w > GRID_COLS) {
+      const prevCard = currentRow[currentRow.length - 1];
+      const prevS = cfg.size[prevCard.dataset.card] || {};
+      const prevW = prevS.w || 6;
+      const available = GRID_COLS - (currentUsed - prevW);
+
+      if (available === GRID_COLS && prevW < GRID_COLS) {
+        const safePrevW = Math.min(GRID_COLS - MIN_SPAN, Math.max(MIN_SPAN, prevW));
+        const safeCurW = Math.max(MIN_SPAN, GRID_COLS - safePrevW);
+
+        prevS.w = safePrevW;
+        cfg.size[prevCard.dataset.card] = prevS;
+
+        s.w = safeCurW;
+        cfg.size[card.dataset.card] = s;
+
+        currentUsed = safePrevW + safeCurW;
+        currentRow = [prevCard, card];
+        continue;
+      }
+
+      currentRow = [card];
+      currentUsed = w;
+    } else {
+      currentRow.push(card);
+      currentUsed += w;
+    }
+  }
+}
+
+// Ändert die Spaltenbreite einer Karte und verkleinert anstossende Nachbar-Karten in derselben Zeile
+function setCardSpanWithSiblings(card, desiredW) {
+  const box = card.parentElement;
+  if (!box) return;
+
+  const rowCards = getRowCards(card);
+  const targetIndex = rowCards.indexOf(card);
+  const curW = getCardSpan(card);
+  desiredW = Math.min(GRID_COLS, Math.max(MIN_SPAN, desiredW));
+
+  if (desiredW === curW) return;
+
+  // Wenn nur 1 Karte in der Reihe ist oder gewünschte Breite 12 (Vollbild) ist
+  if (rowCards.length <= 1 || desiredW === GRID_COLS) {
+    const s = getCardSize(card);
+    s.w = desiredW;
+    setCardSize(card, s);
+    applyCardSize(card, s);
+    saveLayout();
+    updateBoxCardsUI(box);
+    return;
+  }
+
+  const delta = desiredW - curW;
+  const currentTotal = rowCards.reduce((sum, c) => sum + getCardSpan(c), 0);
+  const newTotal = currentTotal + delta;
+
+  if (newTotal <= GRID_COLS) {
+    const s = getCardSize(card);
+    s.w = desiredW;
+    setCardSize(card, s);
+    applyCardSize(card, s);
+    saveLayout();
+    updateBoxCardsUI(box);
+    return;
+  }
+
+  // Überlauf: Die Vergrösserung stösst gegen andere Karten in derselben Reihe!
+  // Nachbar-Karten verkleinern, damit keine Karte nach unten springt.
+  let overflow = newTotal - GRID_COLS;
+  const updates = new Map();
+
+  // 1. Zuerst Karten rechts vom Ziel verkleinern
+  for (let i = targetIndex + 1; i < rowCards.length; i++) {
+    const c = rowCards[i];
+    const w = getCardSpan(c);
+    const canShrink = Math.max(0, w - MIN_SPAN);
+    const shrink = Math.min(overflow, canShrink);
+    if (shrink > 0) {
+      updates.set(c, w - shrink);
+      overflow -= shrink;
+    }
+  }
+
+  // 2. Falls noch Überlauf vorhanden: Karten links vom Ziel verkleinern
+  if (overflow > 0) {
+    for (let i = targetIndex - 1; i >= 0; i--) {
+      const c = rowCards[i];
+      const w = getCardSpan(c);
+      const canShrink = Math.max(0, w - MIN_SPAN);
+      const shrink = Math.min(overflow, canShrink);
+      if (shrink > 0) {
+        updates.set(c, w - shrink);
+        overflow -= shrink;
+      }
+    }
+  }
+
+  // 3. Falls noch Überlauf vorhanden (alle anderen am Minimum): Ziel deckeln
+  const finalW = desiredW - overflow;
+  if (finalW < MIN_SPAN) return;
+  updates.set(card, finalW);
+
+  updates.forEach((newW, c) => {
+    const s = getCardSize(c);
+    s.w = newW;
+    setCardSize(c, s);
+    applyCardSize(c, s);
+  });
+  saveLayout();
+  updateBoxCardsUI(box);
 }
 
 function updateCardUI(card) {
@@ -996,6 +1155,23 @@ function updateCardUI(card) {
   const btnNext = card.querySelector(".btn-ctrl-move-next");
   if (btnPrev) btnPrev.disabled = !prev || !prev.classList.contains("card");
   if (btnNext) btnNext.disabled = !next || !next.classList.contains("card");
+
+  const btnMinus = card.querySelector(".btn-ctrl-span-minus");
+  if (btnMinus) {
+    btnMinus.disabled = w <= MIN_SPAN;
+  }
+
+  const btnPlus = card.querySelector(".btn-ctrl-span-plus");
+  if (btnPlus) {
+    if (w >= GRID_COLS) {
+      btnPlus.disabled = true;
+    } else {
+      const rowCards = getRowCards(card);
+      const rowTotal = rowCards.reduce((sum, c) => sum + getCardSpan(c), 0);
+      const canGrow = (rowTotal < GRID_COLS) || rowCards.some(c => c !== card && getCardSpan(c) > MIN_SPAN);
+      btnPlus.disabled = !canGrow;
+    }
+  }
 }
 
 function updateBoxCardsUI(box) {
@@ -1072,6 +1248,9 @@ function applyLayout() {
     };
     cards.sort((a, b) => rank(a) - rank(b)).forEach(card => {
       box.appendChild(card);
+    });
+    sanitizeBoxSizes(box);
+    getBoxCards(box).forEach(card => {
       const s = (cfg.size || {})[card.dataset.card];
       applyCardSize(card, s);
     });
@@ -1114,12 +1293,7 @@ document.addEventListener("click", e => {
     const card = spanPreset.closest(".card");
     if (!card) return;
     const w = parseInt(spanPreset.dataset.span, 10);
-    const s = getCardSize(card);
-    s.w = w;
-    setCardSize(card, s);
-    applyCardSize(card, s);
-    saveLayout();
-    updateCardUI(card);
+    setCardSpanWithSiblings(card, w);
     return;
   }
 
@@ -1127,13 +1301,8 @@ document.addEventListener("click", e => {
   if (spanMinus) {
     const card = spanMinus.closest(".card");
     if (!card) return;
-    const s = getCardSize(card);
-    const curW = s.w || 6;
-    s.w = Math.max(3, curW - 1);
-    setCardSize(card, s);
-    applyCardSize(card, s);
-    saveLayout();
-    updateCardUI(card);
+    const curW = getCardSpan(card);
+    setCardSpanWithSiblings(card, Math.max(MIN_SPAN, curW - 1));
     return;
   }
 
@@ -1141,13 +1310,8 @@ document.addEventListener("click", e => {
   if (spanPlus) {
     const card = spanPlus.closest(".card");
     if (!card) return;
-    const s = getCardSize(card);
-    const curW = s.w || 6;
-    s.w = Math.min(GRID_COLS, curW + 1);
-    setCardSize(card, s);
-    applyCardSize(card, s);
-    saveLayout();
-    updateCardUI(card);
+    const curW = getCardSpan(card);
+    setCardSpanWithSiblings(card, Math.min(GRID_COLS, curW + 1));
     return;
   }
 
@@ -1247,32 +1411,137 @@ document.addEventListener("pointerdown", e => {
   const colW = (box.clientWidth - gap * (GRID_COLS - 1)) / GRID_COLS;
   const s = getCardSize(card);
   let touchedH = !!s.h;
+  let newH = s.h;
+
+  const rowCards = getRowCards(card);
+  const targetIndex = rowCards.indexOf(card);
+  const initialSpans = new Map(rowCards.map(c => [c, getCardSpan(c)]));
+  const initialTargetW = initialSpans.get(card);
+  const initialTotal = rowCards.reduce((sum, c) => sum + initialSpans.get(c), 0);
+  const initialSizes = new Map(rowCards.map(c => [c, getCardSize(c)]));
+  let currentSpans = new Map(initialSpans);
+
+  document.body.style.cursor = "nwse-resize";
+  document.body.style.userSelect = "none";
+  if (e.pointerId) {
+    try { grip.setPointerCapture(e.pointerId); } catch {}
+  }
 
   function onPointerMove(pe) {
     const dx = pe.clientX - startX;
     const dy = pe.clientY - startY;
 
-    // Breite (Spalten)
-    const targetW = rect.width + dx;
-    s.w = Math.min(GRID_COLS, Math.max(3, Math.round((targetW + gap) / (colW + gap))));
-
     // Höhe (px) wenn vertikal gezogen
     if (Math.abs(dy) > 8) touchedH = true;
     if (touchedH) {
-      s.h = Math.max(140, Math.round((rect.height + dy) / 10) * 10);
+      newH = Math.max(140, Math.round((rect.height + dy) / 10) * 10);
     }
 
-    applyCardSize(card, s);
-    updateCardUI(card);
+    // Breite (Spalten)
+    const targetW = rect.width + dx;
+    const rawCols = Math.round((targetW + gap) / (colW + gap));
+    let desiredW = Math.min(GRID_COLS, Math.max(MIN_SPAN, rawCols));
+
+    currentSpans = new Map(initialSpans);
+
+    if (rowCards.length <= 1) {
+      currentSpans.set(card, desiredW);
+    } else {
+      const delta = desiredW - initialTargetW;
+
+      if (delta > 0) {
+        const desiredTotal = initialTotal + delta;
+        if (desiredTotal <= GRID_COLS) {
+          currentSpans.set(card, desiredW);
+        } else {
+          let overflow = desiredTotal - GRID_COLS;
+          // 1. Karten rechts vom Ziel verkleinern
+          for (let i = targetIndex + 1; i < rowCards.length; i++) {
+            const c = rowCards[i];
+            const initW = initialSpans.get(c);
+            const canShrink = Math.max(0, initW - MIN_SPAN);
+            const shrink = Math.min(overflow, canShrink);
+            currentSpans.set(c, initW - shrink);
+            overflow -= shrink;
+          }
+          // 2. Falls noch Überlauf vorhanden: Karten links vom Ziel verkleinern
+          if (overflow > 0) {
+            for (let i = targetIndex - 1; i >= 0; i--) {
+              const c = rowCards[i];
+              const initW = initialSpans.get(c);
+              const canShrink = Math.max(0, initW - MIN_SPAN);
+              const shrink = Math.min(overflow, canShrink);
+              currentSpans.set(c, initW - shrink);
+              overflow -= shrink;
+            }
+          }
+          // 3. Ziel deckeln, damit keine Karte verdrängt wird
+          const finalW = desiredW - overflow;
+          currentSpans.set(card, Math.max(MIN_SPAN, finalW));
+        }
+      } else if (delta < 0) {
+        currentSpans.set(card, desiredW);
+        if (initialTotal === GRID_COLS) {
+          // Die Reihe war voll: Freigegebener Platz geht an die rechte Nachbarkarte (verschiebt die Trennlinie)
+          if (targetIndex < rowCards.length - 1) {
+            const rightCard = rowCards[targetIndex + 1];
+            const initW = initialSpans.get(rightCard);
+            let otherSum = 0;
+            for (let i = 0; i < rowCards.length; i++) {
+              if (i !== targetIndex && i !== targetIndex + 1) {
+                otherSum += initialSpans.get(rowCards[i]);
+              }
+            }
+            const maxRightW = GRID_COLS - desiredW - otherSum;
+            const newRightW = Math.min(maxRightW, initW + (-delta));
+            currentSpans.set(rightCard, newRightW);
+          }
+        }
+      }
+    }
+
+    rowCards.forEach(c => {
+      const spanForC = currentSpans.get(c);
+      const isTarget = (c === card);
+      const sizeForC = {
+        ...initialSizes.get(c),
+        w: spanForC,
+        ...(isTarget && touchedH ? { h: newH } : {})
+      };
+      applyCardSize(c, sizeForC);
+      const badge = c.querySelector(".card-dim-badge");
+      if (badge) {
+        const hText = (sizeForC && sizeForC.h) ? (sizeForC.h + "px") : "Auto";
+        badge.textContent = `${spanForC}/12 Spalten · Höhe: ${hText}`;
+      }
+    });
   }
 
-  function onPointerUp() {
+  function onPointerUp(pe) {
+    if (pe && pe.pointerId) {
+      try { grip.releasePointerCapture(pe.pointerId); } catch {}
+    }
+    document.body.style.removeProperty("cursor");
+    document.body.style.removeProperty("user-select");
     document.removeEventListener("pointermove", onPointerMove);
     document.removeEventListener("pointerup", onPointerUp);
     document.removeEventListener("pointercancel", onPointerUp);
-    setCardSize(card, s);
+
+    rowCards.forEach(c => {
+      const finalW = currentSpans.get(c) ?? getCardSpan(c);
+      const isTarget = (c === card);
+      const curSize = getCardSize(c);
+      const newSize = {
+        ...curSize,
+        w: finalW,
+        ...(isTarget && touchedH ? { h: newH } : {})
+      };
+      setCardSize(c, newSize);
+      applyCardSize(c, newSize);
+    });
+
     saveLayout();
-    updateCardUI(card);
+    updateBoxCardsUI(box);
   }
 
   document.addEventListener("pointermove", onPointerMove);

@@ -278,8 +278,8 @@ h2 .icon { margin-right: 8px; }
 .qview.active { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px; align-items: start; }
 
 /* ===== Timer-Seite: Übersicht ===== */
-.today-stats { display: flex; gap: 10px; }
-.today-stats > div { flex: 1; background: var(--inset); border: 1px solid var(--border); border-radius: 12px; padding: 14px 8px; text-align: center; }
+.today-stats { display: flex; gap: 10px; flex-wrap: wrap; }
+.today-stats > div { flex: 1; min-width: 70px; background: var(--inset); border: 1px solid var(--border); border-radius: 12px; padding: 14px 8px; text-align: center; }
 .today-stats strong { display: block; font-size: 1.55rem; font-weight: 700; color: var(--accent); line-height: 1.1; }
 .today-stats span { color: var(--muted); font-size: .76rem; }
 
