@@ -200,7 +200,8 @@ h2 .icon { margin-right: 8px; }
 /* ===== Zurück zur Startseite (unten im Seitenmenü) ===== */
 .back {
   display: flex; align-items: center; margin-top: auto; color: var(--muted); text-decoration: none;
-  padding: 12px 14px; border-radius: 12px; font-size: .95rem; font-weight: 600;
+  padding: 11px 14px; border-radius: 10px; font-size: .92rem; font-weight: 500;
+  transition: background .15s ease, color .15s ease;
 }
 .back:hover { background: var(--hover); color: var(--text); }
 .back .icon { opacity: .6; }
