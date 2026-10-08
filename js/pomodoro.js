@@ -898,39 +898,32 @@ normalizeMenu();
 applyMenu();
 
 /* ============================================================
-   FELDER ANORDNEN: Karten verschieben und in der Grösse ändern
-   Jede Seite ist ein Raster mit 12 Spalten. Pro Karte wird die
-   Reihenfolge, die Breite (Spalten) und die Höhe (px) gespeichert.
+   FELDER ANORDNEN: Position, Breite und Höhe der Felder anpassen
+   Raster mit 12 Spalten.
+   Pro Karte wird gespeichert:
+     - order: Array der Karten-IDs im Container
+     - size: { [kartenId]: { w: Spalten (3..12), h: Höhe in px (oder weggelassen für Auto) } }
    ============================================================ */
 const GRID_COLS = 12;
-let layout = load("pomo_layout", {});   // { seitenId: { order: [kartenId…], size: { kartenId: { w, h } } } }
+let layout = load("pomo_layout", {});
 const layoutBoxes = [...document.querySelectorAll(".page, .qview")].filter(box => box.querySelector(":scope > .card"));
 
-layoutBoxes.forEach(box => [...box.children].forEach((card, i) => {
-  card.dataset.card = box.id + "-" + i;
-  card.dataset.pos = i;
-  const grip = document.createElement("span");
-  grip.className = "card-resize";
-  grip.title = "Ziehen: Grösse ändern · Doppelklick: Höhe zurücksetzen";
-  card.appendChild(grip);
-}));
-
-function sizeCard(card, s) {
-  if (s && s.w) card.style.setProperty("--span", s.w); else card.style.removeProperty("--span");
-  card.style.height = s && s.h ? s.h + "px" : "";
-  card.classList.toggle("sized", !!(s && s.h));
+function getBoxCards(box) {
+  return [...box.children].filter(el => el.classList.contains("card"));
 }
 
-function applyLayout() {
-  layoutBoxes.forEach(box => {
-    const cfg = layout[box.id] || {};
-    const order = Array.isArray(cfg.order) ? cfg.order : [];
-    const rank = c => { const i = order.indexOf(c.dataset.card); return i < 0 ? 1000 + +c.dataset.pos : i; };
-    [...box.children].sort((a, b) => rank(a) - rank(b)).forEach(card => {
-      box.appendChild(card);
-      sizeCard(card, (cfg.size || {})[card.dataset.card]);
-    });
-  });
+function getCardId(card, box, index) {
+  return card.dataset.cardId || card.dataset.card || (box.id + "-" + index);
+}
+
+function getCardTitle(card) {
+  if (card.dataset.cardTitle) return card.dataset.cardTitle;
+  const h = card.querySelector("h2");
+  if (h) {
+    const text = h.textContent.trim();
+    if (text) return text;
+  }
+  return "Feld";
 }
 
 function boxCfg(box) {
@@ -938,84 +931,409 @@ function boxCfg(box) {
   cfg.size = cfg.size || {};
   return cfg;
 }
+
 const saveLayout = () => save("pomo_layout", layout);
 
-function dragUntilUp(onMove, onEnd) {
-  const end = () => {
-    document.removeEventListener("pointermove", onMove);
-    document.removeEventListener("pointerup", end);
-    document.removeEventListener("pointercancel", end);
-    onEnd();
-  };
-  document.addEventListener("pointermove", onMove);
-  document.addEventListener("pointerup", end);
-  document.addEventListener("pointercancel", end);
+function saveBoxOrder(box) {
+  const cfg = boxCfg(box);
+  cfg.order = getBoxCards(box).map(c => c.dataset.card);
+  saveLayout();
 }
 
-function startMove(card) {
+function getCardSize(card) {
   const box = card.parentElement;
-  let lastOver = null;   // verhindert Hin-und-her-Springen, solange der Zeiger auf derselben Karte bleibt
-  card.classList.add("dragging");
-  dragUntilUp(e => {
-    const el = document.elementFromPoint(e.clientX, e.clientY);
-    const over = el && el.closest(".card");
-    if (!over || over === card || over.parentElement !== box) { lastOver = null; return; }
-    if (over === lastOver) return;
-    lastOver = over;
-    const after = card.compareDocumentPosition(over) & Node.DOCUMENT_POSITION_FOLLOWING;
-    box.insertBefore(card, after ? over.nextSibling : over);
-  }, () => {
-    card.classList.remove("dragging");
-    boxCfg(box).order = [...box.children].map(c => c.dataset.card);
-    saveLayout();
+  if (!box) return {};
+  const cfg = boxCfg(box);
+  return { ...(cfg.size[card.dataset.card] || {}) };
+}
+
+function setCardSize(card, s) {
+  const box = card.parentElement;
+  if (!box) return;
+  const cfg = boxCfg(box);
+  const clean = {};
+  if (s && s.w) clean.w = Math.min(GRID_COLS, Math.max(3, s.w));
+  if (s && s.h) clean.h = Math.max(140, Math.round(s.h / 10) * 10);
+  cfg.size[card.dataset.card] = clean;
+}
+
+function applyCardSize(card, s) {
+  if (s && s.w) {
+    card.style.setProperty("--span", s.w);
+  } else {
+    card.style.removeProperty("--span");
+  }
+  if (s && s.h) {
+    card.style.height = s.h + "px";
+    card.classList.add("sized");
+  } else {
+    card.style.removeProperty("height");
+    card.classList.remove("sized");
+  }
+}
+
+function updateCardUI(card) {
+  const s = getCardSize(card);
+  const w = (s && s.w) ? s.w : 6;
+  const hText = (s && s.h) ? (s.h + "px") : "Auto";
+  const badge = card.querySelector(".card-dim-badge");
+  if (badge) {
+    badge.textContent = `${w}/12 Spalten · Höhe: ${hText}`;
+  }
+
+  card.querySelectorAll(".btn-ctrl-span-preset").forEach(btn => {
+    btn.classList.toggle("active", parseInt(btn.dataset.span, 10) === w);
+  });
+
+  const btnAuto = card.querySelector(".btn-ctrl-height-auto");
+  if (btnAuto) {
+    btnAuto.classList.toggle("active", !s || !s.h);
+  }
+
+  const prev = card.previousElementSibling;
+  const next = card.nextElementSibling;
+  const btnPrev = card.querySelector(".btn-ctrl-move-prev");
+  const btnNext = card.querySelector(".btn-ctrl-move-next");
+  if (btnPrev) btnPrev.disabled = !prev || !prev.classList.contains("card");
+  if (btnNext) btnNext.disabled = !next || !next.classList.contains("card");
+}
+
+function updateBoxCardsUI(box) {
+  getBoxCards(box).forEach(card => updateCardUI(card));
+}
+
+// Initialisiere alle Karten
+layoutBoxes.forEach(box => {
+  const cards = getBoxCards(box);
+  cards.forEach((card, i) => {
+    const cardId = getCardId(card, box, i);
+    const cardTitle = getCardTitle(card);
+    card.dataset.card = cardId;
+    card.dataset.pos = i;
+    card.dataset.cardTitle = cardTitle;
+
+    // Erstelle Edit-Toolbar
+    if (!card.querySelector(".card-edit-bar")) {
+      const bar = document.createElement("div");
+      bar.className = "card-edit-bar";
+      bar.innerHTML = `
+        <div class="card-edit-header">
+          <span class="card-drag-handle" title="Gedrückt halten & ziehen zum Verschieben">
+            <span class="drag-icon">⋮⋮</span>
+            <span class="card-edit-title">${cardTitle}</span>
+          </span>
+          <span class="card-dim-badge">6/12 Spalten · Höhe: Auto</span>
+        </div>
+        <div class="card-edit-controls">
+          <div class="card-edit-group" title="Position im Layout verschieben">
+            <span class="ctrl-label">Pos:</span>
+            <button type="button" class="btn-ctrl btn-ctrl-move-prev" title="Nach links / oben verschieben" aria-label="Zurück">←</button>
+            <button type="button" class="btn-ctrl btn-ctrl-move-next" title="Nach rechts / unten verschieben" aria-label="Vor">→</button>
+          </div>
+          <div class="card-edit-group" title="Breite in Spalten (Raster von 12)">
+            <span class="ctrl-label">Breite:</span>
+            <button type="button" class="btn-ctrl btn-ctrl-span-minus" title="Schmaler (−1 Spalte)">−</button>
+            <button type="button" class="btn-ctrl btn-ctrl-span-preset" data-span="4" title="1/3 Breite">⅓</button>
+            <button type="button" class="btn-ctrl btn-ctrl-span-preset" data-span="6" title="1/2 Breite (Standard)">½</button>
+            <button type="button" class="btn-ctrl btn-ctrl-span-preset" data-span="8" title="2/3 Breite">⅔</button>
+            <button type="button" class="btn-ctrl btn-ctrl-span-preset" data-span="12" title="Volle Breite (100%)">Voll</button>
+            <button type="button" class="btn-ctrl btn-ctrl-span-plus" title="Breiter (+1 Spalte)">+</button>
+          </div>
+          <div class="card-edit-group" title="Höhe anpassen">
+            <span class="ctrl-label">Höhe:</span>
+            <button type="button" class="btn-ctrl btn-ctrl-height-minus" title="Höhe verringern (−40px)">−</button>
+            <button type="button" class="btn-ctrl btn-ctrl-height-auto" title="Automatische Höhe (an Inhalt angepasst)">Auto</button>
+            <button type="button" class="btn-ctrl btn-ctrl-height-plus" title="Höhe vergrössern (+40px)">+</button>
+          </div>
+        </div>
+      `;
+      card.insertBefore(bar, card.firstChild);
+    }
+
+    // Resize-Griff
+    let grip = card.querySelector(".card-resize");
+    if (!grip) {
+      grip = document.createElement("span");
+      grip.className = "card-resize";
+      grip.title = "Ziehen: Grösse ändern · Doppelklick: Höhe auf Auto zurücksetzen";
+      card.appendChild(grip);
+    }
+  });
+});
+
+function applyLayout() {
+  layoutBoxes.forEach(box => {
+    const cfg = layout[box.id] || {};
+    const order = Array.isArray(cfg.order) ? cfg.order : [];
+    const cards = getBoxCards(box);
+    const rank = c => {
+      const idx = order.indexOf(c.dataset.card);
+      return idx < 0 ? 1000 + +c.dataset.pos : idx;
+    };
+    cards.sort((a, b) => rank(a) - rank(b)).forEach(card => {
+      box.appendChild(card);
+      const s = (cfg.size || {})[card.dataset.card];
+      applyCardSize(card, s);
+    });
+    updateBoxCardsUI(box);
   });
 }
 
-function startResize(card, start) {
-  const box = card.parentElement, cfg = boxCfg(box), key = card.dataset.card;
-  const rect = card.getBoundingClientRect();
-  const gap = parseFloat(getComputedStyle(box).columnGap) || 0;
-  const colW = (box.clientWidth - gap * (GRID_COLS - 1)) / GRID_COLS;
-  const s = { ...cfg.size[key] };
-  let heightTouched = false;
-  dragUntilUp(e => {
-    const dx = e.clientX - start.clientX, dy = e.clientY - start.clientY;
-    s.w = Math.min(GRID_COLS, Math.max(3, Math.round((rect.width + dx + gap) / (colW + gap))));
-    if (Math.abs(dy) > 8) heightTouched = true;   // nur seitlich gezogen → Höhe bleibt automatisch
-    if (heightTouched) s.h = Math.max(120, Math.round((rect.height + dy) / 10) * 10);
-    sizeCard(card, s);
-  }, () => { cfg.size[key] = s; saveLayout(); });
-}
-
-document.addEventListener("pointerdown", e => {
+// Interaktionen über Toolbar-Buttons
+document.addEventListener("click", e => {
   if (!document.body.classList.contains("layout-edit")) return;
-  const card = e.target.closest(".page .card");
-  if (!card) return;
-  e.preventDefault();
-  if (e.target.closest(".card-resize")) startResize(card, e); else startMove(card);
+
+  const prevBtn = e.target.closest(".btn-ctrl-move-prev");
+  if (prevBtn) {
+    const card = prevBtn.closest(".card");
+    const box = card?.parentElement;
+    const prev = card?.previousElementSibling;
+    if (box && prev && prev.classList.contains("card")) {
+      box.insertBefore(card, prev);
+      saveBoxOrder(box);
+      updateBoxCardsUI(box);
+    }
+    return;
+  }
+
+  const nextBtn = e.target.closest(".btn-ctrl-move-next");
+  if (nextBtn) {
+    const card = nextBtn.closest(".card");
+    const box = card?.parentElement;
+    const next = card?.nextElementSibling;
+    if (box && next && next.classList.contains("card")) {
+      box.insertBefore(next, card);
+      saveBoxOrder(box);
+      updateBoxCardsUI(box);
+    }
+    return;
+  }
+
+  const spanPreset = e.target.closest(".btn-ctrl-span-preset");
+  if (spanPreset) {
+    const card = spanPreset.closest(".card");
+    if (!card) return;
+    const w = parseInt(spanPreset.dataset.span, 10);
+    const s = getCardSize(card);
+    s.w = w;
+    setCardSize(card, s);
+    applyCardSize(card, s);
+    saveLayout();
+    updateCardUI(card);
+    return;
+  }
+
+  const spanMinus = e.target.closest(".btn-ctrl-span-minus");
+  if (spanMinus) {
+    const card = spanMinus.closest(".card");
+    if (!card) return;
+    const s = getCardSize(card);
+    const curW = s.w || 6;
+    s.w = Math.max(3, curW - 1);
+    setCardSize(card, s);
+    applyCardSize(card, s);
+    saveLayout();
+    updateCardUI(card);
+    return;
+  }
+
+  const spanPlus = e.target.closest(".btn-ctrl-span-plus");
+  if (spanPlus) {
+    const card = spanPlus.closest(".card");
+    if (!card) return;
+    const s = getCardSize(card);
+    const curW = s.w || 6;
+    s.w = Math.min(GRID_COLS, curW + 1);
+    setCardSize(card, s);
+    applyCardSize(card, s);
+    saveLayout();
+    updateCardUI(card);
+    return;
+  }
+
+  const heightAuto = e.target.closest(".btn-ctrl-height-auto");
+  if (heightAuto) {
+    const card = heightAuto.closest(".card");
+    if (!card) return;
+    const s = getCardSize(card);
+    delete s.h;
+    setCardSize(card, s);
+    applyCardSize(card, s);
+    saveLayout();
+    updateCardUI(card);
+    return;
+  }
+
+  const heightMinus = e.target.closest(".btn-ctrl-height-minus");
+  if (heightMinus) {
+    const card = heightMinus.closest(".card");
+    if (!card) return;
+    const s = getCardSize(card);
+    const curH = s.h || card.offsetHeight;
+    s.h = Math.max(140, Math.round((curH - 40) / 10) * 10);
+    setCardSize(card, s);
+    applyCardSize(card, s);
+    saveLayout();
+    updateCardUI(card);
+    return;
+  }
+
+  const heightPlus = e.target.closest(".btn-ctrl-height-plus");
+  if (heightPlus) {
+    const card = heightPlus.closest(".card");
+    if (!card) return;
+    const s = getCardSize(card);
+    const curH = s.h || card.offsetHeight;
+    s.h = Math.max(140, Math.round((curH + 40) / 10) * 10);
+    setCardSize(card, s);
+    applyCardSize(card, s);
+    saveLayout();
+    updateCardUI(card);
+    return;
+  }
 });
 
-document.addEventListener("dblclick", e => {
+// Drag & Drop
+let draggedCard = null;
+
+document.addEventListener("dragstart", e => {
+  if (!document.body.classList.contains("layout-edit")) return;
+  const card = e.target.closest(".page .card, .qview .card");
+  if (!card) return;
+  draggedCard = card;
+  card.classList.add("is-dragging");
+  e.dataTransfer.effectAllowed = "move";
+  e.dataTransfer.setData("text/plain", card.dataset.card);
+});
+
+document.addEventListener("dragover", e => {
+  if (!draggedCard) return;
+  const target = e.target.closest(".page .card, .qview .card");
+  if (!target || target === draggedCard || target.parentElement !== draggedCard.parentElement) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = "move";
+
+  const box = draggedCard.parentElement;
+  const rect = target.getBoundingClientRect();
+  const isAfter = (e.clientY > rect.top + rect.height / 2) || (e.clientX > rect.left + rect.width / 2);
+  box.insertBefore(draggedCard, isAfter ? target.nextSibling : target);
+});
+
+document.addEventListener("dragend", () => {
+  if (!draggedCard) return;
+  const box = draggedCard.parentElement;
+  draggedCard.classList.remove("is-dragging");
+  draggedCard = null;
+  if (box) {
+    saveBoxOrder(box);
+    updateBoxCardsUI(box);
+  }
+});
+
+// Resize über Griff unten rechts per Pointer Events
+document.addEventListener("pointerdown", e => {
+  if (!document.body.classList.contains("layout-edit")) return;
   const grip = e.target.closest(".card-resize");
-  if (!grip || !document.body.classList.contains("layout-edit")) return;
-  const card = grip.parentElement, cfg = boxCfg(card.parentElement);
-  const s = { ...cfg.size[card.dataset.card] };
+  if (!grip) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  const card = grip.closest(".card");
+  const box = card.parentElement;
+  const rect = card.getBoundingClientRect();
+  const startX = e.clientX, startY = e.clientY;
+  const gap = parseFloat(getComputedStyle(box).columnGap) || 16;
+  const colW = (box.clientWidth - gap * (GRID_COLS - 1)) / GRID_COLS;
+  const s = getCardSize(card);
+  let touchedH = !!s.h;
+
+  function onPointerMove(pe) {
+    const dx = pe.clientX - startX;
+    const dy = pe.clientY - startY;
+
+    // Breite (Spalten)
+    const targetW = rect.width + dx;
+    s.w = Math.min(GRID_COLS, Math.max(3, Math.round((targetW + gap) / (colW + gap))));
+
+    // Höhe (px) wenn vertikal gezogen
+    if (Math.abs(dy) > 8) touchedH = true;
+    if (touchedH) {
+      s.h = Math.max(140, Math.round((rect.height + dy) / 10) * 10);
+    }
+
+    applyCardSize(card, s);
+    updateCardUI(card);
+  }
+
+  function onPointerUp() {
+    document.removeEventListener("pointermove", onPointerMove);
+    document.removeEventListener("pointerup", onPointerUp);
+    document.removeEventListener("pointercancel", onPointerUp);
+    setCardSize(card, s);
+    saveLayout();
+    updateCardUI(card);
+  }
+
+  document.addEventListener("pointermove", onPointerMove);
+  document.addEventListener("pointerup", onPointerUp);
+  document.addEventListener("pointercancel", onPointerUp);
+});
+
+// Doppelklick auf Resize-Griff: Höhe zurücksetzen
+document.addEventListener("dblclick", e => {
+  if (!document.body.classList.contains("layout-edit")) return;
+  const grip = e.target.closest(".card-resize");
+  if (!grip) return;
+  const card = grip.closest(".card");
+  const s = getCardSize(card);
   delete s.h;
-  cfg.size[card.dataset.card] = s;
-  sizeCard(card, s);
+  setCardSize(card, s);
+  applyCardSize(card, s);
   saveLayout();
+  updateCardUI(card);
 });
 
 function setLayoutEdit(on) {
   document.body.classList.toggle("layout-edit", on);
   $("layoutBar").hidden = !on;
+  $("layoutEditBtn")?.classList.toggle("active", on);
+
+  const timerBtn = $("timerLayoutToggleBtn");
+  if (timerBtn) {
+    timerBtn.classList.toggle("active", on);
+    const label = timerBtn.querySelector(".btn-topbar-text");
+    if (label) label.textContent = on ? "✓ Fertig" : "Felder anpassen";
+  }
+
+  document.querySelectorAll(".page .card, .qview .card").forEach(card => {
+    card.draggable = on;
+  });
+
+  if (on) {
+    layoutBoxes.forEach(box => updateBoxCardsUI(box));
+  }
 }
-$("layoutEditBtn").onclick = () => setLayoutEdit(!document.body.classList.contains("layout-edit"));
-$("layoutDone").onclick = () => setLayoutEdit(false);
-$("layoutReset").onclick = () => { layout = {}; saveLayout(); applyLayout(); };
+
+if ($("layoutEditBtn")) $("layoutEditBtn").onclick = () => setLayoutEdit(!document.body.classList.contains("layout-edit"));
+if ($("timerLayoutToggleBtn")) $("timerLayoutToggleBtn").onclick = () => setLayoutEdit(!document.body.classList.contains("layout-edit"));
+if ($("layoutDone")) $("layoutDone").onclick = () => setLayoutEdit(false);
+if ($("layoutReset")) $("layoutReset").onclick = () => {
+  layout = {};
+  saveLayout();
+  layoutBoxes.forEach(box => {
+    const cards = getBoxCards(box);
+    cards.sort((a, b) => (+a.dataset.pos) - (+b.dataset.pos)).forEach(card => {
+      box.appendChild(card);
+      applyCardSize(card, {});
+    });
+    updateBoxCardsUI(box);
+  });
+};
 document.addEventListener("keydown", e => { if (e.key === "Escape") setLayoutEdit(false); });
 
 applyLayout();
+
 
 /* ============================================================
    START

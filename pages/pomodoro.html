@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style/pomodoro.css?v=2">
+<link rel="stylesheet" href="../style/pomodoro.css?v=3">
 </head>
 <body>
 
@@ -32,7 +32,18 @@
 
   <!-- ================= TIMER ================= -->
   <section id="timer" class="page active">
-    <div class="card">
+    <div class="page-topbar">
+      <div class="page-topbar-info">
+        <span class="page-badge">Fokus</span>
+        <span class="page-desc">Pomodoro Arbeitsbereich</span>
+      </div>
+      <button class="btn-topbar" id="timerLayoutToggleBtn" type="button" title="Felder verschieben und Grösse anpassen">
+        <img class="icon" src="../img/layout.svg" alt="">
+        <span class="btn-topbar-text">Felder anpassen</span>
+      </button>
+    </div>
+
+    <div class="card" data-card-id="timer-clock" data-card-title="Timer">
       <div class="modes">
         <button data-mode="focus" class="active">Fokus</button>
         <button data-mode="short">Kurze Pause</button>
@@ -65,7 +76,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card" data-card-id="timer-settings" data-card-title="Zeiten einstellen">
       <h2><img class="icon" src="../img/settings.svg" alt="">Zeiten einstellen</h2>
       <div class="presets">
         <button type="button" data-preset="25,5,15">Klassisch<small>25 / 5</small></button>
@@ -83,7 +94,7 @@
       <p class="hint" id="cycleHint"></p>
     </div>
 
-      <div class="card today-card">
+      <div class="card today-card" data-card-id="timer-today" data-card-title="Heute">
         <h2>Heute</h2>
         <div class="today-stats">
           <div><strong id="tMin">0</strong><span>Min fokussiert</span></div>
@@ -97,7 +108,7 @@
         </div>
       </div>
 
-      <div class="card quote-card">
+      <div class="card quote-card" data-card-id="timer-quote" data-card-title="Zum Fokussieren">
         <h2>Zum Fokussieren</h2>
         <blockquote id="tQuote"></blockquote>
         <cite id="tQuoteAuthor"></cite>
@@ -178,7 +189,7 @@
 
   <!-- ================= STATISTIK ================= -->
   <section id="stats" class="page">
-    <div class="card">
+    <div class="card" data-card-id="stats-overview" data-card-title="Übersicht">
       <h2>Übersicht</h2>
       <div class="stat-grid">
         <div class="stat"><div class="num" id="stToday">0</div><div class="desc">Minuten heute</div></div>
@@ -188,17 +199,17 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card" data-card-id="stats-chart" data-card-title="Letzte 7 Tage">
       <h2>Letzte 7 Tage (Minuten)</h2>
       <div class="chart" id="chart"></div>
     </div>
 
-    <div class="card">
+    <div class="card" data-card-id="stats-subjects" data-card-title="Nach Fach">
       <h2>Nach Fach</h2>
       <div id="subjectStats"></div>
     </div>
 
-    <div class="card">
+    <div class="card" data-card-id="stats-history" data-card-title="Letzte Sessions">
       <h2>Letzte Sessions</h2>
       <ul class="history" id="history"></ul>
       <button class="link-btn" id="clearBtn">Alle Daten löschen</button>
@@ -280,11 +291,15 @@
 
 <!-- Felder anordnen -->
 <div class="layout-bar" id="layoutBar" hidden>
-  <span>Feld ziehen = verschieben · Ecke unten rechts ziehen = Grösse ändern</span>
-  <button class="btn secondary" type="button" id="layoutReset">Zurücksetzen</button>
-  <button class="btn" type="button" id="layoutDone">Fertig</button>
+  <div class="layout-bar-text">
+    <strong>Layout bearbeiten:</strong> Position (← → / ziehen), Breite (Spalten) &amp; Höhe anpassen.
+  </div>
+  <div class="layout-bar-actions">
+    <button class="btn secondary" type="button" id="layoutReset">Zurücksetzen</button>
+    <button class="btn" type="button" id="layoutDone">Fertig</button>
+  </div>
 </div>
 
-<script src="../js/pomodoro.js?v=2"></script>
+<script src="../js/pomodoro.js?v=3"></script>
 </body>
 </html>
