@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style/pomodoro.css?v=3">
+<link rel="stylesheet" href="../style/pomodoro.css?v=7">
 </head>
 <body>
 
@@ -43,6 +43,8 @@
       </button>
     </div>
 
+    <!-- Freies Layout: Felder ohne Spalten frei platzierbar (siehe "FREIES LAYOUT" in pomodoro.js) -->
+    <div class="free-canvas" id="timerCanvas">
     <div class="card" data-card-id="timer-clock" data-card-title="Timer">
       <div class="modes">
         <button data-mode="focus" class="active">Fokus</button>
@@ -113,6 +115,7 @@
         <blockquote id="tQuote"></blockquote>
         <cite id="tQuoteAuthor"></cite>
       </div>
+    </div><!-- /.free-canvas -->
   </section>
 
   <!-- ================= TO-DO ================= -->
@@ -292,7 +295,7 @@
 <!-- Felder anordnen -->
 <div class="layout-bar" id="layoutBar" hidden>
   <div class="layout-bar-text">
-    <strong>Layout bearbeiten:</strong> Position (← → / ziehen), Breite (Spalten) &amp; Höhe anpassen.
+    <strong>Layout bearbeiten:</strong> Felder frei ziehen zum Verschieben, Kanten &amp; Ecken ziehen für die Grösse.
   </div>
   <div class="layout-bar-actions">
     <button class="btn secondary" type="button" id="layoutReset">Zurücksetzen</button>
@@ -300,6 +303,6 @@
   </div>
 </div>
 
-<script src="../js/pomodoro.js?v=3"></script>
+<script src="../js/pomodoro.js?v=7"></script>
 </body>
 </html>

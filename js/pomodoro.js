@@ -1363,7 +1363,7 @@ let draggedCard = null;
 document.addEventListener("dragstart", e => {
   if (!document.body.classList.contains("layout-edit")) return;
   const card = e.target.closest(".page .card, .qview .card");
-  if (!card) return;
+  if (!card || card.closest(".free-canvas")) return;
   draggedCard = card;
   card.classList.add("is-dragging");
   e.dataTransfer.effectAllowed = "move";
@@ -1398,7 +1398,7 @@ document.addEventListener("dragend", () => {
 document.addEventListener("pointerdown", e => {
   if (!document.body.classList.contains("layout-edit")) return;
   const grip = e.target.closest(".card-resize");
-  if (!grip) return;
+  if (!grip || grip.closest(".free-canvas")) return;
 
   e.preventDefault();
   e.stopPropagation();
@@ -1553,7 +1553,7 @@ document.addEventListener("pointerdown", e => {
 document.addEventListener("dblclick", e => {
   if (!document.body.classList.contains("layout-edit")) return;
   const grip = e.target.closest(".card-resize");
-  if (!grip) return;
+  if (!grip || grip.closest(".free-canvas")) return;
   const card = grip.closest(".card");
   const s = getCardSize(card);
   delete s.h;
@@ -1575,13 +1575,15 @@ function setLayoutEdit(on) {
     if (label) label.textContent = on ? "✓ Fertig" : "Felder anpassen";
   }
 
+  // Felder im freien Layout werden per Pointer-Events verschoben, nicht per HTML5-Drag
   document.querySelectorAll(".page .card, .qview .card").forEach(card => {
-    card.draggable = on;
+    card.draggable = on && !card.closest(".free-canvas");
   });
 
   if (on) {
     layoutBoxes.forEach(box => updateBoxCardsUI(box));
   }
+  freeRenderAll();
 }
 
 if ($("layoutEditBtn")) $("layoutEditBtn").onclick = () => setLayoutEdit(!document.body.classList.contains("layout-edit"));
@@ -1598,10 +1600,697 @@ if ($("layoutReset")) $("layoutReset").onclick = () => {
     });
     updateBoxCardsUI(box);
   });
+  freeResetAll();
 };
 document.addEventListener("keydown", e => { if (e.key === "Escape") setLayoutEdit(false); });
 
 applyLayout();
+
+/* ============================================================
+   FREIES LAYOUT (Timer-Seite): Felder ohne Spalten frei platzieren
+   - Felder liegen absolut positioniert im Container (.free-canvas)
+   - Verschieben: Feld im Bearbeitungsmodus irgendwo anfassen und ziehen
+   - Grösse: Griff unten rechts stufenlos ziehen, Doppelklick = Höhe automatisch
+   - Magnetische Hilfslinien an Rändern anderer Felder (Alt gedrückt halten = aus)
+   Gespeichert pro Feld in layout[containerId].free[kartenId]:
+     { x, w: Anteil der Containerbreite (0..1), y: px von oben, h: px oder weggelassen (Auto), z: Ebene }
+   ============================================================ */
+const FREE_GAP = 16;          // Abstand, auf den neben andere Felder eingerastet wird
+const FREE_SNAP = 8;          // Fangbereich der Hilfslinien in px
+const FREE_MIN_W = 220;       // minimale Feldbreite in px
+const FREE_MIN_H = 120;       // minimale Feldhöhe in px
+const FREE_EDIT_EXTRA = 240;  // zusätzlicher Platz unten im Bearbeitungsmodus
+const freeStackedMQ = window.matchMedia("(max-width: 680px)");
+const freeBoxes = [...document.querySelectorAll(".free-canvas")];
+
+function freeCards(box) {
+  return [...box.children].filter(el => el.classList.contains("card"));
+}
+
+function freeCfg(box) {
+  const cfg = layout[box.id] || (layout[box.id] = {});
+  if (!cfg.free || typeof cfg.free !== "object") cfg.free = {};
+  return cfg.free;
+}
+
+function freeValid(p) {
+  return !!p && [p.x, p.y, p.w].every(n => typeof n === "number" && isFinite(n)) && p.w > 0;
+}
+
+function freeIsComplete(box) {
+  const cfg = freeCfg(box);
+  return freeCards(box).every(c => freeValid(cfg[c.dataset.card]));
+}
+
+function freeClearStyles(card) {
+  ["left", "top", "width", "height", "z-index", "order", "--span"].forEach(prop => card.style.removeProperty(prop));
+  card.classList.remove("sized");
+}
+
+// Erste Anordnung: Felder im bisherigen Raster messen (inkl. alter gespeicherter Spalten/Reihenfolge)
+function freeMeasureDefaults(box) {
+  const legacy = layout[box.closest(".page")?.id || ""] || {};
+  const order = Array.isArray(legacy.order) ? legacy.order : [];
+  const sizes = legacy.size || {};
+  const cards = freeCards(box);
+
+  box.classList.remove("free-ready");
+  box.style.removeProperty("height");
+  cards.forEach(c => {
+    freeClearStyles(c);
+    const idx = order.indexOf(c.dataset.card);
+    c.style.order = idx < 0 ? 1000 + +c.dataset.pos : idx;
+    const s = sizes[c.dataset.card] || {};
+    if (s.w) c.style.setProperty("--span", Math.min(12, Math.max(3, s.w)));
+    if (s.h) c.style.height = s.h + "px";
+  });
+
+  const W = box.clientWidth;
+  const bRect = box.getBoundingClientRect();
+  const cfg = freeCfg(box);
+  const sorted = [...cards].sort((a, b) => (+a.style.order) - (+b.style.order));
+  sorted.forEach((c, i) => {
+    const r = c.getBoundingClientRect();
+    const s = sizes[c.dataset.card] || {};
+    cfg[c.dataset.card] = {
+      x: (r.left - bRect.left) / W,
+      y: Math.round(r.top - bRect.top),
+      w: r.width / W,
+      ...(s.h ? { h: s.h } : {}),
+      z: i + 1
+    };
+  });
+  cards.forEach(c => { c.style.removeProperty("order"); c.style.removeProperty("--span"); });
+}
+
+// Neue Felder ohne gespeicherte Position unten anhängen
+function freePlaceMissing(box) {
+  const cfg = freeCfg(box);
+  let bottom = 0;
+  let maxZ = 0;
+  freeCards(box).forEach(c => {
+    const p = cfg[c.dataset.card];
+    if (freeValid(p)) {
+      bottom = Math.max(bottom, p.y + (p.h || c.offsetHeight));
+      maxZ = Math.max(maxZ, p.z || 0);
+    }
+  });
+  freeCards(box).forEach(c => {
+    if (freeValid(cfg[c.dataset.card])) return;
+    cfg[c.dataset.card] = { x: 0, y: bottom ? bottom + FREE_GAP : 0, w: 0.5, z: ++maxZ };
+    bottom += FREE_GAP + 300;
+  });
+}
+
+function freeSanitize(p) {
+  p.w = Math.min(1, Math.max(0.05, p.w));
+  p.x = Math.min(1 - p.w, Math.max(0, p.x));
+  p.y = Math.max(0, Math.round(p.y));
+  if (p.h) p.h = Math.max(FREE_MIN_H, Math.round(p.h));
+  return p;
+}
+
+function freeApplyCard(card, p) {
+  card.style.left = (p.x * 100) + "%";
+  card.style.width = (p.w * 100) + "%";
+  card.style.top = p.y + "px";
+  card.style.zIndex = p.z || 1;
+  if (p.h) {
+    card.style.height = p.h + "px";
+    card.classList.add("sized");
+  } else {
+    card.style.removeProperty("height");
+    card.classList.remove("sized");
+  }
+}
+
+function freeUpdateBadge(card, p) {
+  const badge = card.querySelector(".card-dim-badge");
+  if (badge) badge.textContent = `${Math.round(card.offsetWidth)} × ${p && p.h ? Math.round(p.h) : "Auto"} px`;
+  card.querySelector(".free-h-auto")?.classList.toggle("active", !(p && p.h));
+}
+
+// Containerhöhe an das unterste Feld anpassen (absolut positionierte Felder haben keine Flusshöhe)
+function freeUpdateHeight(box) {
+  if (!box.classList.contains("free-ready")) return;
+  let bottom = 0;
+  freeCards(box).forEach(c => { bottom = Math.max(bottom, c.offsetTop + c.offsetHeight); });
+  const extra = document.body.classList.contains("layout-edit") ? FREE_EDIT_EXTRA : 0;
+  box.style.height = (bottom + extra) + "px";
+}
+
+function freeNormalizeZ(box) {
+  const cfg = freeCfg(box);
+  freeCards(box)
+    .map(c => cfg[c.dataset.card])
+    .filter(Boolean)
+    .sort((a, b) => (a.z || 0) - (b.z || 0))
+    .forEach((p, i) => { p.z = i + 1; });
+}
+
+function freeRender(box) {
+  if (!box.clientWidth) return;                 // Seite gerade nicht sichtbar
+  const cfg = freeCfg(box);
+  const cards = freeCards(box);
+  if (!freeIsComplete(box)) {
+    const hasAny = cards.some(c => freeValid(cfg[c.dataset.card]));
+    if (!hasAny) {
+      if (freeStackedMQ.matches) return;        // erst messen, wenn genug Platz für das Raster da ist
+      if (document.fonts && document.fonts.status !== "loaded") return; // fonts.ready rendert später erneut
+      freeMeasureDefaults(box);
+    } else {
+      freePlaceMissing(box);
+    }
+    saveLayout();
+  }
+  box.classList.add("free-ready");
+  cards.forEach(c => {
+    const p = freeSanitize(cfg[c.dataset.card]);
+    freeApplyCard(c, p);
+  });
+  freeResolveOverlaps(box);
+  freeUpdateHeight(box);
+  cards.forEach(c => freeUpdateBadge(c, cfg[c.dataset.card]));
+}
+
+// Garantiert, dass sich keine Felder überlappen: Überlappende Felder werden nach unten geschoben.
+// Nur Anzeige (z. B. wenn Inhalt wächst) – gespeichert wird beim nächsten Verschieben/Grösse ändern.
+function freeResolveOverlaps(box) {
+  const cfg = freeCfg(box);
+  const W = box.clientWidth;
+  const items = freeCards(box).map(c => {
+    const p = cfg[c.dataset.card];
+    return { c, l: p.x * W, r: (p.x + p.w) * W, t: p.y, h: c.offsetHeight };
+  }).sort((a, b) => a.t - b.t || a.l - b.l);
+  const placed = [];
+  items.forEach(it => {
+    let moved = true;
+    while (moved) {
+      moved = false;
+      for (const o of placed) {
+        if (it.l < o.r - 1 && o.l < it.r - 1 && it.t < o.t + o.h - 1 && o.t < it.t + it.h - 1) {
+          it.t = o.t + o.h + FREE_GAP;
+          moved = true;
+        }
+      }
+    }
+    placed.push(it);
+    it.c.style.top = it.t + "px";
+  });
+}
+
+function freeRenderAll() {
+  freeBoxes.forEach(freeRender);
+}
+
+function freeResetAll() {
+  freeBoxes.forEach(box => {
+    delete layout[box.id];
+    box.classList.remove("free-ready");
+    box.style.removeProperty("height");
+    freeCards(box).forEach(freeClearStyles);
+    freeRender(box);
+  });
+}
+
+// Bearbeitungsleiste, Resize-Griff und Hilfslinien für jedes freie Feld anlegen
+freeBoxes.forEach(box => {
+  freeCards(box).forEach((card, i) => {
+    const title = getCardTitle(card);
+    card.dataset.card = card.dataset.cardId || (box.id + "-" + i);
+    card.dataset.pos = i;
+    card.dataset.cardTitle = title;
+
+    if (!card.querySelector(".card-edit-bar")) {
+      const bar = document.createElement("div");
+      bar.className = "card-edit-bar";
+      bar.innerHTML = `
+        <div class="card-edit-header">
+          <span class="card-drag-handle" title="Feld anfassen &amp; frei ziehen">
+            <span class="drag-icon">⋮⋮</span>
+            <span class="card-edit-title"></span>
+          </span>
+          <span class="card-dim-badge"></span>
+        </div>
+        <div class="card-edit-controls">
+          <div class="card-edit-group">
+            <button type="button" class="btn-ctrl free-h-auto" title="Höhe automatisch an den Inhalt anpassen">Auto-Höhe</button>
+          </div>
+        </div>
+      `;
+      bar.querySelector(".card-edit-title").textContent = title;
+      card.insertBefore(bar, card.firstChild);
+    }
+
+    const FREE_HANDLES = [
+      { dir: "n", cls: "free-h-n", title: "Obere Kante ziehen" },
+      { dir: "s", cls: "free-h-s", title: "Untere Kante ziehen" },
+      { dir: "w", cls: "free-h-w", title: "Linke Kante ziehen" },
+      { dir: "e", cls: "free-h-e", title: "Rechte Kante ziehen" },
+      { dir: "nw", cls: "free-h-nw free-h-corner", title: "Ecke oben-links ziehen" },
+      { dir: "ne", cls: "free-h-ne free-h-corner", title: "Ecke oben-rechts ziehen" },
+      { dir: "sw", cls: "free-h-sw free-h-corner", title: "Ecke unten-links ziehen" },
+      { dir: "se", cls: "free-h-se free-h-corner", title: "Ecke unten-rechts ziehen" }
+    ];
+    if (!card.querySelector(".free-handle")) {
+      FREE_HANDLES.forEach(h => {
+        const grip = document.createElement("span");
+        grip.className = "free-handle " + h.cls;
+        grip.dataset.dir = h.dir;
+        grip.title = h.title + " · Doppelklick: Höhe automatisch";
+        card.appendChild(grip);
+      });
+    }
+  });
+
+  ["v", "h"].forEach(dir => {
+    const g = document.createElement("div");
+    g.className = "free-guide " + dir;
+    box.appendChild(g);
+  });
+});
+
+// Sucht die nächstgelegene Hilfslinie. pairs: [{ edge: aktuelle Kante, targets: [mögliche Linien] }]
+function freeBestSnap(pairs) {
+  let best = null;
+  pairs.forEach(({ edge, targets }) => {
+    targets.forEach(t => {
+      const d = t - edge;
+      if (Math.abs(d) <= FREE_SNAP && (!best || Math.abs(d) < Math.abs(best.d))) best = { d, line: t };
+    });
+  });
+  return best;
+}
+
+function freeShowGuides(box, sx, sy) {
+  const gv = box.querySelector(".free-guide.v");
+  const gh = box.querySelector(".free-guide.h");
+  if (gv) { gv.classList.toggle("show", !!sx); if (sx) gv.style.left = sx.line + "px"; }
+  if (gh) { gh.classList.toggle("show", !!sy); if (sy) gh.style.top = sy.line + "px"; }
+}
+
+// Überlappen sich zwei Rechtecke { l, t, w, h }? (1px Toleranz, aneinanderstossen ist erlaubt)
+function freeOverlaps(a, b) {
+  return a.l < b.l + b.w - 1 && b.l < a.l + a.w - 1 && a.t < b.t + b.h - 1 && b.t < a.t + a.h - 1;
+}
+
+// Sucht für ein verdrängtes Feld (b0) einen freien Platz, bevorzugt nahe dem frei gewordenen Platz (a0)
+// oder seinem bisherigen Platz. Passt es nicht in voller Breite, wird es schmaler gemacht.
+function freeFindSpot(b0, a0, occupied, W) {
+  const minW = Math.min(FREE_MIN_W, b0.w);
+  const xs = new Set([0, a0.l, b0.l, Math.max(0, W - b0.w)]);
+  const ys = new Set([0, a0.t, b0.t]);
+  occupied.forEach(o => { xs.add(o.l + o.w + FREE_GAP); ys.add(o.t + o.h + FREE_GAP); });
+  let best = null;
+  xs.forEach(x => {
+    if (x < 0 || x > W - minW) return;
+    ys.forEach(y => {
+      if (y < 0) return;
+      const h = b0.h;
+      let w = Math.min(b0.w, W - x);
+      for (const o of occupied) {
+        if (y < o.t + o.h - 1 && o.t < y + h - 1) {                 // liegt im selben Höhenbereich
+          if (o.l <= x + 1 && o.l + o.w > x + 1) { w = 0; break; }  // Platz ist belegt
+          if (o.l > x) w = Math.min(w, o.l - FREE_GAP - x);          // rechts davon begrenzt die Breite
+        }
+      }
+      if (w < minW) return;
+      const dist = Math.min(Math.hypot(x - a0.l, y - a0.t), Math.hypot(x - b0.l, y - b0.t));
+      const score = dist + (b0.w - w) * 1.5;                         // Verkleinern kostet etwas
+      if (!best || score < best.score) best = { score, rect: { l: x, t: y, w, h } };
+    });
+  });
+  if (best) return best.rect;
+  // Notlösung: ganz unten anhängen
+  const bottom = Math.max(0, ...occupied.map(o => o.t + o.h));
+  return { l: Math.min(b0.l, Math.max(0, W - b0.w)), t: bottom + FREE_GAP, w: Math.min(b0.w, W), h: b0.h };
+}
+
+// Verschieben & Grösse ändern per Pointer Events (Maus, Stift, Touch)
+document.addEventListener("pointerdown", e => {
+  if (!document.body.classList.contains("layout-edit")) return;
+  if (e.button !== 0 || freeStackedMQ.matches) return;
+  const card = e.target.closest(".free-canvas.free-ready > .card");
+  if (!card) return;
+  if (e.target.closest("button, input, select, textarea, a")) return;
+
+  e.preventDefault();
+  const box = card.parentElement;
+  const handleEl = e.target.closest(".free-handle, .card-resize");
+  const resizeDir = handleEl ? (handleEl.dataset.dir || "se") : null;
+  const mode = resizeDir ? "resize" : "move";
+  const cfg = freeCfg(box);
+  const id = card.dataset.card;
+  const p = { ...cfg[id] };
+  const W = box.clientWidth;
+  const rectOf = c => ({ l: c.offsetLeft, t: c.offsetTop, w: c.offsetWidth, h: c.offsetHeight });
+  const a0 = rectOf(card);
+  const startX = e.clientX + window.scrollX;
+  const startY = e.clientY + window.scrollY;
+  const hadH = !!p.h;
+
+  // Alle anderen Felder mit ihrer Ausgangslage
+  const others = freeCards(box).filter(c => c !== card).map(c => {
+    const op = cfg[c.dataset.card] || {};
+    return { c, r0: rectOf(c), origH: op.h || null };
+  });
+  const snapEdges = others.map(o => ({ l: o.r0.l, t: o.r0.t, r: o.r0.l + o.r0.w, b: o.r0.t + o.r0.h }));
+  let preview = new Map(others.map(o => [o.c, { ...o.r0 }]));
+
+  // Gezogenes Feld nach vorne holen, andere Felder weich mitgleiten lassen
+  p.z = Math.max(0, ...freeCards(box).map(c => (cfg[c.dataset.card] || {}).z || 0)) + 1;
+  card.classList.add("free-active");
+  others.forEach(o => o.c.classList.add("free-anim"));
+  document.body.classList.add(mode === "move" ? "free-dragging" : "free-resizing");
+  if (mode === "resize") document.body.setAttribute("data-resize-dir", resizeDir);
+  try { card.setPointerCapture(e.pointerId); } catch {}
+
+  // Vorschau eines anderen Feldes anwenden (Höhe nur, wenn sie verändert wurde)
+  function showPreview(o, r) {
+    o.c.style.left = (r.l / W * 100) + "%";
+    o.c.style.width = (r.w / W * 100) + "%";
+    o.c.style.top = r.t + "px";
+    const h = r.fixedH ? r.h : o.origH;
+    if (h) {
+      o.c.style.height = h + "px";
+      o.c.classList.add("sized");
+    } else {
+      o.c.style.removeProperty("height");
+      o.c.classList.remove("sized");
+    }
+    freeUpdateBadge(o.c, { h });
+  }
+
+  let lastX = e.clientX, lastY = e.clientY, alt = e.altKey, raf = 0, done = false;
+
+  function tick() {
+    raf = 0;
+    if (done) return;
+
+    // Auto-Scroll, wenn der Zeiger am oberen/unteren Fensterrand ist
+    const edge = 48;
+    let scrollDy = 0;
+    if (lastY > window.innerHeight - edge) scrollDy = Math.ceil((lastY - (window.innerHeight - edge)) / 3);
+    else if (lastY < edge) scrollDy = -Math.ceil((edge - lastY) / 3);
+    const beforeScroll = window.scrollY;
+    if (scrollDy) window.scrollBy(0, scrollDy);
+    const scrolled = window.scrollY !== beforeScroll;
+
+    const dx = lastX + window.scrollX - startX;
+    const dy = lastY + window.scrollY - startY;
+    let sx = null, sy = null;
+
+    if (mode === "move") {
+      // 1. Gezogenes Feld folgt frei dem Zeiger (mit Hilfslinien)
+      let L = Math.min(Math.max(0, a0.l + dx), Math.max(0, W - a0.w));
+      let T = Math.max(0, a0.t + dy);
+      if (!alt) {
+        sx = freeBestSnap([
+          { edge: L, targets: [0, ...snapEdges.flatMap(o => [o.l, o.r, o.r + FREE_GAP])] },
+          { edge: L + a0.w, targets: [W, ...snapEdges.flatMap(o => [o.r, o.l, o.l - FREE_GAP])] },
+          { edge: L + a0.w / 2, targets: [W / 2, ...snapEdges.map(o => (o.l + o.r) / 2)] }
+        ]);
+        sy = freeBestSnap([
+          { edge: T, targets: [0, ...snapEdges.flatMap(o => [o.t, o.b, o.b + FREE_GAP])] },
+          { edge: T + a0.h, targets: snapEdges.flatMap(o => [o.b, o.t, o.t - FREE_GAP]) }
+        ]);
+        if (sx) L = Math.min(Math.max(0, L + sx.d), Math.max(0, W - a0.w));
+        if (sy) T = Math.max(0, T + sy.d);
+      }
+      p.x = L / W;
+      p.y = Math.round(T);
+      card.style.left = (p.x * 100) + "%";
+      card.style.top = p.y + "px";
+
+      // 2. Überdeckte Felder springen auf einen freien Platz (und werden bei Bedarf schmaler)
+      const aRect = { l: L, t: p.y, w: a0.w, h: a0.h };
+      const occupied = [aRect];
+      const hit = [];
+      preview = new Map();
+      others.forEach(o => {
+        if (freeOverlaps(aRect, o.r0)) hit.push(o);
+        else { preview.set(o.c, { ...o.r0 }); occupied.push(o.r0); }
+      });
+      hit.sort((m, n) => m.r0.t - n.r0.t || m.r0.l - n.r0.l);
+      hit.forEach(o => {
+        const spot = freeFindSpot(o.r0, a0, occupied, W);
+        preview.set(o.c, spot);
+        occupied.push(spot);
+      });
+    } else {
+      // 1. Grösse in alle 8 Richtungen ändern
+      preview = new Map(others.map(o => [o.c, { ...o.r0 }]));
+      let L = a0.l;
+      let Wd = a0.w;
+      let T = a0.t;
+      let Hd = a0.h;
+      let touchH = hadH;
+
+      // === HORIZONTALE ÄNDERUNG ===
+      if (resizeDir.includes("e")) {
+        // Rechte Kante ziehen
+        const maxW = W - a0.l;
+        let targetW = Math.min(Math.max(FREE_MIN_W, a0.w + dx), maxW);
+        if (!alt) {
+          sx = freeBestSnap([{ edge: a0.l + targetW, targets: [W, ...snapEdges.flatMap(o => [o.r, o.l, o.l - FREE_GAP])] }]);
+          if (sx) targetW = Math.min(maxW, Math.max(FREE_MIN_W, targetW + sx.d));
+        }
+
+        // Nachbarn rechts verkleinern; wenn minimal, stoppt die rechte Kante
+        const a0r = a0.l + a0.w;
+        const right = others.filter(o =>
+          o.r0.l >= a0r - 1 && o.r0.t < a0.t + a0.h - 1 && a0.t < o.r0.t + o.r0.h - 1);
+        const gapX = o => Math.max(0, Math.min(FREE_GAP, o.r0.l - a0r));
+        right.forEach(o => {
+          const maxRight = o.r0.l + o.r0.w - Math.min(FREE_MIN_W, o.r0.w) - gapX(o);
+          targetW = Math.min(targetW, maxRight - a0.l);
+        });
+        targetW = Math.max(FREE_MIN_W, targetW);
+        right.forEach(o => {
+          const newL = Math.max(o.r0.l, a0.l + targetW + gapX(o));
+          if (newL > o.r0.l) preview.set(o.c, { ...preview.get(o.c), l: newL, w: o.r0.l + o.r0.w - newL });
+        });
+
+        L = a0.l;
+        Wd = targetW;
+      } else if (resizeDir.includes("w")) {
+        // Linke Kante ziehen (rechte Kante R_fixed bleibt fix)
+        const R_fixed = a0.l + a0.w;
+        let targetL = Math.max(0, Math.min(R_fixed - FREE_MIN_W, a0.l + dx));
+        if (!alt) {
+          sx = freeBestSnap([{ edge: targetL, targets: [0, ...snapEdges.flatMap(o => [o.l, o.r, o.r + FREE_GAP])] }]);
+          if (sx) targetL = Math.max(0, Math.min(R_fixed - FREE_MIN_W, targetL + sx.d));
+        }
+
+        // Nachbarn links verkleinern; wenn minimal, stoppt die linke Kante
+        const left = others.filter(o =>
+          o.r0.l + o.r0.w <= a0.l + 1 && o.r0.t < a0.t + a0.h - 1 && a0.t < o.r0.t + o.r0.h - 1);
+        const gapX = o => Math.max(0, Math.min(FREE_GAP, a0.l - (o.r0.l + o.r0.w)));
+        left.forEach(o => {
+          const minLeft = o.r0.l + Math.min(FREE_MIN_W, o.r0.w) + gapX(o);
+          targetL = Math.max(targetL, minLeft);
+        });
+        targetL = Math.min(R_fixed - FREE_MIN_W, targetL);
+        left.forEach(o => {
+          const newR = Math.min(o.r0.l + o.r0.w, targetL - gapX(o));
+          if (newR < o.r0.l + o.r0.w) {
+            const prev = preview.get(o.c);
+            preview.set(o.c, { ...prev, w: Math.max(FREE_MIN_W, newR - prev.l) });
+          }
+        });
+
+        L = targetL;
+        Wd = R_fixed - targetL;
+      }
+
+      // === VERTIKALE ÄNDERUNG ===
+      if (resizeDir.includes("s")) {
+        // Untere Kante ziehen
+        touchH = hadH || Math.abs(dy) > 4;
+        let targetH = Math.max(FREE_MIN_H, a0.h + dy);
+        if (!alt && touchH) {
+          sy = freeBestSnap([{ edge: a0.t + targetH, targets: snapEdges.flatMap(o => [o.b, o.t, o.t - FREE_GAP]) }]);
+          if (sy) targetH = Math.max(FREE_MIN_H, targetH + sy.d);
+        }
+
+        // Nachbarn unten verkleinern; wenn minimal, stoppt die untere Kante
+        if (touchH) {
+          const a0b = a0.t + a0.h;
+          const below = others.filter(o => {
+            const r = preview.get(o.c);
+            return r.t >= a0b - 1 && r.l < L + Wd - 1 && L < r.l + r.w - 1;
+          });
+          const gapY = o => Math.max(0, Math.min(FREE_GAP, preview.get(o.c).t - a0b));
+          below.forEach(o => {
+            const r = preview.get(o.c);
+            const maxBottom = r.t + r.h - Math.min(FREE_MIN_H, r.h) - gapY(o);
+            targetH = Math.min(targetH, maxBottom - a0.t);
+          });
+          targetH = Math.max(FREE_MIN_H, targetH);
+          below.forEach(o => {
+            const r = preview.get(o.c);
+            const newT = Math.max(r.t, a0.t + targetH + gapY(o));
+            if (newT > r.t) preview.set(o.c, { ...r, t: newT, h: r.t + r.h - newT, fixedH: true });
+          });
+        }
+
+        T = a0.t;
+        Hd = targetH;
+      } else if (resizeDir.includes("n")) {
+        // Obere Kante ziehen (untere Kante B_fixed bleibt fix)
+        touchH = hadH || Math.abs(dy) > 4;
+        const B_fixed = a0.t + a0.h;
+        let targetT = Math.max(0, Math.min(B_fixed - FREE_MIN_H, a0.t + dy));
+        if (!alt && touchH) {
+          sy = freeBestSnap([{ edge: targetT, targets: [0, ...snapEdges.flatMap(o => [o.t, o.b, o.b + FREE_GAP])] }]);
+          if (sy) targetT = Math.max(0, Math.min(B_fixed - FREE_MIN_H, targetT + sy.d));
+        }
+
+        // Nachbarn oben verkleinern; wenn minimal, stoppt die obere Kante
+        if (touchH) {
+          const above = others.filter(o => {
+            const r = preview.get(o.c);
+            return r.t + r.h <= a0.t + 1 && r.l < L + Wd - 1 && L < r.l + r.w - 1;
+          });
+          const gapY = o => Math.max(0, Math.min(FREE_GAP, a0.t - (preview.get(o.c).t + preview.get(o.c).h)));
+          above.forEach(o => {
+            const r = preview.get(o.c);
+            const minTop = r.t + Math.min(FREE_MIN_H, r.h) + gapY(o);
+            targetT = Math.max(targetT, minTop);
+          });
+          targetT = Math.min(B_fixed - FREE_MIN_H, targetT);
+          above.forEach(o => {
+            const r = preview.get(o.c);
+            const newB = Math.min(r.t + r.h, targetT - gapY(o));
+            if (newB < r.t + r.h) preview.set(o.c, { ...r, h: Math.max(FREE_MIN_H, newB - r.t), fixedH: true });
+          });
+        }
+
+        T = targetT;
+        Hd = B_fixed - targetT;
+      }
+
+      p.x = L / W;
+      p.w = Wd / W;
+      card.style.left = (p.x * 100) + "%";
+      card.style.width = (p.w * 100) + "%";
+
+      p.y = Math.round(T);
+      card.style.top = p.y + "px";
+
+      if (touchH) {
+        p.h = Math.round(Hd);
+        card.style.height = p.h + "px";
+        card.classList.add("sized");
+      }
+      freeUpdateBadge(card, p);
+    }
+
+    others.forEach(o => showPreview(o, preview.get(o.c)));
+    freeShowGuides(box, sx, sy);
+    freeUpdateHeight(box);
+    if (scrolled) raf = requestAnimationFrame(tick);
+  }
+
+  function onMove(ev) {
+    lastX = ev.clientX;
+    lastY = ev.clientY;
+    alt = ev.altKey;
+    if (!raf) raf = requestAnimationFrame(tick);
+  }
+
+  function onUp(ev) {
+    done = true;
+    if (raf) cancelAnimationFrame(raf);
+    try { card.releasePointerCapture(ev.pointerId); } catch {}
+    document.removeEventListener("pointermove", onMove);
+    document.removeEventListener("pointerup", onUp);
+    document.removeEventListener("pointercancel", onUp);
+    card.classList.remove("free-active");
+    document.body.classList.remove("free-dragging", "free-resizing");
+    document.body.removeAttribute("data-resize-dir");
+    freeShowGuides(box, null, null);
+
+    // Neue Lage aller Felder speichern
+    cfg[id] = freeSanitize(p);
+    others.forEach(o => {
+      const r = preview.get(o.c) || o.r0;
+      const op = { ...(cfg[o.c.dataset.card] || {}), x: r.l / W, y: Math.round(r.t), w: r.w / W };
+      if (r.fixedH) op.h = Math.round(r.h);
+      cfg[o.c.dataset.card] = freeSanitize(op);
+    });
+    freeNormalizeZ(box);
+    saveLayout();
+    others.forEach(o => o.c.classList.remove("free-anim"));
+    freeRender(box);
+  }
+
+  document.addEventListener("pointermove", onMove);
+  document.addEventListener("pointerup", onUp);
+  document.addEventListener("pointercancel", onUp);
+});
+
+// "Auto-Höhe"-Knopf und Doppelklick auf einen Griff: Höhe wieder automatisch
+function freeResetHeight(card) {
+  const box = card.parentElement;
+  const p = freeCfg(box)[card.dataset.card];
+  if (!p) return;
+  delete p.h;
+  saveLayout();
+  freeRender(box);
+}
+document.addEventListener("click", e => {
+  if (!document.body.classList.contains("layout-edit")) return;
+  const btn = e.target.closest(".free-canvas .free-h-auto");
+  if (btn) freeResetHeight(btn.closest(".card"));
+});
+document.addEventListener("dblclick", e => {
+  if (!document.body.classList.contains("layout-edit")) return;
+  const grip = e.target.closest(".free-canvas .free-handle, .free-canvas .card-resize");
+  if (grip) freeResetHeight(grip.closest(".card"));
+});
+
+// Neu berechnen, wenn sich Breite (Fenster, Seitenwechsel) oder Feldinhalte ändern
+const freeScheduled = new Set();
+function freeSchedule(box, full) {
+  if (full) box._freeFull = true;
+  if (freeScheduled.has(box)) return;
+  freeScheduled.add(box);
+  requestAnimationFrame(() => {
+    freeScheduled.delete(box);
+    if (document.body.classList.contains("free-dragging") || document.body.classList.contains("free-resizing")) return;
+    if (box._freeFull) { box._freeFull = false; freeRender(box); }
+    else {
+      freeUpdateHeight(box);
+      const cfg = freeCfg(box);
+      freeCards(box).forEach(c => freeUpdateBadge(c, cfg[c.dataset.card]));
+    }
+  });
+}
+if ("ResizeObserver" in window) {
+  const freeRO = new ResizeObserver(entries => {
+    entries.forEach(en => {
+      const el = en.target;
+      if (el.classList.contains("free-canvas")) {
+        const w = el.clientWidth;
+        if (w !== el._freeW) { el._freeW = w; freeSchedule(el, true); }
+      } else if (el.parentElement) {
+        freeSchedule(el.parentElement, false);
+      }
+    });
+  });
+  freeBoxes.forEach(box => {
+    freeRO.observe(box);
+    freeCards(box).forEach(c => freeRO.observe(c));
+  });
+} else {
+  window.addEventListener("resize", freeRenderAll);
+}
+freeStackedMQ.addEventListener?.("change", freeRenderAll);
+
+// Gespeicherte Anordnung sofort anwenden; erste Messung erst nach dem Laden der Schrift
+freeBoxes.forEach(box => { if (freeIsComplete(box)) freeRender(box); });
+(document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(freeRenderAll);
 
 
 /* ============================================================

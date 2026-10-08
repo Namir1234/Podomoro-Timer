@@ -547,7 +547,7 @@ body.layout-edit .page .card:hover,
 body.layout-edit .qview .card:hover {
   outline-color: var(--break);
 }
-body.layout-edit .card > *:not(.card-edit-bar):not(.card-resize) {
+body.layout-edit .card > *:not(.card-edit-bar):not(.card-resize):not(.free-handle) {
   pointer-events: none;
   user-select: none;
 }
@@ -576,4 +576,154 @@ body.layout-edit .card > *:not(.card-edit-bar):not(.card-resize) {
   .card-edit-controls { justify-content: flex-start; }
   .layout-bar { flex-direction: column; align-items: stretch; text-align: center; gap: 10px; }
   .layout-bar-actions { justify-content: center; }
+}
+
+/* ===== Freies Layout (Timer-Seite): Felder ohne Spalten frei platzieren ===== */
+.free-canvas {
+  grid-column: 1 / -1;
+  position: relative;
+  min-width: 0;
+}
+/* Ausgangslage vor der ersten Messung (und ohne JS): normales Raster */
+.free-canvas:not(.free-ready) {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+.free-canvas.free-ready > .card {
+  position: absolute;
+  margin: 0;
+}
+body.layout-edit .free-canvas.free-ready {
+  outline: 1px dashed var(--border);
+  outline-offset: 6px;
+  border-radius: var(--radius);
+}
+
+/* Bearbeitungsleiste schwebt über dem Inhalt, damit sich die Feldhöhe beim Bearbeiten nicht ändert */
+.free-canvas .card-edit-bar {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  margin: 0;
+  z-index: 6;
+  background: color-mix(in srgb, var(--inset) 94%, transparent);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 4px 14px rgba(0,0,0,.3);
+  touch-action: none;
+}
+body.layout-edit .free-canvas .card {
+  cursor: grab;
+  touch-action: none;
+}
+.free-canvas .card.free-active {
+  z-index: 90 !important;
+  outline-color: var(--break) !important;
+  box-shadow: 0 18px 50px rgba(0,0,0,.5);
+}
+.free-canvas .card.free-anim {
+  transition: left .22s cubic-bezier(0.2, 0.9, 0.3, 1),
+              top .22s cubic-bezier(0.2, 0.9, 0.3, 1),
+              width .22s cubic-bezier(0.2, 0.9, 0.3, 1),
+              height .22s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+body.free-dragging, body.free-dragging * { cursor: grabbing !important; user-select: none !important; }
+body.free-resizing, body.free-resizing * { user-select: none !important; }
+
+/* Dynamische Cursor je nach gezogener Kante/Ecke */
+body[data-resize-dir="n"], body[data-resize-dir="n"] *,
+body[data-resize-dir="s"], body[data-resize-dir="s"] * { cursor: ns-resize !important; }
+body[data-resize-dir="w"], body[data-resize-dir="w"] *,
+body[data-resize-dir="e"], body[data-resize-dir="e"] * { cursor: ew-resize !important; }
+body[data-resize-dir="nw"], body[data-resize-dir="nw"] *,
+body[data-resize-dir="se"], body[data-resize-dir="se"] * { cursor: nwse-resize !important; }
+body[data-resize-dir="ne"], body[data-resize-dir="ne"] *,
+body[data-resize-dir="sw"], body[data-resize-dir="sw"] * { cursor: nesw-resize !important; }
+
+/* Freie Resize-Griffe: Kanten & Ecken */
+.free-handle {
+  display: none;
+  position: absolute;
+  z-index: 15;
+  touch-action: none;
+  pointer-events: auto !important;
+}
+body.layout-edit .free-canvas .free-handle {
+  display: block;
+}
+
+/* Kanten: bequeme Trefferzone, leuchtet beim Drüberfahren dezent auf */
+.free-handle.free-h-n { top: -6px; left: 14px; right: 14px; height: 12px; cursor: ns-resize; }
+.free-handle.free-h-s { bottom: -6px; left: 14px; right: 14px; height: 12px; cursor: ns-resize; }
+.free-handle.free-h-w { left: -6px; top: 14px; bottom: 14px; width: 12px; cursor: ew-resize; }
+.free-handle.free-h-e { right: -6px; top: 14px; bottom: 14px; width: 12px; cursor: ew-resize; }
+
+.free-handle.free-h-n:hover,
+.free-handle.free-h-s:hover {
+  background: color-mix(in srgb, var(--break) 50%, transparent);
+  border-radius: 6px;
+}
+.free-handle.free-h-w:hover,
+.free-handle.free-h-e:hover {
+  background: color-mix(in srgb, var(--break) 50%, transparent);
+  border-radius: 6px;
+}
+
+/* Ecken: kleine abgerundete Anfasser mit Schatten */
+.free-handle.free-h-corner {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  background: var(--accent);
+  border: 2px solid var(--card);
+  box-shadow: 0 1px 6px rgba(0,0,0,.45);
+  transition: transform .12s ease, background .12s ease;
+}
+.free-handle.free-h-corner:hover {
+  background: var(--break);
+  transform: scale(1.3);
+}
+
+.free-handle.free-h-nw { top: -7px; left: -7px; cursor: nwse-resize; }
+.free-handle.free-h-ne { top: -7px; right: -7px; cursor: nesw-resize; }
+.free-handle.free-h-sw { bottom: -7px; left: -7px; cursor: nesw-resize; }
+.free-handle.free-h-se { bottom: -7px; right: -7px; cursor: nwse-resize; }
+
+.free-canvas .card-resize { display: none !important; }
+
+/* Magnetische Hilfslinien beim Ziehen */
+.free-guide {
+  display: none;
+  position: absolute;
+  z-index: 95;
+  pointer-events: none;
+  background: var(--break);
+  box-shadow: 0 0 6px var(--break);
+}
+.free-guide.v { top: 0; bottom: 0; width: 1px; }
+.free-guide.h { left: 0; right: 0; height: 1px; }
+.free-guide.show { display: block; }
+
+/* Schmale Bildschirme: Felder einfach untereinander */
+@media (max-width: 680px) {
+  .free-canvas,
+  .free-canvas.free-ready {
+    display: flex !important;
+    flex-direction: column;
+    gap: 16px;
+    height: auto !important;
+  }
+  .free-canvas.free-ready > .card {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    width: auto !important;
+    z-index: auto !important;
+  }
+  body.layout-edit .free-canvas.free-ready { outline: none; }
+  body.layout-edit .free-canvas .card { cursor: default; }
+  .free-canvas .card-resize,
+  .free-canvas .free-handle { display: none !important; }
 }
