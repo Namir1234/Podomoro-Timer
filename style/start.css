@@ -59,10 +59,13 @@ h1 .icon { width: 40px; height: 40px; vertical-align: -6px; margin-right: 12px; 
 .quote .trans { margin-top: 8px; color: var(--muted); font-size: .85rem; line-height: 1.5; }
 .quote cite { display: block; margin-top: 10px; color: var(--accent); font-style: normal; font-size: .8rem; font-weight: 600; }
 .quote .next {
-  margin-top: 14px; background: none; border: 0; padding: 0; cursor: pointer;
-  color: var(--muted); font: inherit; font-size: .8rem; text-decoration: underline;
+  margin-top: 14px; padding: 6px 14px; border-radius: 999px; cursor: pointer;
+  background: var(--secondary); border: 1px solid var(--border);
+  color: var(--text); font: inherit; font-size: .78rem; font-weight: 600;
+  transition: transform .08s ease, filter .15s ease;
 }
-.quote .next:hover { color: var(--text); }
+.quote .next:hover { filter: brightness(1.15); }
+.quote .next:active { transform: translateY(1px) scale(.99); }
 
 footer { text-align: center; color: var(--muted); font-size: .8rem; margin-top: 40px; }
 
