@@ -824,6 +824,65 @@ function showTimerQuote() {
 }
 
 /* ============================================================
+   MENÜ ANPASSEN: sichtbare Menüpunkte und Reihenfolge
+   ============================================================ */
+const navEl = document.querySelector("nav");
+const MENU_DEFAULT = [...navEl.querySelectorAll("button")].map(b => b.dataset.page);
+let menuCfg = load("pomo_menu", null);
+
+function normalizeMenu() {
+  if (!Array.isArray(menuCfg)) menuCfg = MENU_DEFAULT.map(page => ({ page, visible: true }));
+  menuCfg = menuCfg.filter(m => MENU_DEFAULT.includes(m.page));
+  MENU_DEFAULT.forEach(page => { if (!menuCfg.some(m => m.page === page)) menuCfg.push({ page, visible: true }); });
+  menuCfg.find(m => m.page === "timer").visible = true;   // Timer bleibt immer sichtbar
+}
+
+function applyMenu() {
+  menuCfg.forEach(m => {
+    const b = navEl.querySelector(`button[data-page="${m.page}"]`);
+    navEl.appendChild(b);
+    b.hidden = !m.visible;
+  });
+  const active = navEl.querySelector("button.active");
+  if (active && active.hidden) navEl.querySelector('button[data-page="timer"]').click();
+}
+
+function saveMenu() { save("pomo_menu", menuCfg); applyMenu(); renderMenuEdit(); }
+
+function renderMenuEdit() {
+  $("menuEditList").innerHTML = menuCfg.map((m, i) => {
+    const b = navEl.querySelector(`button[data-page="${m.page}"]`);
+    const locked = m.page === "timer";
+    return `
+      <li>
+        <label><input type="checkbox" data-i="${i}" ${m.visible ? "checked" : ""} ${locked ? "disabled" : ""}>
+          <img class="icon" src="${b.querySelector("img").getAttribute("src")}" alt="">${esc(b.querySelector(".label").textContent)}</label>
+        <span class="order">
+          <button type="button" data-move="-1" data-i="${i}" ${i === 0 ? "disabled" : ""} aria-label="nach oben">↑</button>
+          <button type="button" data-move="1" data-i="${i}" ${i === menuCfg.length - 1 ? "disabled" : ""} aria-label="nach unten">↓</button>
+        </span>
+      </li>`;
+  }).join("");
+  $("menuEditList").querySelectorAll("input").forEach(cb => cb.onchange = () => {
+    menuCfg[+cb.dataset.i].visible = cb.checked; saveMenu();
+  });
+  $("menuEditList").querySelectorAll("[data-move]").forEach(btn => btn.onclick = () => {
+    const i = +btn.dataset.i, j = i + +btn.dataset.move;
+    [menuCfg[i], menuCfg[j]] = [menuCfg[j], menuCfg[i]]; saveMenu();
+  });
+}
+
+const closeMenuModal = () => { $("menuModal").hidden = true; };
+$("menuEditBtn").onclick = () => { renderMenuEdit(); $("menuModal").hidden = false; };
+$("menuDone").onclick = closeMenuModal;
+$("menuModal").onclick = e => { if (e.target === $("menuModal")) closeMenuModal(); };
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("menuModal").hidden) closeMenuModal(); });
+$("menuReset").onclick = () => { menuCfg = null; normalizeMenu(); saveMenu(); };
+
+normalizeMenu();
+applyMenu();
+
+/* ============================================================
    START
    ============================================================ */
 draw();

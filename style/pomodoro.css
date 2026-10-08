@@ -300,3 +300,24 @@ h2 .icon { margin-right: 8px; }
 .quote-list .q .qdel:hover { color: var(--accent); }
 @media (max-width: 560px) { .quote-add { grid-template-columns: 1fr; } }
 .chips .shuffle { margin-left: auto; }
+
+/* ===== Menü anpassen ===== */
+nav button[hidden] { display: none; }
+.sidebar-foot { margin-top: auto; display: flex; flex-direction: column; gap: 2px; }
+.sidebar-foot .back { margin-top: 0; }
+button.back { border: 0; background: transparent; width: 100%; font-family: inherit; cursor: pointer; text-align: left; }
+
+.modal { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.modal[hidden] { display: none; }
+.modal-box { width: min(440px, 100%); max-height: 90vh; overflow: auto; }
+.menu-edit-list { list-style: none; margin: 14px 0 4px; }
+.menu-edit-list li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.menu-edit-list label { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: .95rem; }
+.menu-edit-list input[type="checkbox"] { width: 18px; height: 18px; padding: 0; accent-color: var(--accent); cursor: pointer; }
+.menu-edit-list input:disabled { opacity: .5; cursor: default; }
+.menu-edit-list .icon { margin-right: 0; opacity: .8; }
+.menu-edit-list .order { display: flex; gap: 4px; }
+.menu-edit-list .order button { width: 30px; height: 30px; border: 1px solid var(--border); background: var(--inset); color: var(--text); border-radius: 8px; cursor: pointer; }
+.menu-edit-list .order button:hover:not(:disabled) { border-color: var(--accent); }
+.menu-edit-list .order button:disabled { opacity: .3; cursor: default; }
+@media (max-width: 720px) { .sidebar-foot { margin-top: 6px; } }

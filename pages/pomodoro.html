@@ -21,7 +21,10 @@
     <button data-page="stats"><img class="icon" src="../img/stats.svg" alt=""><span class="label">Statistik</span></button>
     <button data-page="zitate"><img class="icon" src="../img/quote.svg" alt=""><span class="label">Zitate</span></button>
   </nav>
-  <a class="back" href="index.html"><img class="icon" src="../img/back.svg" alt=""><span class="label">Zur Startseite</span></a>
+  <div class="sidebar-foot">
+    <button class="back" id="menuEditBtn" type="button"><img class="icon" src="../img/settings.svg" alt=""><span class="label">Menü anpassen</span></button>
+    <a class="back" href="index.html"><img class="icon" src="../img/back.svg" alt=""><span class="label">Zur Startseite</span></a>
+  </div>
 </aside>
 
 <main>
@@ -262,6 +265,19 @@
   </section>
 
 </main>
+
+<!-- Menü anpassen -->
+<div class="modal" id="menuModal" hidden>
+  <div class="card modal-box" role="dialog" aria-modal="true" aria-labelledby="menuModalTitle">
+    <h2 id="menuModalTitle">Menü anpassen</h2>
+    <p class="hint">Häkchen = im Menü sichtbar. Mit den Pfeilen änderst du die Reihenfolge.</p>
+    <ul class="menu-edit-list" id="menuEditList"></ul>
+    <div class="controls">
+      <button class="btn secondary" type="button" id="menuReset">Zurücksetzen</button>
+      <button class="btn" type="button" id="menuDone">Fertig</button>
+    </div>
+  </div>
+</div>
 
 <script src="../js/pomodoro.js"></script>
 </body>
