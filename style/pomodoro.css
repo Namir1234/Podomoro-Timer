@@ -299,3 +299,4 @@ h2 .icon { margin-right: 8px; }
 .quote-list .q .qdel { float: right; margin-left: 8px; background: none; border: 0; color: var(--muted); cursor: pointer; font-size: .95rem; line-height: 1; }
 .quote-list .q .qdel:hover { color: var(--accent); }
 @media (max-width: 560px) { .quote-add { grid-template-columns: 1fr; } }
+.chips .shuffle { margin-left: auto; }

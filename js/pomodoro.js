@@ -20,7 +20,46 @@ const QUOTES = [
   { t: "Der Weg von tausend Meilen beginnt mit dem ersten Schritt.", a: "Laozi" },
   { t: "Bildung ist die mächtigste Waffe, die du verwenden kannst, um die Welt zu verändern.", a: "Nelson Mandela" },
   { t: "Was ich nicht weiss, macht mich neugierig.", a: "Marie Curie (sinngemäss)" },
-  { t: "Disziplin ist die Brücke zwischen Zielen und Erfolg.", a: "Jim Rohn" }
+  { t: "Disziplin ist die Brücke zwischen Zielen und Erfolg.", a: "Jim Rohn" },
+  { t: "Wer andere kennt, ist klug. Wer sich selbst kennt, ist weise.", a: "Laozi" },
+  { t: "Nicht weil es schwer ist, wagen wir es nicht, sondern weil wir es nicht wagen, ist es schwer.", a: "Seneca" },
+  { t: "Solange du lebst, lerne zu leben.", a: "Seneca" },
+  { t: "Was im Weg steht, wird zum Weg.", a: "Marc Aurel (sinngemäss)" },
+  { t: "Es sind nicht die Dinge, die uns beunruhigen, sondern unsere Urteile über die Dinge.", a: "Epiktet" },
+  { t: "Der Anfang ist der wichtigste Teil der Arbeit.", a: "Platon" },
+  { t: "Einfachheit ist die höchste Form der Raffinesse.", a: "Leonardo da Vinci (zugeschrieben)" },
+  { t: "Genie ist ein Prozent Inspiration und neunundneunzig Prozent Transpiration.", a: "Thomas Edison" },
+  { t: "Ich bin nicht gescheitert. Ich habe nur 10'000 Wege gefunden, die nicht funktionieren.", a: "Thomas Edison (zugeschrieben)" },
+  { t: "Eine Investition in Wissen bringt noch immer die besten Zinsen.", a: "Benjamin Franklin" },
+  { t: "Sei du selbst – alle anderen sind bereits vergeben.", a: "Oscar Wilde (zugeschrieben)" },
+  { t: "Was mich nicht umbringt, macht mich stärker.", a: "Friedrich Nietzsche" },
+  { t: "Wer ein Warum zum Leben hat, erträgt fast jedes Wie.", a: "Friedrich Nietzsche" },
+  { t: "Die Zukunft soll man nicht voraussehen wollen, sondern möglich machen.", a: "Antoine de Saint-Exupéry" },
+  { t: "Man sieht nur mit dem Herzen gut.", a: "Antoine de Saint-Exupéry" },
+  { t: "Wenn ich weiter gesehen habe, dann weil ich auf den Schultern von Riesen stand.", a: "Isaac Newton" },
+  { t: "Nichts im Leben muss man fürchten, man muss es nur verstehen.", a: "Marie Curie" },
+  { t: "Der einzige Ort, wo Erfolg vor Arbeit kommt, ist das Wörterbuch.", a: "Vince Lombardi (zugeschrieben)" },
+  { t: "Erfolg ist nicht endgültig, Misserfolg nicht fatal: Was zählt, ist der Mut weiterzumachen.", a: "Winston Churchill (zugeschrieben)" },
+  { t: "Es ist besser, ein kleines Licht anzuzünden, als die Dunkelheit zu verfluchen.", a: "Konfuzius (zugeschrieben)" },
+  { t: "Wer einen Berg versetzen will, beginnt damit, kleine Steine wegzutragen.", a: "Konfuzius (zugeschrieben)" },
+  { t: "Es ist egal, wie langsam du gehst, solange du nicht stehen bleibst.", a: "Konfuzius (zugeschrieben)" },
+  { t: "Ich weiss, dass ich nichts weiss.", a: "Sokrates (zugeschrieben)" },
+  { t: "Lerne von gestern, lebe für heute, hoffe für morgen.", a: "Albert Einstein (zugeschrieben)" },
+  { t: "Wer nie einen Fehler gemacht hat, hat nie etwas Neues ausprobiert.", a: "Albert Einstein (zugeschrieben)" },
+  { t: "Der beste Weg, anzufangen, ist, aufzuhören zu reden und anzufangen zu tun.", a: "Walt Disney (zugeschrieben)" },
+  { t: "Zwischen Reiz und Reaktion liegt ein Raum. In diesem Raum liegt unsere Freiheit.", a: "Viktor Frankl (zugeschrieben)" },
+  { t: "Gestern war ich klug und wollte die Welt verändern. Heute bin ich weise und verändere mich selbst.", a: "Rumi (zugeschrieben)" },
+  { t: "Was wir denken, das werden wir.", a: "Buddha (zugeschrieben)" },
+  { t: "Erfolg ist kein Zufall. Er ist harte Arbeit, Ausdauer, Lernen und Hingabe.", a: "Pelé (zugeschrieben)" },
+  { t: "Mut steht am Anfang des Handelns, Glück am Ende.", a: "Demokrit (zugeschrieben)" },
+  { t: "Übung macht den Meister.", a: "Sprichwort" },
+  { t: "Steter Tropfen höhlt den Stein.", a: "Ovid (sinngemäss)" },
+  { t: "Wo ein Wille ist, ist auch ein Weg.", a: "Sprichwort" },
+  { t: "Auch der längste Marsch beginnt mit dem ersten Schritt.", a: "Chinesisches Sprichwort" },
+  { t: "Konzentration ist die Wurzel aller höheren Fähigkeiten des Menschen.", a: "Bruce Lee (zugeschrieben)" },
+  { t: "Tu heute etwas, wofür dir dein zukünftiges Ich danken wird.", a: "Unbekannt" },
+  { t: "Kleine Schritte sind besser als gar keine Schritte.", a: "Unbekannt" },
+  { t: "Motivation bringt dich in Gang. Gewohnheit hält dich in Bewegung.", a: "Jim Ryun (zugeschrieben)" }
 ];
 
 // Zitate asiatischer Mönche in der Originalsprache
@@ -389,8 +428,24 @@ function showQuote() {
   $("qAuthor").textContent = "– " + list[i].a;
 }
 
+// Pro Seitenaufruf wird nur eine zufällige Auswahl gezeigt – bei jedem Öffnen eine andere
+const QUOTE_BATCH = 10;
+let quoteBatch = [];
+function shuffleQuoteBatch() {
+  const ids = allQuotes().map(q => q.id);
+  for (let i = ids.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [ids[i], ids[j]] = [ids[j], ids[i]];
+  }
+  quoteBatch = ids.slice(0, QUOTE_BATCH);
+}
+shuffleQuoteBatch();
+
 function renderQuoteList() {
-  const list = allQuotes().filter(q => filter === "all" || favs.includes(q.id));
+  const all = allQuotes();
+  const list = filter === "fav"
+    ? all.filter(q => favs.includes(q.id))
+    : quoteBatch.map(id => all.find(q => q.id === id)).filter(Boolean);
   $("quoteList").innerHTML = list.length ? list.map(q => `
     <div class="q">
       <button class="fav ${favs.includes(q.id) ? "on" : ""}" data-id="${q.id}" title="Favorit">${favs.includes(q.id) ? "★" : "☆"}</button>
@@ -418,17 +473,25 @@ $("quoteAddForm").onsubmit = e => {
   const t = $("qNewText").value.trim();
   if (!t) return;
   const a = $("qNewAuthor").value.trim() || "Unbekannt";
-  customQuotes.push({ id: "c" + Date.now(), t, a });
+  const id = "c" + Date.now();
+  customQuotes.push({ id, t, a });
   save("pomo_custom_quotes", customQuotes);
+  quoteBatch = [id, ...quoteBatch];   // neues Zitat sofort oben anzeigen
   $("qNewText").value = ""; $("qNewAuthor").value = "";
   renderQuoteList();
 };
 
-document.querySelectorAll(".chips button").forEach(b => b.onclick = () => {
-  document.querySelectorAll(".chips button").forEach(x => x.classList.remove("active"));
+document.querySelectorAll(".chips button[data-filter]").forEach(b => b.onclick = () => {
+  document.querySelectorAll(".chips button[data-filter]").forEach(x => x.classList.remove("active"));
   b.classList.add("active"); filter = b.dataset.filter; renderQuoteList();
 });
 $("nextQuote").onclick = showQuote;
+$("shuffleQuotes").onclick = () => {
+  shuffleQuoteBatch();
+  filter = "all";
+  document.querySelectorAll(".chips button[data-filter]").forEach(x => x.classList.toggle("active", x.dataset.filter === "all"));
+  renderQuoteList();
+};
 
 // Umschalten zwischen den drei Zitat-Arten auf der einen Zitate-Seite
 document.querySelectorAll(".qtabs button").forEach(b => b.onclick = () => {
