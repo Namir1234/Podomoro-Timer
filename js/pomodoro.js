@@ -66,7 +66,8 @@ const save = (key, value) => { try { localStorage.setItem(key, JSON.stringify(va
 
 let settings = { ...DEFAULTS, ...load("pomo_settings", {}) };
 let sessions = load("pomo_sessions", []);       // [{date:"2026-10-06", ts:..., min:25, subject:"..."}]
-let favs = load("pomo_favs", []);               // Liste von Zitat-Indizes
+let favs = load("pomo_favs", []).map(f => typeof f === "number" ? "b" + f : f);   // Favoriten als IDs
+let customQuotes = load("pomo_custom_quotes", []);   // eigene Zitate [{ id, t, a }]
 
 const $ = id => document.getElementById(id);
 const dayKey = d => { const x = new Date(d); return x.getFullYear() + "-" + String(x.getMonth()+1).padStart(2,"0") + "-" + String(x.getDate()).padStart(2,"0"); };
@@ -368,31 +369,60 @@ $("clearBtn").onclick = () => {
 /* ============================================================
    ZITATE
    ============================================================ */
-let currentQuote = -1;
+let currentQuote = "";
 let filter = "all";
 
+// Eingebaute + eigene Zitate, jedes mit stabiler ID
+function allQuotes() {
+  return [
+    ...QUOTES.map((q, i) => ({ t: q.t, a: q.a, id: "b" + i, custom: false })),
+    ...customQuotes.map(q => ({ t: q.t, a: q.a, id: q.id, custom: true }))
+  ];
+}
+
 function showQuote() {
+  const list = allQuotes();
   let i;
-  do { i = Math.floor(Math.random() * QUOTES.length); } while (i === currentQuote && QUOTES.length > 1);
-  currentQuote = i;
-  $("qText").textContent = "«" + QUOTES[i].t + "»";
-  $("qAuthor").textContent = "– " + QUOTES[i].a;
+  do { i = Math.floor(Math.random() * list.length); } while (list[i].id === currentQuote && list.length > 1);
+  currentQuote = list[i].id;
+  $("qText").textContent = "«" + list[i].t + "»";
+  $("qAuthor").textContent = "– " + list[i].a;
 }
 
 function renderQuoteList() {
-  const list = QUOTES.map((q, i) => ({ ...q, i })).filter(q => filter === "all" || favs.includes(q.i));
+  const list = allQuotes().filter(q => filter === "all" || favs.includes(q.id));
   $("quoteList").innerHTML = list.length ? list.map(q => `
     <div class="q">
-      <button class="fav ${favs.includes(q.i) ? "on" : ""}" data-i="${q.i}" title="Favorit">${favs.includes(q.i) ? "★" : "☆"}</button>
+      <button class="fav ${favs.includes(q.id) ? "on" : ""}" data-id="${q.id}" title="Favorit">${favs.includes(q.id) ? "★" : "☆"}</button>
+      ${q.custom ? `<button class="qdel" data-id="${q.id}" title="Eigenes Zitat löschen" aria-label="Löschen">✕</button>` : ""}
       «${esc(q.t)}»<small>– ${esc(q.a)}</small>
     </div>`).join("") : '<p style="color:var(--muted)">Noch keine Favoriten. Tippe auf den Stern bei einem Zitat.</p>';
-  document.querySelectorAll(".fav").forEach(b => b.onclick = () => {
-    const i = +b.dataset.i;
-    favs = favs.includes(i) ? favs.filter(f => f !== i) : [...favs, i];
+  $("quoteList").querySelectorAll(".fav").forEach(b => b.onclick = () => {
+    const id = b.dataset.id;
+    favs = favs.includes(id) ? favs.filter(f => f !== id) : [...favs, id];
+    save("pomo_favs", favs);
+    renderQuoteList();
+  });
+  $("quoteList").querySelectorAll(".qdel").forEach(b => b.onclick = () => {
+    const id = b.dataset.id;
+    customQuotes = customQuotes.filter(q => q.id !== id);
+    favs = favs.filter(f => f !== id);
+    save("pomo_custom_quotes", customQuotes);
     save("pomo_favs", favs);
     renderQuoteList();
   });
 }
+
+$("quoteAddForm").onsubmit = e => {
+  e.preventDefault();
+  const t = $("qNewText").value.trim();
+  if (!t) return;
+  const a = $("qNewAuthor").value.trim() || "Unbekannt";
+  customQuotes.push({ id: "c" + Date.now(), t, a });
+  save("pomo_custom_quotes", customQuotes);
+  $("qNewText").value = ""; $("qNewAuthor").value = "";
+  renderQuoteList();
+};
 
 document.querySelectorAll(".chips button").forEach(b => b.onclick = () => {
   document.querySelectorAll(".chips button").forEach(x => x.classList.remove("active"));
@@ -724,7 +754,8 @@ $("goalMinus").onclick = () => { settings.goal = Math.max((settings.goal || 4) -
 $("goalPlus").onclick = () => { settings.goal = Math.min((settings.goal || 4) + 1, 12); save("pomo_settings", settings); renderToday(); };
 
 function showTimerQuote() {
-  const q = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+  const list = allQuotes();
+  const q = list[Math.floor(Math.random() * list.length)];
   $("tQuote").textContent = "«" + q.t + "»";
   $("tQuoteAuthor").textContent = "– " + q.a;
 }
