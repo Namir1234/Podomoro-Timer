@@ -1,0 +1,38 @@
+{
+  "name": "Fokus – Pomodoro Timer",
+  "short_name": "Fokus",
+  "description": "Pomodoro-Timer mit Statistik, To-dos, Notizen und Projekten.",
+  "start_url": "./pages/pomodoro.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1b2119",
+  "theme_color": "#1b2119",
+  "lang": "de",
+  "icons": [
+    {
+      "src": "img/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "img/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "img/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "img/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
