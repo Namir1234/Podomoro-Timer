@@ -1936,8 +1936,30 @@ document.addEventListener("pointerdown", e => {
 
   e.preventDefault();
   const box = card.parentElement;
-  const handleEl = e.target.closest(".free-handle, .card-resize");
-  const resizeDir = handleEl ? (handleEl.dataset.dir || "se") : null;
+  let handleEl = e.target.closest(".free-handle, .card-resize");
+  let resizeDir = handleEl ? (handleEl.dataset.dir || "se") : null;
+
+  // Auch bei Klick nahe am Rand (innerhalb von 20px) als Resize erkennen
+  if (!resizeDir && !e.target.closest(".card-edit-bar, button, input, select, textarea, a")) {
+    const cr = card.getBoundingClientRect();
+    const relX = e.clientX - cr.left;
+    const relY = e.clientY - cr.top;
+    const THRESH = 20;
+
+    const nearTop = relY <= THRESH;
+    const nearBottom = relY >= cr.height - THRESH;
+    const nearLeft = relX <= THRESH;
+    const nearRight = relX >= cr.width - THRESH;
+
+    let dir = "";
+    if (nearTop) dir += "n";
+    else if (nearBottom) dir += "s";
+    if (nearLeft) dir += "w";
+    else if (nearRight) dir += "e";
+
+    if (dir) resizeDir = dir;
+  }
+
   const mode = resizeDir ? "resize" : "move";
   const cfg = freeCfg(box);
   const id = card.dataset.card;
@@ -2050,25 +2072,35 @@ document.addEventListener("pointerdown", e => {
       if (resizeDir.includes("e")) {
         // Rechte Kante ziehen
         const maxW = W - a0.l;
-        let targetW = Math.min(Math.max(FREE_MIN_W, a0.w + dx), maxW);
+        let targetW = Math.max(FREE_MIN_W, Math.min(maxW, a0.w + dx));
         if (!alt) {
           sx = freeBestSnap([{ edge: a0.l + targetW, targets: [W, ...snapEdges.flatMap(o => [o.r, o.l, o.l - FREE_GAP])] }]);
-          if (sx) targetW = Math.min(maxW, Math.max(FREE_MIN_W, targetW + sx.d));
+          if (sx) targetW = Math.max(FREE_MIN_W, Math.min(maxW, targetW + sx.d));
         }
 
-        // Nachbarn rechts verkleinern; wenn minimal, stoppt die rechte Kante
         const a0r = a0.l + a0.w;
+        const rightEdge = a0.l + targetW;
         const right = others.filter(o =>
           o.r0.l >= a0r - 1 && o.r0.t < a0.t + a0.h - 1 && a0.t < o.r0.t + o.r0.h - 1);
-        const gapX = o => Math.max(0, Math.min(FREE_GAP, o.r0.l - a0r));
+
         right.forEach(o => {
-          const maxRight = o.r0.l + o.r0.w - Math.min(FREE_MIN_W, o.r0.w) - gapX(o);
-          targetW = Math.min(targetW, maxRight - a0.l);
-        });
-        targetW = Math.max(FREE_MIN_W, targetW);
-        right.forEach(o => {
-          const newL = Math.max(o.r0.l, a0.l + targetW + gapX(o));
-          if (newL > o.r0.l) preview.set(o.c, { ...preview.get(o.c), l: newL, w: o.r0.l + o.r0.w - newL });
+          const gap = Math.max(0, Math.min(FREE_GAP, o.r0.l - a0r));
+          if (rightEdge + gap > o.r0.l) {
+            const newL = rightEdge + gap;
+            const availableW = o.r0.l + o.r0.w - newL;
+            if (availableW >= FREE_MIN_W) {
+              preview.set(o.c, { ...preview.get(o.c), l: newL, w: availableW });
+            } else {
+              if (newL + FREE_MIN_W <= W) {
+                preview.set(o.c, { ...preview.get(o.c), l: newL, w: Math.min(FREE_MIN_W, o.r0.w) });
+              } else {
+                const occupied = [{ l: a0.l, t: a0.t, w: targetW, h: a0.h }];
+                others.forEach(oth => { if (oth !== o) occupied.push(preview.get(oth.c)); });
+                const spot = freeFindSpot(o.r0, a0, occupied, W);
+                preview.set(o.c, spot);
+              }
+            }
+          }
         });
 
         L = a0.l;
@@ -2082,20 +2114,28 @@ document.addEventListener("pointerdown", e => {
           if (sx) targetL = Math.max(0, Math.min(R_fixed - FREE_MIN_W, targetL + sx.d));
         }
 
-        // Nachbarn links verkleinern; wenn minimal, stoppt die linke Kante
         const left = others.filter(o =>
           o.r0.l + o.r0.w <= a0.l + 1 && o.r0.t < a0.t + a0.h - 1 && a0.t < o.r0.t + o.r0.h - 1);
-        const gapX = o => Math.max(0, Math.min(FREE_GAP, a0.l - (o.r0.l + o.r0.w)));
+
         left.forEach(o => {
-          const minLeft = o.r0.l + Math.min(FREE_MIN_W, o.r0.w) + gapX(o);
-          targetL = Math.max(targetL, minLeft);
-        });
-        targetL = Math.min(R_fixed - FREE_MIN_W, targetL);
-        left.forEach(o => {
-          const newR = Math.min(o.r0.l + o.r0.w, targetL - gapX(o));
-          if (newR < o.r0.l + o.r0.w) {
-            const prev = preview.get(o.c);
-            preview.set(o.c, { ...prev, w: Math.max(FREE_MIN_W, newR - prev.l) });
+          const gap = Math.max(0, Math.min(FREE_GAP, a0.l - (o.r0.l + o.r0.w)));
+          if (targetL - gap < o.r0.l + o.r0.w) {
+            const newR = targetL - gap;
+            const availableW = newR - o.r0.l;
+            if (availableW >= FREE_MIN_W) {
+              const prev = preview.get(o.c);
+              preview.set(o.c, { ...prev, w: availableW });
+            } else {
+              if (newR - FREE_MIN_W >= 0) {
+                const prev = preview.get(o.c);
+                preview.set(o.c, { ...prev, l: newR - FREE_MIN_W, w: FREE_MIN_W });
+              } else {
+                const occupied = [{ l: targetL, t: a0.t, w: R_fixed - targetL, h: a0.h }];
+                others.forEach(oth => { if (oth !== o) occupied.push(preview.get(oth.c)); });
+                const spot = freeFindSpot(o.r0, a0, occupied, W);
+                preview.set(o.c, spot);
+              }
+            }
           }
         });
 
@@ -2113,24 +2153,26 @@ document.addEventListener("pointerdown", e => {
           if (sy) targetH = Math.max(FREE_MIN_H, targetH + sy.d);
         }
 
-        // Nachbarn unten verkleinern; wenn minimal, stoppt die untere Kante
         if (touchH) {
           const a0b = a0.t + a0.h;
+          const bottomEdge = a0.t + targetH;
           const below = others.filter(o => {
             const r = preview.get(o.c);
             return r.t >= a0b - 1 && r.l < L + Wd - 1 && L < r.l + r.w - 1;
           });
-          const gapY = o => Math.max(0, Math.min(FREE_GAP, preview.get(o.c).t - a0b));
+
           below.forEach(o => {
             const r = preview.get(o.c);
-            const maxBottom = r.t + r.h - Math.min(FREE_MIN_H, r.h) - gapY(o);
-            targetH = Math.min(targetH, maxBottom - a0.t);
-          });
-          targetH = Math.max(FREE_MIN_H, targetH);
-          below.forEach(o => {
-            const r = preview.get(o.c);
-            const newT = Math.max(r.t, a0.t + targetH + gapY(o));
-            if (newT > r.t) preview.set(o.c, { ...r, t: newT, h: r.t + r.h - newT, fixedH: true });
+            const gap = Math.max(0, Math.min(FREE_GAP, r.t - a0b));
+            if (bottomEdge + gap > r.t) {
+              const newT = bottomEdge + gap;
+              const availableH = r.t + r.h - newT;
+              if (availableH >= FREE_MIN_H) {
+                preview.set(o.c, { ...r, t: newT, h: availableH, fixedH: true });
+              } else {
+                preview.set(o.c, { ...r, t: newT, h: Math.max(FREE_MIN_H, r.h), fixedH: true });
+              }
+            }
           });
         }
 
@@ -2146,23 +2188,27 @@ document.addEventListener("pointerdown", e => {
           if (sy) targetT = Math.max(0, Math.min(B_fixed - FREE_MIN_H, targetT + sy.d));
         }
 
-        // Nachbarn oben verkleinern; wenn minimal, stoppt die obere Kante
         if (touchH) {
           const above = others.filter(o => {
             const r = preview.get(o.c);
             return r.t + r.h <= a0.t + 1 && r.l < L + Wd - 1 && L < r.l + r.w - 1;
           });
-          const gapY = o => Math.max(0, Math.min(FREE_GAP, a0.t - (preview.get(o.c).t + preview.get(o.c).h)));
+
           above.forEach(o => {
             const r = preview.get(o.c);
-            const minTop = r.t + Math.min(FREE_MIN_H, r.h) + gapY(o);
-            targetT = Math.max(targetT, minTop);
-          });
-          targetT = Math.min(B_fixed - FREE_MIN_H, targetT);
-          above.forEach(o => {
-            const r = preview.get(o.c);
-            const newB = Math.min(r.t + r.h, targetT - gapY(o));
-            if (newB < r.t + r.h) preview.set(o.c, { ...r, h: Math.max(FREE_MIN_H, newB - r.t), fixedH: true });
+            const gap = Math.max(0, Math.min(FREE_GAP, a0.t - (r.t + r.h)));
+            if (targetT - gap < r.t + r.h) {
+              const newB = targetT - gap;
+              const availableH = newB - r.t;
+              if (availableH >= FREE_MIN_H) {
+                preview.set(o.c, { ...r, h: availableH, fixedH: true });
+              } else {
+                const occupied = [{ l: L, t: targetT, w: Wd, h: B_fixed - targetT }];
+                others.forEach(oth => { if (oth !== o) occupied.push(preview.get(oth.c)); });
+                const spot = freeFindSpot(o.r0, a0, occupied, W);
+                preview.set(o.c, spot);
+              }
+            }
           });
         }
 
@@ -2228,6 +2274,46 @@ document.addEventListener("pointerdown", e => {
   document.addEventListener("pointermove", onMove);
   document.addEventListener("pointerup", onUp);
   document.addEventListener("pointercancel", onUp);
+});
+
+// Dynamischer Cursor beim Überfahren der Karten im Bearbeitungsmodus
+document.addEventListener("pointermove", e => {
+  if (!document.body.classList.contains("layout-edit")) return;
+  if (document.body.classList.contains("free-dragging") || document.body.classList.contains("free-resizing")) return;
+  const card = e.target.closest(".free-canvas.free-ready > .card");
+  if (!card) return;
+  if (e.target.closest(".free-handle, .card-resize")) return;
+  if (e.target.closest(".card-edit-bar, button, input, select, textarea, a")) {
+    card.style.removeProperty("cursor");
+    return;
+  }
+  const cr = card.getBoundingClientRect();
+  const relX = e.clientX - cr.left;
+  const relY = e.clientY - cr.top;
+  const THRESH = 20;
+
+  const nearTop = relY <= THRESH;
+  const nearBottom = relY >= cr.height - THRESH;
+  const nearLeft = relX <= THRESH;
+  const nearRight = relX >= cr.width - THRESH;
+
+  let dir = "";
+  if (nearTop) dir += "n";
+  else if (nearBottom) dir += "s";
+  if (nearLeft) dir += "w";
+  else if (nearRight) dir += "e";
+
+  const cursorMap = {
+    n: "ns-resize", s: "ns-resize",
+    w: "ew-resize", e: "ew-resize",
+    nw: "nwse-resize", se: "nwse-resize",
+    ne: "nesw-resize", sw: "nesw-resize"
+  };
+  if (dir && cursorMap[dir]) {
+    card.style.cursor = cursorMap[dir];
+  } else {
+    card.style.cursor = "grab";
+  }
 });
 
 // "Auto-Höhe"-Knopf und Doppelklick auf einen Griff: Höhe wieder automatisch

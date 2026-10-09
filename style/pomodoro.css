@@ -388,11 +388,27 @@ button.back { border: 0; background: transparent; width: 100%; font-family: inhe
 
 /* ===== Felder anordnen: verschieben, Breite & Grösse ändern ===== */
 .page > .card:only-child { grid-column: span var(--span, 12); }
-.card.sized { overflow-y: auto; }
-.card.sized::-webkit-scrollbar { width: 6px; }
-.card.sized::-webkit-scrollbar-track { background: transparent; }
-.card.sized::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
-.card.sized::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* Scrollbar nur anzeigen, wenn der Inhalt nicht mehr ganz ins Feld passt */
+.card {
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.card::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.card::-webkit-scrollbar-track {
+  background: transparent;
+}
+.card::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+.card::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
 
 /* Bearbeitungsleiste oben auf jeder Karte (nur im Bearbeitungsmodus sichtbar) */
 .card-edit-bar {
@@ -604,9 +620,9 @@ body.layout-edit .free-canvas.free-ready {
 /* Bearbeitungsleiste schwebt über dem Inhalt, damit sich die Feldhöhe beim Bearbeiten nicht ändert */
 .free-canvas .card-edit-bar {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  right: 10px;
+  top: 12px;
+  left: 16px;
+  right: 16px;
   margin: 0;
   z-index: 6;
   background: color-mix(in srgb, var(--inset) 94%, transparent);
@@ -646,7 +662,7 @@ body[data-resize-dir="sw"], body[data-resize-dir="sw"] * { cursor: nesw-resize !
 .free-handle {
   display: none;
   position: absolute;
-  z-index: 15;
+  z-index: 30;
   touch-action: none;
   pointer-events: auto !important;
 }
@@ -654,42 +670,46 @@ body.layout-edit .free-canvas .free-handle {
   display: block;
 }
 
-/* Kanten: bequeme Trefferzone, leuchtet beim Drüberfahren dezent auf */
-.free-handle.free-h-n { top: -6px; left: 14px; right: 14px; height: 12px; cursor: ns-resize; }
-.free-handle.free-h-s { bottom: -6px; left: 14px; right: 14px; height: 12px; cursor: ns-resize; }
-.free-handle.free-h-w { left: -6px; top: 14px; bottom: 14px; width: 12px; cursor: ew-resize; }
-.free-handle.free-h-e { right: -6px; top: 14px; bottom: 14px; width: 12px; cursor: ew-resize; }
+/* Kanten: breite, komfortable Trefferzone (18px) entlang aller 4 Ränder */
+.free-handle.free-h-n { top: 0; left: 20px; right: 20px; height: 18px; cursor: ns-resize; }
+.free-handle.free-h-s { bottom: 0; left: 20px; right: 20px; height: 18px; cursor: ns-resize; }
+.free-handle.free-h-w { left: 0; top: 20px; bottom: 20px; width: 18px; cursor: ew-resize; }
+.free-handle.free-h-e { right: 0; top: 20px; bottom: 20px; width: 18px; cursor: ew-resize; }
 
-.free-handle.free-h-n:hover,
-.free-handle.free-h-s:hover {
-  background: color-mix(in srgb, var(--break) 50%, transparent);
-  border-radius: 6px;
+.free-handle.free-h-n::after {
+  content: ""; position: absolute; top: 2px; left: 8px; right: 8px; height: 3px;
+  border-radius: 2px; background: transparent; transition: background .15s ease;
 }
-.free-handle.free-h-w:hover,
-.free-handle.free-h-e:hover {
-  background: color-mix(in srgb, var(--break) 50%, transparent);
-  border-radius: 6px;
+.free-handle.free-h-s::after {
+  content: ""; position: absolute; bottom: 2px; left: 8px; right: 8px; height: 3px;
+  border-radius: 2px; background: transparent; transition: background .15s ease;
+}
+.free-handle.free-h-w::after {
+  content: ""; position: absolute; left: 2px; top: 8px; bottom: 8px; width: 3px;
+  border-radius: 2px; background: transparent; transition: background .15s ease;
+}
+.free-handle.free-h-e::after {
+  content: ""; position: absolute; right: 2px; top: 8px; bottom: 8px; width: 3px;
+  border-radius: 2px; background: transparent; transition: background .15s ease;
 }
 
-/* Ecken: kleine abgerundete Anfasser mit Schatten */
-.free-handle.free-h-corner {
-  width: 14px;
-  height: 14px;
-  border-radius: 4px;
-  background: var(--accent);
-  border: 2px solid var(--card);
-  box-shadow: 0 1px 6px rgba(0,0,0,.45);
-  transition: transform .12s ease, background .12s ease;
-}
-.free-handle.free-h-corner:hover {
+.free-handle.free-h-n:hover::after,
+.free-handle.free-h-s:hover::after,
+.free-handle.free-h-w:hover::after,
+.free-handle.free-h-e:hover::after {
   background: var(--break);
-  transform: scale(1.3);
 }
 
-.free-handle.free-h-nw { top: -7px; left: -7px; cursor: nwse-resize; }
-.free-handle.free-h-ne { top: -7px; right: -7px; cursor: nesw-resize; }
-.free-handle.free-h-sw { bottom: -7px; left: -7px; cursor: nesw-resize; }
-.free-handle.free-h-se { bottom: -7px; right: -7px; cursor: nwse-resize; }
+/* Ecken: unsichtbare 24x24px Trefferzone ohne sichtbare Vierecke */
+.free-handle.free-h-corner {
+  width: 24px;
+  height: 24px;
+}
+
+.free-handle.free-h-nw { top: 0; left: 0; cursor: nwse-resize; }
+.free-handle.free-h-ne { top: 0; right: 0; cursor: nesw-resize; }
+.free-handle.free-h-sw { bottom: 0; left: 0; cursor: nesw-resize; }
+.free-handle.free-h-se { bottom: 0; right: 0; cursor: nwse-resize; }
 
 .free-canvas .card-resize { display: none !important; }
 
