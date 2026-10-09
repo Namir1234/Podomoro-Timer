@@ -118,15 +118,23 @@ const fmtDur = m => [settings[m] && settings[m] + " Min.", settings[m + "Sec"] &
 /* ============================================================
    NAVIGATION
    ============================================================ */
+function updatePageTimerState() {
+  const isTimer = $("timer")?.classList.contains("active");
+  document.body.classList.toggle("page-timer", !!isTimer);
+}
+
 document.querySelectorAll("nav button").forEach(btn => {
   btn.onclick = () => {
     document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
     document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
     btn.classList.add("active");
     $(btn.dataset.page).classList.add("active");
+    updatePageTimerState();
     if (btn.dataset.page === "stats") renderStats();
+    if (btn.dataset.page === "timer") freeRenderAll();
   };
 });
+updatePageTimerState();
 
 /* ============================================================
    TIMER
@@ -1619,9 +1627,27 @@ const FREE_GAP = 16;          // Abstand, auf den neben andere Felder eingeraste
 const FREE_SNAP = 8;          // Fangbereich der Hilfslinien in px
 const FREE_MIN_W = 220;       // minimale Feldbreite in px
 const FREE_MIN_H = 120;       // minimale Feldhöhe in px
-const FREE_EDIT_EXTRA = 240;  // zusätzlicher Platz unten im Bearbeitungsmodus
+const FREE_EDIT_EXTRA = 0;    // kein künstlicher Überhang im Bearbeitungsmodus
 const freeStackedMQ = window.matchMedia("(max-width: 680px)");
 const freeBoxes = [...document.querySelectorAll(".free-canvas")];
+
+function freeGetInitialPositions() {
+  return {
+    "timer-clock": { x: 0, y: 0, w: 0.38, z: 1 },
+    "timer-settings": { x: 0.395, y: 0, w: 0.33, z: 2 },
+    "timer-today": { x: 0.74, y: 0, w: 0.26, z: 3 },
+    "timer-quote": { x: 0.74, y: 285, w: 0.26, z: 4 }
+  };
+}
+
+// Altes 2-Zeilen-Überlauf-Layout automatisch auf 1-Seiten-Ansicht migrieren
+if (layout.timerCanvas?.free) {
+  const tc = layout.timerCanvas.free;
+  if (tc["timer-today"]?.y >= 500 || !tc["timer-clock"]?.w || tc["timer-clock"]?.w >= 0.45) {
+    Object.assign(tc, freeGetInitialPositions());
+    saveLayout();
+  }
+}
 
 function freeCards(box) {
   return [...box.children].filter(el => el.classList.contains("card"));
@@ -1647,8 +1673,14 @@ function freeClearStyles(card) {
   card.classList.remove("sized");
 }
 
-// Erste Anordnung: Felder im bisherigen Raster messen (inkl. alter gespeicherter Spalten/Reihenfolge)
+// Erste Anordnung: Felder anordnen (Timer-Seite auf 1 Seite optimiert)
 function freeMeasureDefaults(box) {
+  if (box.id === "timerCanvas") {
+    box.classList.add("free-ready");
+    const cfg = freeCfg(box);
+    Object.assign(cfg, freeGetInitialPositions());
+    return;
+  }
   const legacy = layout[box.closest(".page")?.id || ""] || {};
   const order = Array.isArray(legacy.order) ? legacy.order : [];
   const sizes = legacy.size || {};
