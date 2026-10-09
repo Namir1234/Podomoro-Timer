@@ -14,7 +14,12 @@
 </head>
 <body>
 
-<aside class="sidebar">
+<button class="hamburger" id="hamburgerBtn" type="button" aria-label="Menü öffnen" aria-expanded="false">
+  <span></span><span></span><span></span>
+</button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
   <h1><img class="icon" src="../img/logo.svg" alt=""><span class="label">Fokus</span></h1>
   <nav>
     <button data-page="timer" class="active"><img class="icon" src="../img/timer.svg" alt=""><span class="label">Timer</span></button>
@@ -308,6 +313,36 @@
 
 <script src="../js/pomodoro.js?v=10"></script>
 <script>
+  // Mobile Schublade: Hamburger-Menü öffnen/schliessen
+  (() => {
+    const btn = document.getElementById("hamburgerBtn");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
+    if (!btn || !sidebar || !overlay) return;
+
+    function closeDrawer() {
+      sidebar.classList.remove("open");
+      overlay.classList.remove("show");
+      btn.setAttribute("aria-expanded", "false");
+    }
+    function openDrawer() {
+      sidebar.classList.add("open");
+      overlay.classList.add("show");
+      btn.setAttribute("aria-expanded", "true");
+    }
+
+    btn.addEventListener("click", () => {
+      sidebar.classList.contains("open") ? closeDrawer() : openDrawer();
+    });
+    overlay.addEventListener("click", closeDrawer);
+    sidebar.addEventListener("click", (e) => {
+      if (e.target.closest("nav button, .back")) closeDrawer();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeDrawer();
+    });
+  })();
+
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
       navigator.serviceWorker.register("../sw.js", { scope: "../" });

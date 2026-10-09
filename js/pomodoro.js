@@ -1628,7 +1628,7 @@ const FREE_SNAP = 8;          // Fangbereich der Hilfslinien in px
 const FREE_MIN_W = 220;       // minimale Feldbreite in px
 const FREE_MIN_H = 120;       // minimale Feldhöhe in px
 const FREE_EDIT_EXTRA = 0;    // kein künstlicher Überhang im Bearbeitungsmodus
-const freeStackedMQ = window.matchMedia("(max-width: 680px)");
+const freeStackedMQ = window.matchMedia("(max-width: 720px)");
 const freeBoxes = [...document.querySelectorAll(".free-canvas")];
 
 function freeGetInitialPositions() {

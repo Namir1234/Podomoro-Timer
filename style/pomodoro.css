@@ -90,15 +90,69 @@ body.page-timer main {
   position: relative;
 }
 
-/* Schmale Bildschirme: Menü wandert nach oben, immer ausgeklappt */
+/* App-Ansicht (schmale Bildschirme): normale Grösse, Inhalt wird gescrollt statt gequetscht */
+@media (max-width: 720px) {
+  body:has(#timer.active),
+  body.page-timer {
+    height: auto;
+    max-height: none;
+    overflow: visible !important;
+  }
+  body:has(#timer.active) main,
+  body.page-timer main {
+    height: auto;
+    max-height: none;
+    overflow: visible !important;
+    padding-top: 70px;
+  }
+  #timer.active,
+  #timer.active .free-canvas {
+    overflow: visible;
+    min-height: 0;
+  }
+}
+
+/* Hamburger-Button: nur auf schmalen Bildschirmen sichtbar */
+.hamburger {
+  display: none;
+  position: fixed; top: 14px; left: 14px; z-index: 310;
+  width: 42px; height: 42px; border: 1px solid var(--border);
+  background: var(--card); border-radius: 10px; cursor: pointer;
+  flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.3);
+}
+.hamburger span { width: 20px; height: 2px; background: var(--text); border-radius: 2px; transition: transform .2s ease, opacity .2s ease; }
+.hamburger[aria-expanded="true"] span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.hamburger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.hamburger[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+.sidebar-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 290;
+  background: rgba(0,0,0,.55);
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s ease;
+}
+.sidebar-overlay.show { opacity: 1; pointer-events: auto; }
+
+/* Schmale Bildschirme: Menü wird zur Schublade, die über dem Inhalt einfährt */
 @media (max-width: 720px) {
   body { flex-direction: column; align-items: stretch; }
-  .sidebar, .sidebar:hover { width: 100%; height: auto; position: static; padding: 16px 12px; box-shadow: none; }
+  .hamburger { display: flex; }
+  .sidebar-overlay { display: block; }
+  .sidebar, .sidebar:hover {
+    width: min(260px, 82vw); height: 100vh; position: fixed; left: 0; top: 0;
+    padding: 70px 14px 24px; box-shadow: none;
+    transform: translateX(-100%);
+    transition: transform .25s ease, box-shadow .25s ease;
+    overflow-y: auto; z-index: 300;
+  }
+  .sidebar.open { transform: translateX(0); box-shadow: 10px 0 36px rgba(0,0,0,.5); }
   .sidebar .label { opacity: 1; }
   h1 { padding-bottom: 12px; }
-  nav { flex-direction: row; flex-wrap: wrap; }
-  nav button { flex: 1; text-align: center; white-space: nowrap; justify-content: center; }
-  main { margin-left: 0; }
+  nav { flex-direction: column; }
+  nav button { text-align: left; white-space: nowrap; justify-content: flex-start; }
+  main { margin-left: 0; padding-top: 70px; }
 }
 .page { display: none; }
 .page.active { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px; align-items: start; }
@@ -243,7 +297,6 @@ h2 .icon { margin-right: 8px; }
 .back:hover { background: var(--hover); color: var(--text); }
 .back .icon { opacity: .6; }
 .back:hover .icon { opacity: 1; }
-@media (max-width: 720px) { .back { margin-top: 6px; justify-content: center; } }
 
 .quote-list .q .orig { display: block; color: var(--muted); font-style: italic; margin-top: 3px; }
 
@@ -358,7 +411,6 @@ button.back { border: 0; background: transparent; width: 100%; font-family: inhe
 .menu-edit-list .order button { width: 30px; height: 30px; border: 1px solid var(--border); background: var(--inset); color: var(--text); border-radius: 8px; cursor: pointer; }
 .menu-edit-list .order button:hover:not(:disabled) { border-color: var(--accent); }
 .menu-edit-list .order button:disabled { opacity: .3; cursor: default; }
-@media (max-width: 720px) { .sidebar-foot { margin-top: 6px; } }
 
 /* ===== Page Topbar (Timer & Dashboard Kopfzeile) ===== */
 .page-topbar {
@@ -764,7 +816,7 @@ body.layout-edit .free-canvas .free-handle {
 .free-guide.show { display: block; }
 
 /* Schmale Bildschirme: Felder einfach untereinander */
-@media (max-width: 680px) {
+@media (max-width: 720px) {
   .free-canvas,
   .free-canvas.free-ready {
     display: flex !important;
