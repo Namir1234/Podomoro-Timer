@@ -945,3 +945,20 @@ body.zen .subject-row { width: min(100%, 420px); }
 @media (hover: none) {
   .zen-exit { opacity: .8; }
 }
+
+/* Schmale Bildschirme: die Kopfzeile hat keinen Platz fuer zwei beschriftete
+   Knoepfe – dort nur die Symbole zeigen (Beschriftung steckt im title-Attribut). */
+@media (max-width: 720px) {
+  .page-topbar { gap: 10px; }
+  .page-topbar-info { min-width: 0; }
+  .page-desc {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .page-topbar-actions .btn-topbar { padding: 9px 11px; }
+  .page-topbar-actions .btn-topbar-text { display: none; }
+}
+@media (max-width: 430px) {
+  .page-desc { display: none; }
+}
