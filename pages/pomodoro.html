@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style/pomodoro.css?v=10">
+<link rel="stylesheet" href="../style/pomodoro.css?v=11">
 </head>
 <body>
 
@@ -18,6 +18,10 @@
   <span></span><span></span><span></span>
 </button>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<button class="zen-exit" id="zenExitBtn" type="button" aria-label="Nur-Timer-Ansicht beenden" title="Beenden (Esc)">
+  <span></span><span></span>
+</button>
 
 <aside class="sidebar" id="sidebar">
   <h1><img class="icon" src="../img/logo.svg" alt=""><span class="label">Fokus</span></h1>
@@ -45,10 +49,16 @@
         <span class="page-badge">Fokus</span>
         <span class="page-desc">Pomodoro Arbeitsbereich</span>
       </div>
-      <button class="btn-topbar" id="timerLayoutToggleBtn" type="button" title="Felder verschieben und Grösse anpassen">
-        <img class="icon" src="../img/layout.svg" alt="">
-        <span class="btn-topbar-text">Felder anpassen</span>
-      </button>
+      <div class="page-topbar-actions">
+        <button class="btn-topbar" id="zenToggleBtn" type="button" title="Nur den Timer gross anzeigen (Esc zum Beenden)">
+          <img class="icon" src="../img/expand.svg" alt="">
+          <span class="btn-topbar-text">Nur Timer</span>
+        </button>
+        <button class="btn-topbar" id="timerLayoutToggleBtn" type="button" title="Felder verschieben und Grösse anpassen">
+          <img class="icon" src="../img/layout.svg" alt="">
+          <span class="btn-topbar-text">Felder anpassen</span>
+        </button>
+      </div>
     </div>
 
     <!-- Freies Layout: Felder ohne Spalten frei platzierbar (siehe "FREIES LAYOUT" in pomodoro.js) -->
@@ -311,7 +321,7 @@
   </div>
 </div>
 
-<script src="../js/pomodoro.js?v=10"></script>
+<script src="../js/pomodoro.js?v=11"></script>
 <script>
   // Mobile Schublade: Hamburger-Menü öffnen/schliessen
   (() => {

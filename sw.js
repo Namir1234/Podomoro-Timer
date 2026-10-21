@@ -1,4 +1,4 @@
-const CACHE_NAME = "fokus-cache-v2";
+const CACHE_NAME = "fokus-cache-v3";
 
 const ASSETS = [
   "./",
@@ -12,6 +12,7 @@ const ASSETS = [
   "./img/logo.svg",
   "./img/back.svg",
   "./img/edit.svg",
+  "./img/expand.svg",
   "./img/layout.svg",
   "./img/notes.svg",
   "./img/projects.svg",

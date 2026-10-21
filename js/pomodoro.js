@@ -1831,6 +1831,9 @@ function freeResolveOverlaps(box) {
 }
 
 function freeRenderAll() {
+  // In der Nur-Timer-Ansicht sind die anderen Felder ausgeblendet – dann waeren
+  // alle Messungen falsch und wuerden fehlerhafte Standardpositionen speichern.
+  if (document.body.classList.contains("zen")) return;
   freeBoxes.forEach(freeRender);
 }
 
@@ -2426,3 +2429,43 @@ renderProjectList();
 renderProject();
 renderToday();
 showTimerQuote();
+
+/* ============================================================
+   NUR-TIMER-ANSICHT ("Zen")
+   Zeigt nur das Timer-Feld gross auf dem ganzen Bildschirm.
+   Beenden mit dem X oben rechts oder mit Esc.
+   ============================================================ */
+function setZen(on) {
+  if (on) setLayoutEdit(false);          // Felder-Bearbeitung passt nicht zur Vollbild-Ansicht
+  document.body.classList.toggle("zen", on);
+
+  const btn = $("zenToggleBtn");
+  if (btn) {
+    btn.classList.toggle("active", on);
+    btn.setAttribute("aria-pressed", String(on));
+  }
+
+  if (!on) freeRenderAll();              // Felder nach dem Beenden neu platzieren
+  else freeClearCanvasHeight();
+}
+
+// Die Canvas-Hoehe wird im freien Layout per Inline-Style gesetzt – in der
+// Vollbild-Ansicht muss sie weg, damit das Timer-Feld den Platz ganz fuellt.
+function freeClearCanvasHeight() {
+  const box = $("timerCanvas");
+  if (box) box.style.removeProperty("height");
+}
+
+if ($("zenToggleBtn")) $("zenToggleBtn").onclick = () => setZen(!document.body.classList.contains("zen"));
+if ($("zenExitBtn")) $("zenExitBtn").onclick = () => setZen(false);
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && document.body.classList.contains("zen")) setZen(false);
+});
+
+// Beim Wechsel auf eine andere Seite im Menue die Vollbild-Ansicht beenden
+document.querySelectorAll("nav button").forEach(b => {
+  b.addEventListener("click", () => {
+    if (b.dataset.page !== "timer") setZen(false);
+  });
+});

@@ -836,3 +836,112 @@ body.layout-edit .free-canvas .free-handle {
   .free-canvas .card-resize,
   .free-canvas .free-handle { display: none !important; }
 }
+
+/* ===== Nur-Timer-Ansicht ("Zen"): Timer gross, alles andere ausgeblendet ===== */
+.page-topbar-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+/* Ausstiegs-Knopf (X) – nur in der Nur-Timer-Ansicht sichtbar */
+.zen-exit {
+  display: none;
+  position: fixed; top: 16px; right: 16px; z-index: 320;
+  width: 40px; height: 40px;
+  border: 1px solid var(--border); background: var(--card); color: var(--text);
+  border-radius: 10px; cursor: pointer;
+  align-items: center; justify-content: center;
+  opacity: .35; transition: opacity .15s ease, border-color .15s ease;
+}
+.zen-exit:hover { opacity: 1; border-color: var(--accent); }
+.zen-exit span {
+  position: absolute; width: 16px; height: 2px;
+  background: var(--text); border-radius: 2px;
+}
+.zen-exit span:nth-child(1) { transform: rotate(45deg); }
+.zen-exit span:nth-child(2) { transform: rotate(-45deg); }
+body.zen .zen-exit { display: flex; }
+
+/* Drumherum ausblenden */
+body.zen .sidebar,
+body.zen .sidebar-overlay,
+body.zen .hamburger,
+body.zen .page-topbar,
+body.zen .layout-bar { display: none !important; }
+
+body.zen:has(#timer.active),
+body.zen.page-timer,
+body.zen:has(#timer.active) main,
+body.zen.page-timer main {
+  height: 100vh !important; max-height: 100vh !important;
+  overflow: hidden !important;
+}
+body.zen:has(#timer.active) main,
+body.zen.page-timer main { margin-left: 0 !important; padding: 0 !important; }
+body.zen:has(#timer.active) #timer.active,
+body.zen.page-timer #timer.active {
+  overflow: hidden !important;
+  min-height: 0 !important;
+}
+
+/* Alle Felder ausser dem Timer verschwinden */
+body.zen .free-canvas > .card:not([data-card-id="timer-clock"]) { display: none !important; }
+
+/* Timer-Feld füllt den Bildschirm – überschreibt die Inline-Styles des freien Layouts */
+body.zen #timer.active .free-canvas,
+body.zen .free-canvas.free-ready {
+  height: 100% !important; min-height: 0 !important;
+}
+body.zen .free-canvas > .card[data-card-id="timer-clock"] {
+  position: absolute !important;
+  left: 0 !important; top: 0 !important;
+  width: 100% !important; height: 100% !important;
+  margin: 0 !important;
+  padding: clamp(14px, 3vh, 36px) !important;
+  background: var(--bg) !important;
+  border: 0 !important; border-radius: 0 !important; box-shadow: none !important;
+  display: flex !important; flex-direction: column;
+  align-items: center; justify-content: center; gap: clamp(6px, 1.4vh, 16px);
+  overflow: auto;
+}
+body.zen .free-canvas > .card[data-card-id="timer-clock"] > * { flex-shrink: 0; margin: 0; }
+
+/* Timer selbst deutlich groesser */
+body.zen .ring-wrap { width: min(58vmin, 540px); margin: 0 auto; }
+body.zen .ring circle { stroke-width: 9; }
+body.zen .time .digits { font-size: clamp(2.8rem, 13vmin, 7rem); }
+body.zen .time .label { font-size: clamp(.9rem, 2.2vmin, 1.15rem); margin-top: 10px; }
+body.zen .modes button { padding: 9px 18px; font-size: .92rem; }
+body.zen .controls .btn { padding: 13px 30px; font-size: 1.02rem; }
+body.zen .dots .dot { width: 12px; height: 12px; }
+body.zen .subject-row { width: min(100%, 420px); }
+
+/* Schmale Bildschirme: Hoehe nicht erzwingen, Inhalt darf scrollen */
+@media (max-width: 720px) {
+  /* Inhalt oben ausrichten und im Feld scrollen – der Bildschirm selbst bleibt fix */
+  body.zen .free-canvas > .card[data-card-id="timer-clock"] {
+    justify-content: flex-start;
+    padding-top: 58px !important;
+  }
+  body.zen .ring-wrap { width: min(72vmin, 420px); }
+  body.zen:has(#timer.active) #timer.active .free-canvas,
+  body.zen.page-timer #timer.active .free-canvas {
+    overflow: visible !important;
+    height: 100% !important;
+  }
+
+  /* Nichts darf seitlich hinausragen – sonst verschiebt sich der ganze Inhalt */
+  body.zen .free-canvas > .card[data-card-id="timer-clock"] { overflow-x: hidden; }
+  body.zen .modes {
+    max-width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  body.zen .modes button { padding: 8px 12px; font-size: .84rem; }
+  body.zen .controls { flex-wrap: wrap; }
+  body.zen .controls .btn { padding: 11px 20px; font-size: .95rem; }
+  body.zen .subject-row { width: 100%; flex-wrap: wrap; justify-content: center; }
+  body.zen .subject-row input { flex: 1; min-width: 0; }
+}
+
+/* Ohne Maus (Touch) gibt es kein Hover – der Beenden-Knopf bleibt sichtbar */
+@media (hover: none) {
+  .zen-exit { opacity: .8; }
+}
