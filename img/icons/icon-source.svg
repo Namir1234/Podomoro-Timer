@@ -1,0 +1,12 @@
+<!-- Quelle fuer die App-Icons. Masse aus icon-512.png uebernommen,
+     damit das gerenderte Icon dem bisherigen entspricht, aber in jeder
+     Groesse scharf bleibt. Rendern mit: npm run icons -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" fill="#1b2119"/>
+  <g stroke="#5f7d47" fill="none" stroke-linecap="butt">
+    <line x1="256" y1="22" x2="256" y2="100" stroke-width="14"/>
+    <line x1="232" y1="26" x2="280" y2="26" stroke-width="12"/>
+    <circle cx="256" cy="271.5" r="168.5" stroke-width="23"/>
+  </g>
+  <path d="M256 178 V272 H311" stroke="#ffffff" stroke-width="21" fill="none" stroke-linecap="butt" stroke-linejoin="miter"/>
+</svg>

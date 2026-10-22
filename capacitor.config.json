@@ -1,0 +1,9 @@
+{
+  "appId": "com.namiralgorani.fokus",
+  "appName": "Fokus",
+  "webDir": "dist",
+  "ios": {
+    "contentInset": "always",
+    "backgroundColor": "#1b2119"
+  }
+}

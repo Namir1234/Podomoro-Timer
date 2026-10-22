@@ -1,3 +1,8 @@
 .vscode/
 .claude/
 scratchpad/
+node_modules/
+dist/
+release/
+ios/App/App/public/
+ios/App/Pods/

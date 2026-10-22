@@ -1,0 +1,53 @@
+{
+  "name": "fokus-pomodoro",
+  "version": "1.0.0",
+  "description": "Fokus – Pomodoro-Timer mit Statistik, To-dos, Notizen und Projekten.",
+  "author": "Namir Al Gorani",
+  "private": true,
+  "main": "electron/main.js",
+  "scripts": {
+    "build": "node tools/build-app.mjs",
+    "start": "npm run build && electron .",
+    "dist:win": "npm run build && electron-builder --win",
+    "ios:sync": "npm run build && cap sync ios",
+    "ios:open": "cap open ios",
+    "test": "npm run build && electron tools/smoke-test.js",
+    "icons": "electron tools/render-icons.js"
+  },
+  "dependencies": {
+    "@capacitor/core": "^7.4.4",
+    "@capacitor/ios": "^7.4.4"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.4",
+    "electron": "^38.4.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.namiralgorani.fokus",
+    "productName": "Fokus",
+    "files": [
+      "electron/**",
+      "dist/**",
+      "img/icons/**"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "img/icons/icon-512.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "Fokus"
+    }
+  },
+  "allowScripts": {
+    "electron@38.8.6": true
+  }
+}
