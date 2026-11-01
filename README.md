@@ -1,7 +1,8 @@
 # Fokus – Pomodoro Timer
 
 Pomodoro-Timer mit Statistik, To-dos, Notizen und Projekten.
-Alle Daten bleiben auf dem Geraet (`localStorage`), es gibt keinen Server.
+Die Daten liegen auf dem Geraet (`localStorage`). Wer will, meldet sich an
+und gleicht sie ueber Supabase zwischen Geraeten ab (siehe "Login und Cloud-Sync").
 
 Derselbe Code laeuft als Webseite, als Windows-Programm und als iOS-App.
 
@@ -26,6 +27,38 @@ Die Dateien im Projektordner sind direkt die Webseite – `pages/index.html`
 oeffnen oder den Ordner auf einen Webserver legen. `sw.js` macht sie
 offlinefaehig; nach Aenderungen an den Assets die `CACHE_NAME`-Version in
 `sw.js` hochzaehlen, sonst bekommen Nutzer die alte Fassung.
+
+## Login und Cloud-Sync
+
+Login und Speicherung pro Konto laufen ueber [Supabase](https://supabase.com)
+(Gratis-Tarif reicht). Solange `js/cloud-config.js` leer ist, ist die
+Funktion aus und der Knopf "Anmelden" erscheint gar nicht.
+
+Einrichten:
+
+1. Auf supabase.com ein Konto und ein neues Projekt anlegen (Free Plan).
+2. Im Dashboard unter "SQL Editor" den Inhalt von `supabase/schema.sql`
+   ausfuehren. Das legt die Tabelle `user_data` mit Row-Level-Security an,
+   damit jede Person nur ihre eigenen Daten sieht.
+3. Unter "Authentication" → "Sign In / Providers" ist "Email" schon aktiv.
+   Empfehlung: dort "Confirm email" ausschalten. Der Gratis-Tarif verschickt
+   nur wenige Mails pro Stunde, und ohne Bestaetigung ist man nach dem
+   Registrieren direkt angemeldet.
+4. Unter "Project Settings" → "API" die "Project URL" und den
+   "anon public"-Key kopieren und in `js/cloud-config.js` eintragen.
+   Der anon-Key darf oeffentlich sein, die Daten schuetzt die Row-Level-Security.
+5. `CACHE_NAME` in `sw.js` hochzaehlen und fuer die Apps `npm run build`
+   ausfuehren. Das Build-Script erlaubt die Supabase-URL in der
+   Content-Security-Policy.
+
+So funktioniert der Abgleich: Jeder `pomo_*`-Key ist eine Zeile in
+`user_data`. Aenderungen werden nach etwa einer Sekunde hochgeladen; offline
+merkt sich die App die offenen Keys (`pomo__dirty`) und holt das spaeter nach.
+Beim Start und beim Login holt sie den Stand aus der Cloud und laedt die
+Seite neu, falls sich etwas geaendert hat. Die Statistik (`pomo_sessions`)
+wird beim Login zusammengefuehrt, sonst gilt der zuletzt gespeicherte Stand.
+Nach dem Abmelden bleiben die Daten auf dem Geraet, werden aber nicht mehr
+abgeglichen.
 
 ## Windows
 

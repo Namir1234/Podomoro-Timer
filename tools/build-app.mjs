@@ -15,6 +15,12 @@ const COPY = ["pages", "js", "style", "img", "manifest.json"];
 // das Caching die App-Huelle selbst.
 const SW_BLOCK = /\n\s*if \("serviceWorker" in navigator\) \{[\s\S]*?\n\s*\}\n/;
 
+// Login und Sync laufen ueber Supabase. Die URL kommt aus js/cloud-config.js;
+// ist dort noch nichts eingetragen, sind alle Supabase-Projekte erlaubt.
+const cloudConfig = await readFile(join(root, "js", "cloud-config.js"), "utf8");
+const supabaseUrl = cloudConfig.match(/SUPABASE_URL\s*=\s*["']([^"']*)["']/)?.[1].trim().replace(/\/+$/, "");
+const CLOUD = supabaseUrl || "https://*.supabase.co";
+
 // Die App laedt alles aus dem eigenen Paket. 'unsafe-inline' bleibt noetig,
 // weil die Seiten Skripte und Stile direkt im HTML haben.
 const CSP =
@@ -24,7 +30,7 @@ const CSP =
   "img-src 'self' data:; " +
   "font-src 'self'; " +
   "media-src 'self' data:; " +
-  "connect-src 'self'";
+  `connect-src 'self' ${CLOUD}`;
 
 const STARTSEITE = "pages/pomodoro.html";
 

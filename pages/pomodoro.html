@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#1b2119">
 <link rel="apple-touch-icon" href="../img/icons/apple-touch-icon.png">
 <link rel="stylesheet" href="../style/fonts/inter.css">
-<link rel="stylesheet" href="../style/pomodoro.css?v=12">
+<link rel="stylesheet" href="../style/pomodoro.css?v=13">
 </head>
 <body>
 
@@ -55,6 +55,10 @@
         <button class="btn-topbar" id="timerLayoutToggleBtn" type="button" title="Felder verschieben und Grösse anpassen">
           <img class="icon" src="../img/layout.svg" alt="">
           <span class="btn-topbar-text">Felder anpassen</span>
+        </button>
+        <button class="btn-topbar account-btn" id="accountBtn" type="button" title="Anmelden und Daten zwischen Geräten abgleichen" aria-label="Anmelden" hidden>
+          <img class="icon" src="../img/user.svg" alt="">
+          <span class="btn-topbar-text" id="accountBtnText">Anmelden</span>
         </button>
       </div>
     </div>
@@ -319,7 +323,37 @@
   </div>
 </div>
 
-<script src="../js/pomodoro.js?v=11"></script>
+<!-- Konto: Anmelden / Registrieren / Abmelden -->
+<div class="modal" id="accountModal" hidden>
+  <div class="card modal-box" role="dialog" aria-modal="true" aria-labelledby="accountModalTitle">
+    <h2 id="accountModalTitle">Konto</h2>
+    <form class="account-form" id="accountForm">
+      <p class="hint">Mit einem Konto werden Einstellungen, Notizen, To-dos, Projekte und Statistik gespeichert und zwischen deinen Geräten abgeglichen.</p>
+      <label>E-Mail <input type="email" id="accountEmail" autocomplete="email" required></label>
+      <label>Passwort <input type="password" id="accountPassword" autocomplete="current-password" minlength="6" required></label>
+      <p class="account-msg" id="accountMsg" role="status"></p>
+      <div class="controls">
+        <button class="btn secondary" type="button" id="accountSignUp">Registrieren</button>
+        <button class="btn" type="submit">Anmelden</button>
+      </div>
+      <button class="link-btn account-cancel" type="button" id="accountCancel">Abbrechen</button>
+    </form>
+    <div class="account-info" id="accountInfo" hidden>
+      <p>Angemeldet als <strong id="accountUser"></strong></p>
+      <p class="hint">Deine Daten werden automatisch gespeichert. Nach dem Abmelden bleiben sie auf diesem Gerät, werden aber nicht mehr abgeglichen.</p>
+      <p class="account-msg" id="accountInfoMsg" role="status"></p>
+      <div class="controls">
+        <button class="btn secondary" type="button" id="accountClose">Schliessen</button>
+        <button class="btn" type="button" id="accountSignOut">Abmelden</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/vendor/supabase.js"></script>
+<script src="../js/cloud-config.js"></script>
+<script src="../js/cloud.js"></script>
+<script src="../js/pomodoro.js?v=12"></script>
 <script>
   // Mobile Schublade: Hamburger-Menü öffnen/schliessen
   (() => {

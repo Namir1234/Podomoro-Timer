@@ -100,7 +100,8 @@ const REVO_QUOTES = [
 
 const DEFAULTS = { focus: 25, focusSec: 0, short: 5, shortSec: 0, long: 15, longSec: 0, rounds: 4, sound: 1, useSeconds: false, goal: 4 };
 const load = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
-const save = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} };
+// cloud.push lädt die Änderung hoch, wenn jemand angemeldet ist (sonst passiert nichts).
+const save = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} cloud.push(key, value); };
 
 let settings = { ...DEFAULTS, ...load("pomo_settings", {}) };
 let sessions = load("pomo_sessions", []);       // [{date:"2026-10-06", ts:..., min:25, subject:"..."}]
@@ -617,6 +618,8 @@ const stashEditor = () => { const nb = curNotebook(); if (nb) nb.html = $("notes
 
 function persistNotes() {
   stashEditor();
+  cloud.push("pomo_notebooks", notebooks);
+  cloud.push("pomo_current_nb", currentNb);
   try {
     localStorage.setItem("pomo_notebooks", JSON.stringify(notebooks));
     localStorage.setItem("pomo_current_nb", JSON.stringify(currentNb));
@@ -719,6 +722,8 @@ const stashProjEditor = () => { const p = curProject(); if (p) p.notesHtml = $("
 
 function persistProjects() {
   stashProjEditor();
+  cloud.push("pomo_projects", projects);
+  cloud.push("pomo_current_project", currentProj);
   try {
     localStorage.setItem("pomo_projects", JSON.stringify(projects));
     localStorage.setItem("pomo_current_project", JSON.stringify(currentProj));

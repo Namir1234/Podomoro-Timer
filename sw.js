@@ -1,4 +1,4 @@
-const CACHE_NAME = "fokus-cache-v5";
+const CACHE_NAME = "fokus-cache-v6";
 
 const ASSETS = [
   "./",
@@ -8,6 +8,9 @@ const ASSETS = [
   "./style/start.css",
   "./style/pomodoro.css",
   "./js/pomodoro.js",
+  "./js/cloud.js",
+  "./js/cloud-config.js",
+  "./js/vendor/supabase.js",
   "./style/fonts/inter.css",
   "./style/fonts/inter-1.woff2",
   "./style/fonts/inter-10.woff2",
@@ -25,6 +28,7 @@ const ASSETS = [
   "./img/streak.svg",
   "./img/timer.svg",
   "./img/todo.svg",
+  "./img/user.svg",
   "./img/icons/icon-192.png",
   "./img/icons/icon-512.png",
 ];
@@ -50,6 +54,8 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
+  // Anfragen an andere Server (Supabase-Login und -Daten) nie aus dem Cache beantworten.
+  if (new URL(req.url).origin !== self.location.origin) return;
 
   const isHTML = req.mode === "navigate" || req.headers.get("accept")?.includes("text/html");
 

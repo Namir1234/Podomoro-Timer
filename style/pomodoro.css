@@ -962,3 +962,18 @@ body.zen .subject-row { width: min(100%, 420px); }
 @media (max-width: 430px) {
   .page-desc { display: none; }
 }
+
+/* ===== Konto (Anmelden / Cloud-Sync) ===== */
+.btn-topbar[hidden] { display: none; }
+.account-btn .btn-topbar-text { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account-btn.signed-in { border-color: var(--accent); }
+.account-btn.signed-in .icon { opacity: 1; }
+.account-form .hint { margin: 0 0 14px; }
+.account-form label { display: flex; flex-direction: column; gap: 6px; color: var(--muted); font-size: .85rem; margin-bottom: 12px; }
+.account-msg { font-size: .85rem; line-height: 1.4; color: #e08a6d; margin-top: 4px; }
+.account-msg:empty { display: none; }
+.account-msg.ok { color: var(--muted); }
+.account-cancel { display: block; margin: 12px auto 0; }
+.account-info p { line-height: 1.45; overflow-wrap: anywhere; }
+.account-info .account-msg { margin-top: 10px; }
+.modal button:disabled { opacity: .6; cursor: default; }
