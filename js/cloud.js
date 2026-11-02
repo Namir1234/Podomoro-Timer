@@ -11,6 +11,8 @@ const cloud = (() => {
   const AUTH_KEY = "fokus-auth";            // hier legt supabase-js die Anmeldung ab
   const RELOAD_KEY = "fokus_sync_reload";   // Schutz gegen Neulade-Schleifen
   const SESSIONS = "pomo_sessions";
+  // Anordnung und Menü passen je nach Bildschirm, darum bleiben sie pro Gerät.
+  const DEVICE_ONLY = new Set(["pomo_layout", "pomo_menu"]);
 
   const url = typeof SUPABASE_URL === "string" ? SUPABASE_URL.trim() : "";
   const anonKey = typeof SUPABASE_ANON_KEY === "string" ? SUPABASE_ANON_KEY.trim() : "";
@@ -25,7 +27,7 @@ const cloud = (() => {
   let started = false;          // vor dem Start-Abgleich wird nur gesammelt, nicht hochgeladen
 
   /* ---------- Hilfsfunktionen ---------- */
-  const syncs = key => key.startsWith("pomo_") && !key.startsWith("pomo__");
+  const syncs = key => key.startsWith("pomo_") && !key.startsWith("pomo__") && !DEVICE_ONLY.has(key);
   const readLocal = key => { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } };
   const writeLocal = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} };
   const localKeys = () => { try { return Object.keys(localStorage).filter(syncs); } catch { return []; } };
@@ -81,6 +83,15 @@ const cloud = (() => {
     pending.clear();
     markDirty(keys);
     try {
+      // Sessions anderer Geräte nicht überschreiben, sondern dazunehmen.
+      // Eine leere Liste kommt nur vom Zurücksetzen der Statistik und gilt so.
+      const ses = rows.find(r => r.key === SESSIONS);
+      if (ses && Array.isArray(ses.value) && ses.value.length) {
+        const { data, error } = await client.from(TABLE).select("value").eq("user_id", user.id).eq("key", SESSIONS).maybeSingle();
+        if (error) throw error;
+        ses.value = mergeSessions(ses.value, data?.value);
+        writeLocal(SESSIONS, ses.value);
+      }
       const { error } = await client.from(TABLE).upsert(rows);
       if (error) throw error;
       setDirty(dirty().filter(k => !keys.includes(k) || pending.has(k)));
@@ -145,8 +156,11 @@ const cloud = (() => {
     const open = new Set([...dirty(), ...pending.keys()]);
     let changed = false;
     for (const r of rows) {
-      if (open.has(r.key) || canon(r.value) === canon(readLocal(r.key))) continue;
-      writeLocal(r.key, r.value);
+      if (open.has(r.key)) continue;
+      const local = readLocal(r.key);
+      const value = r.key === SESSIONS && local?.length ? mergeSessions(local, r.value) : r.value;
+      if (canon(value) === canon(local)) continue;
+      writeLocal(r.key, value);
       changed = true;
     }
     if (changed) reloadPage(true);
