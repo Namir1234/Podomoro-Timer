@@ -1,102 +1,116 @@
 /* ============================================================
    DATEN & HILFSFUNKTIONEN
    Alles wird im localStorage des Browsers gespeichert.
+   Zitate: t = Text { de, en }, a = Autor (Text oder { de, en }), n = Zusätze wie "attr" (zugeschrieben)
    ============================================================ */
+const PROVERB = { de: "Sprichwort", en: "Proverb" };
+const CN_PROVERB = { de: "Chinesisches Sprichwort", en: "Chinese proverb" };
+const UNKNOWN = { de: "Unbekannt", en: "Unknown" };
+
 const QUOTES = [
-  { t: "Es ist nicht genug zu wissen, man muss auch anwenden.", a: "Johann Wolfgang von Goethe" },
-  { t: "Die einzige Art, grossartige Arbeit zu leisten, ist zu lieben, was man tut.", a: "Steve Jobs" },
-  { t: "Es scheint immer unmöglich, bis es geschafft ist.", a: "Nelson Mandela" },
-  { t: "Erfolg ist die Summe kleiner Anstrengungen, die Tag für Tag wiederholt werden.", a: "Robert Collier" },
-  { t: "Ob du denkst, du kannst es, oder du kannst es nicht – du hast recht.", a: "Henry Ford" },
-  { t: "Fall siebenmal hin, steh achtmal auf.", a: "Japanisches Sprichwort" },
-  { t: "Ich fürchte nicht den, der 10'000 verschiedene Kicks geübt hat, sondern den, der einen Kick 10'000 Mal geübt hat.", a: "Bruce Lee (zugeschrieben)" },
-  { t: "Das Geheimnis des Vorankommens ist, anzufangen.", a: "Mark Twain (zugeschrieben)" },
-  { t: "Du musst nicht gross sein, um anzufangen, aber du musst anfangen, um gross zu werden.", a: "Zig Ziglar" },
-  { t: "Phantasie ist wichtiger als Wissen.", a: "Albert Einstein" },
-  { t: "Wir sind, was wir wiederholt tun. Vortrefflichkeit ist daher keine Handlung, sondern eine Gewohnheit.", a: "Will Durant" },
-  { t: "Ich habe in meinem Leben immer wieder versagt. Und deshalb habe ich Erfolg.", a: "Michael Jordan" },
-  { t: "Wer kämpft, kann verlieren. Wer nicht kämpft, hat schon verloren.", a: "Bertolt Brecht" },
-  { t: "Der beste Zeitpunkt, einen Baum zu pflanzen, war vor 20 Jahren. Der zweitbeste ist jetzt.", a: "Chinesisches Sprichwort" },
-  { t: "Der Weg von tausend Meilen beginnt mit dem ersten Schritt.", a: "Laozi" },
-  { t: "Bildung ist die mächtigste Waffe, die du verwenden kannst, um die Welt zu verändern.", a: "Nelson Mandela" },
-  { t: "Was ich nicht weiss, macht mich neugierig.", a: "Marie Curie (sinngemäss)" },
-  { t: "Disziplin ist die Brücke zwischen Zielen und Erfolg.", a: "Jim Rohn" },
-  { t: "Wer andere kennt, ist klug. Wer sich selbst kennt, ist weise.", a: "Laozi" },
-  { t: "Nicht weil es schwer ist, wagen wir es nicht, sondern weil wir es nicht wagen, ist es schwer.", a: "Seneca" },
-  { t: "Solange du lebst, lerne zu leben.", a: "Seneca" },
-  { t: "Was im Weg steht, wird zum Weg.", a: "Marc Aurel (sinngemäss)" },
-  { t: "Es sind nicht die Dinge, die uns beunruhigen, sondern unsere Urteile über die Dinge.", a: "Epiktet" },
-  { t: "Der Anfang ist der wichtigste Teil der Arbeit.", a: "Platon" },
-  { t: "Einfachheit ist die höchste Form der Raffinesse.", a: "Leonardo da Vinci (zugeschrieben)" },
-  { t: "Genie ist ein Prozent Inspiration und neunundneunzig Prozent Transpiration.", a: "Thomas Edison" },
-  { t: "Ich bin nicht gescheitert. Ich habe nur 10'000 Wege gefunden, die nicht funktionieren.", a: "Thomas Edison (zugeschrieben)" },
-  { t: "Eine Investition in Wissen bringt noch immer die besten Zinsen.", a: "Benjamin Franklin" },
-  { t: "Sei du selbst – alle anderen sind bereits vergeben.", a: "Oscar Wilde (zugeschrieben)" },
-  { t: "Was mich nicht umbringt, macht mich stärker.", a: "Friedrich Nietzsche" },
-  { t: "Wer ein Warum zum Leben hat, erträgt fast jedes Wie.", a: "Friedrich Nietzsche" },
-  { t: "Die Zukunft soll man nicht voraussehen wollen, sondern möglich machen.", a: "Antoine de Saint-Exupéry" },
-  { t: "Man sieht nur mit dem Herzen gut.", a: "Antoine de Saint-Exupéry" },
-  { t: "Wenn ich weiter gesehen habe, dann weil ich auf den Schultern von Riesen stand.", a: "Isaac Newton" },
-  { t: "Nichts im Leben muss man fürchten, man muss es nur verstehen.", a: "Marie Curie" },
-  { t: "Der einzige Ort, wo Erfolg vor Arbeit kommt, ist das Wörterbuch.", a: "Vince Lombardi (zugeschrieben)" },
-  { t: "Erfolg ist nicht endgültig, Misserfolg nicht fatal: Was zählt, ist der Mut weiterzumachen.", a: "Winston Churchill (zugeschrieben)" },
-  { t: "Es ist besser, ein kleines Licht anzuzünden, als die Dunkelheit zu verfluchen.", a: "Konfuzius (zugeschrieben)" },
-  { t: "Wer einen Berg versetzen will, beginnt damit, kleine Steine wegzutragen.", a: "Konfuzius (zugeschrieben)" },
-  { t: "Es ist egal, wie langsam du gehst, solange du nicht stehen bleibst.", a: "Konfuzius (zugeschrieben)" },
-  { t: "Ich weiss, dass ich nichts weiss.", a: "Sokrates (zugeschrieben)" },
-  { t: "Lerne von gestern, lebe für heute, hoffe für morgen.", a: "Albert Einstein (zugeschrieben)" },
-  { t: "Wer nie einen Fehler gemacht hat, hat nie etwas Neues ausprobiert.", a: "Albert Einstein (zugeschrieben)" },
-  { t: "Der beste Weg, anzufangen, ist, aufzuhören zu reden und anzufangen zu tun.", a: "Walt Disney (zugeschrieben)" },
-  { t: "Zwischen Reiz und Reaktion liegt ein Raum. In diesem Raum liegt unsere Freiheit.", a: "Viktor Frankl (zugeschrieben)" },
-  { t: "Gestern war ich klug und wollte die Welt verändern. Heute bin ich weise und verändere mich selbst.", a: "Rumi (zugeschrieben)" },
-  { t: "Was wir denken, das werden wir.", a: "Buddha (zugeschrieben)" },
-  { t: "Erfolg ist kein Zufall. Er ist harte Arbeit, Ausdauer, Lernen und Hingabe.", a: "Pelé (zugeschrieben)" },
-  { t: "Mut steht am Anfang des Handelns, Glück am Ende.", a: "Demokrit (zugeschrieben)" },
-  { t: "Übung macht den Meister.", a: "Sprichwort" },
-  { t: "Steter Tropfen höhlt den Stein.", a: "Ovid (sinngemäss)" },
-  { t: "Wo ein Wille ist, ist auch ein Weg.", a: "Sprichwort" },
-  { t: "Auch der längste Marsch beginnt mit dem ersten Schritt.", a: "Chinesisches Sprichwort" },
-  { t: "Konzentration ist die Wurzel aller höheren Fähigkeiten des Menschen.", a: "Bruce Lee (zugeschrieben)" },
-  { t: "Tu heute etwas, wofür dir dein zukünftiges Ich danken wird.", a: "Unbekannt" },
-  { t: "Kleine Schritte sind besser als gar keine Schritte.", a: "Unbekannt" },
-  { t: "Motivation bringt dich in Gang. Gewohnheit hält dich in Bewegung.", a: "Jim Ryun (zugeschrieben)" }
+  { t: { de: "Es ist nicht genug zu wissen, man muss auch anwenden.", en: "Knowing is not enough; we must apply." }, a: "Johann Wolfgang von Goethe" },
+  { t: { de: "Die einzige Art, grossartige Arbeit zu leisten, ist zu lieben, was man tut.", en: "The only way to do great work is to love what you do." }, a: "Steve Jobs" },
+  { t: { de: "Es scheint immer unmöglich, bis es geschafft ist.", en: "It always seems impossible until it's done." }, a: "Nelson Mandela" },
+  { t: { de: "Erfolg ist die Summe kleiner Anstrengungen, die Tag für Tag wiederholt werden.", en: "Success is the sum of small efforts, repeated day in and day out." }, a: "Robert Collier" },
+  { t: { de: "Ob du denkst, du kannst es, oder du kannst es nicht – du hast recht.", en: "Whether you think you can, or you think you can't – you're right." }, a: "Henry Ford" },
+  { t: { de: "Fall siebenmal hin, steh achtmal auf.", en: "Fall seven times, stand up eight." }, a: { de: "Japanisches Sprichwort", en: "Japanese proverb" } },
+  { t: { de: "Ich fürchte nicht den, der 10'000 verschiedene Kicks geübt hat, sondern den, der einen Kick 10'000 Mal geübt hat.", en: "I fear not the man who has practiced 10,000 kicks once, but I fear the man who has practiced one kick 10,000 times." }, a: "Bruce Lee", n: ["attr"] },
+  { t: { de: "Das Geheimnis des Vorankommens ist, anzufangen.", en: "The secret of getting ahead is getting started." }, a: "Mark Twain", n: ["attr"] },
+  { t: { de: "Du musst nicht gross sein, um anzufangen, aber du musst anfangen, um gross zu werden.", en: "You don't have to be great to start, but you have to start to be great." }, a: "Zig Ziglar" },
+  { t: { de: "Phantasie ist wichtiger als Wissen.", en: "Imagination is more important than knowledge." }, a: "Albert Einstein" },
+  { t: { de: "Wir sind, was wir wiederholt tun. Vortrefflichkeit ist daher keine Handlung, sondern eine Gewohnheit.", en: "We are what we repeatedly do. Excellence, then, is not an act, but a habit." }, a: "Will Durant" },
+  { t: { de: "Ich habe in meinem Leben immer wieder versagt. Und deshalb habe ich Erfolg.", en: "I've failed over and over and over again in my life. And that is why I succeed." }, a: "Michael Jordan" },
+  { t: { de: "Wer kämpft, kann verlieren. Wer nicht kämpft, hat schon verloren.", en: "Those who fight can lose. Those who don't fight have already lost." }, a: "Bertolt Brecht" },
+  { t: { de: "Der beste Zeitpunkt, einen Baum zu pflanzen, war vor 20 Jahren. Der zweitbeste ist jetzt.", en: "The best time to plant a tree was 20 years ago. The second best time is now." }, a: CN_PROVERB },
+  { t: { de: "Der Weg von tausend Meilen beginnt mit dem ersten Schritt.", en: "The journey of a thousand miles begins with a single step." }, a: "Laozi" },
+  { t: { de: "Bildung ist die mächtigste Waffe, die du verwenden kannst, um die Welt zu verändern.", en: "Education is the most powerful weapon which you can use to change the world." }, a: "Nelson Mandela" },
+  { t: { de: "Was ich nicht weiss, macht mich neugierig.", en: "What I don't know makes me curious." }, a: "Marie Curie", n: ["para"] },
+  { t: { de: "Disziplin ist die Brücke zwischen Zielen und Erfolg.", en: "Discipline is the bridge between goals and accomplishment." }, a: "Jim Rohn" },
+  { t: { de: "Wer andere kennt, ist klug. Wer sich selbst kennt, ist weise.", en: "Knowing others is intelligence; knowing yourself is true wisdom." }, a: "Laozi" },
+  { t: { de: "Nicht weil es schwer ist, wagen wir es nicht, sondern weil wir es nicht wagen, ist es schwer.", en: "It is not because things are difficult that we do not dare; it is because we do not dare that they are difficult." }, a: "Seneca" },
+  { t: { de: "Solange du lebst, lerne zu leben.", en: "As long as you live, keep learning how to live." }, a: "Seneca" },
+  { t: { de: "Was im Weg steht, wird zum Weg.", en: "What stands in the way becomes the way." }, a: { de: "Marc Aurel", en: "Marcus Aurelius" }, n: ["para"] },
+  { t: { de: "Es sind nicht die Dinge, die uns beunruhigen, sondern unsere Urteile über die Dinge.", en: "It is not things that disturb us, but our judgments about things." }, a: { de: "Epiktet", en: "Epictetus" } },
+  { t: { de: "Der Anfang ist der wichtigste Teil der Arbeit.", en: "The beginning is the most important part of the work." }, a: { de: "Platon", en: "Plato" } },
+  { t: { de: "Einfachheit ist die höchste Form der Raffinesse.", en: "Simplicity is the ultimate sophistication." }, a: "Leonardo da Vinci", n: ["attr"] },
+  { t: { de: "Genie ist ein Prozent Inspiration und neunundneunzig Prozent Transpiration.", en: "Genius is one percent inspiration and ninety-nine percent perspiration." }, a: "Thomas Edison" },
+  { t: { de: "Ich bin nicht gescheitert. Ich habe nur 10'000 Wege gefunden, die nicht funktionieren.", en: "I have not failed. I've just found 10,000 ways that won't work." }, a: "Thomas Edison", n: ["attr"] },
+  { t: { de: "Eine Investition in Wissen bringt noch immer die besten Zinsen.", en: "An investment in knowledge pays the best interest." }, a: "Benjamin Franklin" },
+  { t: { de: "Sei du selbst – alle anderen sind bereits vergeben.", en: "Be yourself; everyone else is already taken." }, a: "Oscar Wilde", n: ["attr"] },
+  { t: { de: "Was mich nicht umbringt, macht mich stärker.", en: "What does not kill me makes me stronger." }, a: "Friedrich Nietzsche" },
+  { t: { de: "Wer ein Warum zum Leben hat, erträgt fast jedes Wie.", en: "He who has a why to live can bear almost any how." }, a: "Friedrich Nietzsche" },
+  { t: { de: "Die Zukunft soll man nicht voraussehen wollen, sondern möglich machen.", en: "As for the future, your task is not to foresee it, but to enable it." }, a: "Antoine de Saint-Exupéry" },
+  { t: { de: "Man sieht nur mit dem Herzen gut.", en: "One sees clearly only with the heart." }, a: "Antoine de Saint-Exupéry" },
+  { t: { de: "Wenn ich weiter gesehen habe, dann weil ich auf den Schultern von Riesen stand.", en: "If I have seen further, it is by standing on the shoulders of giants." }, a: "Isaac Newton" },
+  { t: { de: "Nichts im Leben muss man fürchten, man muss es nur verstehen.", en: "Nothing in life is to be feared, it is only to be understood." }, a: "Marie Curie" },
+  { t: { de: "Der einzige Ort, wo Erfolg vor Arbeit kommt, ist das Wörterbuch.", en: "The only place success comes before work is in the dictionary." }, a: "Vince Lombardi", n: ["attr"] },
+  { t: { de: "Erfolg ist nicht endgültig, Misserfolg nicht fatal: Was zählt, ist der Mut weiterzumachen.", en: "Success is not final, failure is not fatal: it is the courage to continue that counts." }, a: "Winston Churchill", n: ["attr"] },
+  { t: { de: "Es ist besser, ein kleines Licht anzuzünden, als die Dunkelheit zu verfluchen.", en: "It is better to light a small candle than to curse the darkness." }, a: { de: "Konfuzius", en: "Confucius" }, n: ["attr"] },
+  { t: { de: "Wer einen Berg versetzen will, beginnt damit, kleine Steine wegzutragen.", en: "The man who moves a mountain begins by carrying away small stones." }, a: { de: "Konfuzius", en: "Confucius" }, n: ["attr"] },
+  { t: { de: "Es ist egal, wie langsam du gehst, solange du nicht stehen bleibst.", en: "It does not matter how slowly you go as long as you do not stop." }, a: { de: "Konfuzius", en: "Confucius" }, n: ["attr"] },
+  { t: { de: "Ich weiss, dass ich nichts weiss.", en: "I know that I know nothing." }, a: { de: "Sokrates", en: "Socrates" }, n: ["attr"] },
+  { t: { de: "Lerne von gestern, lebe für heute, hoffe für morgen.", en: "Learn from yesterday, live for today, hope for tomorrow." }, a: "Albert Einstein", n: ["attr"] },
+  { t: { de: "Wer nie einen Fehler gemacht hat, hat nie etwas Neues ausprobiert.", en: "Anyone who has never made a mistake has never tried anything new." }, a: "Albert Einstein", n: ["attr"] },
+  { t: { de: "Der beste Weg, anzufangen, ist, aufzuhören zu reden und anzufangen zu tun.", en: "The way to get started is to quit talking and begin doing." }, a: "Walt Disney", n: ["attr"] },
+  { t: { de: "Zwischen Reiz und Reaktion liegt ein Raum. In diesem Raum liegt unsere Freiheit.", en: "Between stimulus and response there is a space. In that space is our freedom." }, a: "Viktor Frankl", n: ["attr"] },
+  { t: { de: "Gestern war ich klug und wollte die Welt verändern. Heute bin ich weise und verändere mich selbst.", en: "Yesterday I was clever, so I wanted to change the world. Today I am wise, so I am changing myself." }, a: "Rumi", n: ["attr"] },
+  { t: { de: "Was wir denken, das werden wir.", en: "What we think, we become." }, a: "Buddha", n: ["attr"] },
+  { t: { de: "Erfolg ist kein Zufall. Er ist harte Arbeit, Ausdauer, Lernen und Hingabe.", en: "Success is no accident. It is hard work, perseverance, learning and dedication." }, a: "Pelé", n: ["attr"] },
+  { t: { de: "Mut steht am Anfang des Handelns, Glück am Ende.", en: "Courage is the beginning of action, happiness its end." }, a: { de: "Demokrit", en: "Democritus" }, n: ["attr"] },
+  { t: { de: "Übung macht den Meister.", en: "Practice makes perfect." }, a: PROVERB },
+  { t: { de: "Steter Tropfen höhlt den Stein.", en: "Dripping water hollows out stone." }, a: "Ovid", n: ["para"] },
+  { t: { de: "Wo ein Wille ist, ist auch ein Weg.", en: "Where there's a will, there's a way." }, a: PROVERB },
+  { t: { de: "Auch der längste Marsch beginnt mit dem ersten Schritt.", en: "Even the longest march begins with the first step." }, a: CN_PROVERB },
+  { t: { de: "Konzentration ist die Wurzel aller höheren Fähigkeiten des Menschen.", en: "Concentration is the root of all the higher abilities in man." }, a: "Bruce Lee", n: ["attr"] },
+  { t: { de: "Tu heute etwas, wofür dir dein zukünftiges Ich danken wird.", en: "Do something today that your future self will thank you for." }, a: UNKNOWN },
+  { t: { de: "Kleine Schritte sind besser als gar keine Schritte.", en: "Small steps are better than no steps at all." }, a: UNKNOWN },
+  { t: { de: "Motivation bringt dich in Gang. Gewohnheit hält dich in Bewegung.", en: "Motivation is what gets you started. Habit is what keeps you going." }, a: "Jim Ryun", n: ["attr"] }
 ];
 
-// Zitate asiatischer Mönche in der Originalsprache
+// Zitate asiatischer Mönche in der Originalsprache (a = Name im Original, r = Umschrift)
 const MONK_QUOTES = [
-  { t: "門松は冥土の旅の一里塚　めでたくもありめでたくもなし", a: "一休宗純 (Ikkyū Sōjun)", lang: "ja", l: "Japanisch" },
-  { t: "世の中は食うて糞して寝て起きて　さてその後は死ぬるばかりぞ", a: "一休宗純 (Ikkyū Sōjun, zugeschrieben)", lang: "ja", l: "Japanisch" },
-  { t: "祖死、父死、子死、孫死。", a: "仙厓義梵 (Sengai Gibon, zugeschrieben)", lang: "ja", l: "Japanisch" },
-  { t: "死にとうない。", a: "仙厓義梵 (Sengai Gibon, letzte Worte, zugeschrieben)", lang: "ja", l: "Japanisch" },
-  { t: "災難に逢う時節には災難に逢うがよく候。死ぬ時節には死ぬがよく候。是はこれ災難をのがるる妙法にて候。", a: "良寛 (Ryōkan)", lang: "ja", l: "Japanisch" },
-  { t: "散る桜　残る桜も　散る桜", a: "良寛 (Ryōkan, zugeschrieben)", lang: "ja", l: "Japanisch" },
-  { t: "逢佛殺佛，逢祖殺祖。", a: "臨濟義玄 (Linji Yixuan)", lang: "zh-Hant", l: "Chinesisch" },
-  { t: "「如何是佛？」「乾屎橛。」", a: "雲門文偃 (Yunmen Wenyan)", lang: "zh-Hant", l: "Chinesisch" },
-  { t: "我當時若見，一棒打殺與狗子喫卻，貴圖天下太平。", a: "雲門文偃 (Yunmen Wenyan)", lang: "zh-Hant", l: "Chinesisch" },
-  { t: "「如何是佛？」「麻三斤。」", a: "洞山守初 (Dongshan Shouchu)", lang: "zh-Hant", l: "Chinesisch" },
-  { t: "「狗子還有佛性也無？」「無。」", a: "趙州從諗 (Zhaozhou Congshen)", lang: "zh-Hant", l: "Chinesisch" },
-  { t: "「喫粥了也未？」「喫粥了也。」「洗鉢盂去。」", a: "趙州從諗 (Zhaozhou Congshen)", lang: "zh-Hant", l: "Chinesisch" },
-  { t: "道得也三十棒，道不得也三十棒。", a: "德山宣鑒 (Deshan Xuanjian)", lang: "zh-Hant", l: "Chinesisch" },
-  { t: "大眾道得即救，道不得即斬卻也。", a: "南泉普願 (Nanquan Puyuan)", lang: "zh-Hant", l: "Chinesisch" },
-  { t: "既無舍利，更取兩尊燒。", a: "丹霞天然 (Danxia Tianran)", lang: "zh-Hant", l: "Chinesisch" },
-  { t: "내 말에 속지 마라.", a: "성철 (Seongcheol)", lang: "ko", l: "Koreanisch" },
-  { t: "일생 동안 남녀의 무리를 속여서 하늘을 넘치는 죄업은 수미산을 지나친다.", a: "성철 (Seongcheol, Abschiedsvers)", lang: "ko", l: "Koreanisch" }
+  { t: "門松は冥土の旅の一里塚　めでたくもありめでたくもなし", a: "一休宗純", r: "Ikkyū Sōjun", lang: "ja" },
+  { t: "世の中は食うて糞して寝て起きて　さてその後は死ぬるばかりぞ", a: "一休宗純", r: "Ikkyū Sōjun", n: ["attr"], lang: "ja" },
+  { t: "祖死、父死、子死、孫死。", a: "仙厓義梵", r: "Sengai Gibon", n: ["attr"], lang: "ja" },
+  { t: "死にとうない。", a: "仙厓義梵", r: "Sengai Gibon", n: ["last", "attr"], lang: "ja" },
+  { t: "災難に逢う時節には災難に逢うがよく候。死ぬ時節には死ぬがよく候。是はこれ災難をのがるる妙法にて候。", a: "良寛", r: "Ryōkan", lang: "ja" },
+  { t: "散る桜　残る桜も　散る桜", a: "良寛", r: "Ryōkan", n: ["attr"], lang: "ja" },
+  { t: "逢佛殺佛，逢祖殺祖。", a: "臨濟義玄", r: "Linji Yixuan", lang: "zh-Hant" },
+  { t: "「如何是佛？」「乾屎橛。」", a: "雲門文偃", r: "Yunmen Wenyan", lang: "zh-Hant" },
+  { t: "我當時若見，一棒打殺與狗子喫卻，貴圖天下太平。", a: "雲門文偃", r: "Yunmen Wenyan", lang: "zh-Hant" },
+  { t: "「如何是佛？」「麻三斤。」", a: "洞山守初", r: "Dongshan Shouchu", lang: "zh-Hant" },
+  { t: "「狗子還有佛性也無？」「無。」", a: "趙州從諗", r: "Zhaozhou Congshen", lang: "zh-Hant" },
+  { t: "「喫粥了也未？」「喫粥了也。」「洗鉢盂去。」", a: "趙州從諗", r: "Zhaozhou Congshen", lang: "zh-Hant" },
+  { t: "道得也三十棒，道不得也三十棒。", a: "德山宣鑒", r: "Deshan Xuanjian", lang: "zh-Hant" },
+  { t: "大眾道得即救，道不得即斬卻也。", a: "南泉普願", r: "Nanquan Puyuan", lang: "zh-Hant" },
+  { t: "既無舍利，更取兩尊燒。", a: "丹霞天然", r: "Danxia Tianran", lang: "zh-Hant" },
+  { t: "내 말에 속지 마라.", a: "성철", r: "Seongcheol", lang: "ko" },
+  { t: "일생 동안 남녀의 무리를 속여서 하늘을 넘치는 죄업은 수미산을 지나친다.", a: "성철", r: "Seongcheol", n: ["farewell"], lang: "ko" }
 ];
 
-// Zitate berühmter Revolutionäre (deutsch, mit Original wo bekannt)
+// Zitate berühmter Revolutionäre (o = Original; wird nur gezeigt, wenn es von der Übersetzung abweicht)
 const REVO_QUOTES = [
-  { t: "Seien wir realistisch – verlangen wir das Unmögliche.", a: "Che Guevara (zugeschrieben)", o: "Seamos realistas, exijamos lo imposible." },
-  { t: "Freiheit ist immer die Freiheit der Andersdenkenden.", a: "Rosa Luxemburg" },
-  { t: "Nach dem Erklimmen eines hohen Berges entdeckt man nur, dass es noch viele weitere Berge zu erklimmen gibt.", a: "Nelson Mandela", o: "After climbing a great hill, one only finds that there are many more hills to climb." },
-  { t: "Das Vaterland oder den Tod – wir werden siegen.", a: "Thomas Sankara", o: "La patrie ou la mort, nous vaincrons." },
-  { t: "Nichts ist kostbarer als Unabhängigkeit und Freiheit.", a: "Hồ Chí Minh", o: "Không có gì quý hơn độc lập, tự do." },
-  { t: "Lieber im Stehen sterben als auf den Knien leben.", a: "Emiliano Zapata (zugeschrieben)", o: "Prefiero morir de pie que vivir de rodillas." },
-  { t: "Die Philosophen haben die Welt nur verschieden interpretiert; es kommt aber darauf an, sie zu verändern.", a: "Karl Marx" },
-  { t: "Die Zukunft gehört denen, die sich heute darauf vorbereiten.", a: "Malcolm X", o: "The future belongs to those who prepare for it today." },
-  { t: "Die Kunst zu siegen lernt man in den Niederlagen.", a: "Simón Bolívar", o: "El arte de vencer se aprende en las derrotas." },
-  { t: "Sei selbst die Veränderung, die du dir für die Welt wünschst.", a: "Mahatma Gandhi (zugeschrieben)", o: "Be the change that you wish to see in the world." },
-  { t: "Mit meinem Sturz hat man nur den Stamm des Freiheitsbaumes gefällt – er treibt aus den Wurzeln neu aus, denn sie sind tief und zahlreich.", a: "Toussaint Louverture" }
+  { t: { de: "Seien wir realistisch – verlangen wir das Unmögliche.", en: "Let's be realistic – let's demand the impossible." }, a: "Che Guevara", n: ["attr"], o: "Seamos realistas, exijamos lo imposible." },
+  { t: { de: "Freiheit ist immer die Freiheit der Andersdenkenden.", en: "Freedom is always the freedom of those who think differently." }, a: "Rosa Luxemburg", o: "Freiheit ist immer die Freiheit der Andersdenkenden." },
+  { t: { de: "Nach dem Erklimmen eines hohen Berges entdeckt man nur, dass es noch viele weitere Berge zu erklimmen gibt.", en: "After climbing a great hill, one only finds that there are many more hills to climb." }, a: "Nelson Mandela", o: "After climbing a great hill, one only finds that there are many more hills to climb." },
+  { t: { de: "Das Vaterland oder den Tod – wir werden siegen.", en: "Homeland or death – we will win." }, a: "Thomas Sankara", o: "La patrie ou la mort, nous vaincrons." },
+  { t: { de: "Nichts ist kostbarer als Unabhängigkeit und Freiheit.", en: "Nothing is more precious than independence and freedom." }, a: "Hồ Chí Minh", o: "Không có gì quý hơn độc lập, tự do." },
+  { t: { de: "Lieber im Stehen sterben als auf den Knien leben.", en: "I would rather die on my feet than live on my knees." }, a: "Emiliano Zapata", n: ["attr"], o: "Prefiero morir de pie que vivir de rodillas." },
+  { t: { de: "Die Philosophen haben die Welt nur verschieden interpretiert; es kommt aber darauf an, sie zu verändern.", en: "The philosophers have only interpreted the world in various ways; the point, however, is to change it." }, a: "Karl Marx", o: "Die Philosophen haben die Welt nur verschieden interpretiert; es kommt aber darauf an, sie zu verändern." },
+  { t: { de: "Die Zukunft gehört denen, die sich heute darauf vorbereiten.", en: "The future belongs to those who prepare for it today." }, a: "Malcolm X", o: "The future belongs to those who prepare for it today." },
+  { t: { de: "Die Kunst zu siegen lernt man in den Niederlagen.", en: "The art of winning is learned in defeat." }, a: "Simón Bolívar", o: "El arte de vencer se aprende en las derrotas." },
+  { t: { de: "Sei selbst die Veränderung, die du dir für die Welt wünschst.", en: "Be the change that you wish to see in the world." }, a: "Mahatma Gandhi", n: ["attr"], o: "Be the change that you wish to see in the world." },
+  { t: { de: "Mit meinem Sturz hat man nur den Stamm des Freiheitsbaumes gefällt – er treibt aus den Wurzeln neu aus, denn sie sind tief und zahlreich.", en: "In overthrowing me, you have cut down only the trunk of the tree of liberty. It will spring up again from the roots, for they are numerous and deep." }, a: "Toussaint Louverture", o: "En me renversant, on n'a abattu à Saint-Domingue que le tronc de l'arbre de la liberté des Noirs ; il repoussera par les racines, car elles sont profondes et nombreuses." }
 ];
+
+// Autor mit Zusätzen, z. B. "Mark Twain (zugeschrieben)"
+const noteText = n => (n || []).map(k => t("q." + k));
+function authorText(q) {
+  const notes = noteText(q.n);
+  return L(q.a) + (notes.length ? ` (${notes.join(", ")})` : "");
+}
+const monkAuthor = q => `${q.a} (${[q.r, ...noteText(q.n)].join(", ")})`;
+const wrapQuote = s => t("q.wrap", { t: s });
 
 const DEFAULTS = { focus: 25, focusSec: 0, short: 5, shortSec: 0, long: 15, longSec: 0, rounds: 4, sound: 1, useSeconds: false, goal: 4 };
 const load = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
@@ -113,7 +127,10 @@ const dayKey = d => { const x = new Date(d); return x.getFullYear() + "-" + Stri
 const round1 = n => Math.round(n * 10) / 10;
 // Dauer einer Phase ("focus", "short", "long") in Sekunden
 const phaseSec = m => settings[m] * 60 + settings[m + "Sec"];
-const fmtDur = m => [settings[m] && settings[m] + " Min.", settings[m + "Sec"] && settings[m + "Sec"] + " Sek."].filter(Boolean).join(" ");
+const fmtDur = m => [settings[m] && t("dur.min", { n: settings[m] }), settings[m + "Sec"] && t("dur.sec", { n: settings[m + "Sec"] })].filter(Boolean).join(" ");
+// Sessions ohne Fach werden mit diesem Wert gespeichert und beim Anzeigen übersetzt
+const NO_SUBJECT = "Ohne Fach";
+const subjectName = s => s === NO_SUBJECT ? t("subject.none") : s;
 
 /* ============================================================
    NAVIGATION
@@ -139,7 +156,7 @@ updatePageTimerState();
 /* ============================================================
    TIMER
    ============================================================ */
-const MODE_TEXT = { focus: "Zeit zum Fokussieren", short: "Kurze Pause", long: "Lange Pause" };
+const MODE_TEXT = { focus: "mode.focusText", short: "mode.short", long: "mode.long" };
 const CIRC = 2 * Math.PI * 114;     // Umfang des Kreises
 $("ringFg").style.strokeDasharray = CIRC;
 
@@ -195,14 +212,14 @@ function animateRing() {
 
 function draw() {
   $("digits").textContent = fmt(remaining);
-  $("modeLabel").textContent = MODE_TEXT[mode];
+  $("modeLabel").textContent = t(MODE_TEXT[mode]);
   drawRing();
   document.body.classList.toggle("pause", mode !== "focus");
-  document.title = (running ? fmt(remaining) + " · " : "") + "Fokus – Pomodoro";
+  document.title = (running ? fmt(remaining) + " · " : "") + t("doc.title");
   document.querySelectorAll(".modes button").forEach(b => b.classList.toggle("active", b.dataset.mode === mode));
-  $("startBtn").textContent = running ? "Pause" : (remaining < totalSec ? "Weiter" : "Start");
+  $("startBtn").textContent = t(running ? "btn.pause" : (remaining < totalSec ? "btn.resume" : "btn.start"));
   $("dots").innerHTML = Array.from({ length: settings.rounds }, (_, i) => `<div class="dot ${i < focusDone ? "done" : ""}"></div>`).join("");
-  $("cycleHint").textContent = `Ablauf: ${settings.rounds}× ${fmtDur("focus")} Fokus, dazwischen ${fmtDur("short")} Pause, danach ${fmtDur("long")} lange Pause.`;
+  $("cycleHint").textContent = t("cycle", { r: settings.rounds, f: fmtDur("focus"), s: fmtDur("short"), l: fmtDur("long") });
 }
 
 // Nach einer Fokus-Runde: kurze Pause, nach der letzten Runde des Zyklus die lange Pause
@@ -243,7 +260,7 @@ function finish() {
   beep();
   if (mode === "focus") {
     const now = new Date();
-    sessions.push({ date: dayKey(now), ts: now.getTime(), min: round1(phaseSec("focus") / 60), subject: $("subject").value.trim() || "Ohne Fach" });
+    sessions.push({ date: dayKey(now), ts: now.getTime(), min: round1(phaseSec("focus") / 60), subject: $("subject").value.trim() || NO_SUBJECT });
     save("pomo_subject", $("subject").value.trim());
     save("pomo_sessions", sessions);
     updateSubjectList();
@@ -352,7 +369,7 @@ showSteppers();
 // Fach-Vorschläge
 $("subject").value = load("pomo_subject", "");
 function updateSubjectList() {
-  const names = [...new Set(sessions.map(s => s.subject))].filter(n => n !== "Ohne Fach");
+  const names = [...new Set(sessions.map(s => s.subject))].filter(n => n !== NO_SUBJECT);
   $("subjectList").innerHTML = names.map(n => `<option value="${n.replace(/"/g, "&quot;")}">`).join("");
 }
 updateSubjectList();
@@ -370,7 +387,7 @@ function renderStats() {
   const days = [];
   for (let i = 6; i >= 0; i--) {
     const d = new Date(); d.setDate(d.getDate() - i);
-    days.push({ key: dayKey(d), label: d.toLocaleDateString("de-CH", { weekday: "short" }), min: sumFor(dayKey(d)) });
+    days.push({ key: dayKey(d), label: d.toLocaleDateString(locale(), { weekday: "short" }), min: sumFor(dayKey(d)) });
   }
   const max = Math.max(...days.map(d => d.min), 1);
   $("chart").innerHTML = days.map(d => `
@@ -397,18 +414,18 @@ function renderStats() {
   const entries = Object.entries(bySubject).sort((a, b) => b[1] - a[1]);
   const top = entries.length ? entries[0][1] : 1;
   $("subjectStats").innerHTML = entries.length
-    ? entries.map(([n, m]) => `<div class="subject-line"><span class="name">${esc(n)}</span><div class="track"><div class="fill" style="width:${m / top * 100}%"></div></div><span class="mins">${round1(m)} min</span></div>`).join("")
-    : '<p style="color:var(--muted)">Noch keine Daten. Starte deine erste Session!</p>';
+    ? entries.map(([n, m]) => `<div class="subject-line"><span class="name">${esc(subjectName(n))}</span><div class="track"><div class="fill" style="width:${m / top * 100}%"></div></div><span class="mins">${round1(m)} min</span></div>`).join("")
+    : `<p style="color:var(--muted)">${esc(t("stats.noData"))}</p>`;
 
   // Verlauf
   $("history").innerHTML = sessions.slice(-8).reverse().map(s => {
-    const t = new Date(s.ts);
-    return `<li><span>${esc(s.subject)} · ${s.min} min</span><span>${t.toLocaleDateString("de-CH")} ${t.toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" })}</span></li>`;
-  }).join("") || '<li><span style="color:var(--muted)">Noch nichts da.</span></li>';
+    const d = new Date(s.ts);
+    return `<li><span>${esc(subjectName(s.subject))} · ${s.min} min</span><span>${d.toLocaleDateString(locale())} ${d.toLocaleTimeString(locale(), { hour: "2-digit", minute: "2-digit" })}</span></li>`;
+  }).join("") || `<li><span style="color:var(--muted)">${esc(t("stats.nothing"))}</span></li>`;
 }
 
 $("clearBtn").onclick = () => {
-  if (confirm("Wirklich alle Statistik-Daten löschen?")) {
+  if (confirm(t("stats.confirm"))) {
     sessions = []; save("pomo_sessions", sessions); updateSubjectList(); renderStats();
   }
 };
@@ -419,12 +436,20 @@ $("clearBtn").onclick = () => {
 let currentQuote = "";
 let filter = "all";
 
-// Eingebaute + eigene Zitate, jedes mit stabiler ID
+// Eingebaute + eigene Zitate, jedes mit stabiler ID (Text und Autor in der aktuellen Sprache)
 function allQuotes() {
   return [
-    ...QUOTES.map((q, i) => ({ t: q.t, a: q.a, id: "b" + i, custom: false })),
-    ...customQuotes.map(q => ({ t: q.t, a: q.a, id: q.id, custom: true }))
+    ...QUOTES.map((q, i) => ({ t: L(q.t), a: authorText(q), id: "b" + i, custom: false })),
+    ...customQuotes.map(q => ({ t: q.t, a: !q.a || q.a === "Unbekannt" ? t("q.unknown") : q.a, id: q.id, custom: true }))
   ];
+}
+
+function paintQuote(textEl, authorEl, id) {
+  const q = allQuotes().find(x => x.id === id);
+  if (!q) return false;
+  $(textEl).textContent = wrapQuote(q.t);
+  $(authorEl).textContent = "– " + q.a;
+  return true;
 }
 
 function showQuote() {
@@ -432,8 +457,7 @@ function showQuote() {
   let i;
   do { i = Math.floor(Math.random() * list.length); } while (list[i].id === currentQuote && list.length > 1);
   currentQuote = list[i].id;
-  $("qText").textContent = "«" + list[i].t + "»";
-  $("qAuthor").textContent = "– " + list[i].a;
+  paintQuote("qText", "qAuthor", currentQuote);
 }
 
 // Pro Seitenaufruf wird nur eine zufällige Auswahl gezeigt – bei jedem Öffnen eine andere
@@ -456,10 +480,10 @@ function renderQuoteList() {
     : quoteBatch.map(id => all.find(q => q.id === id)).filter(Boolean);
   $("quoteList").innerHTML = list.length ? list.map(q => `
     <div class="q">
-      <button class="fav ${favs.includes(q.id) ? "on" : ""}" data-id="${q.id}" title="Favorit">${favs.includes(q.id) ? "★" : "☆"}</button>
-      ${q.custom ? `<button class="qdel" data-id="${q.id}" title="Eigenes Zitat löschen" aria-label="Löschen">✕</button>` : ""}
-      «${esc(q.t)}»<small>– ${esc(q.a)}</small>
-    </div>`).join("") : '<p style="color:var(--muted)">Noch keine Favoriten. Tippe auf den Stern bei einem Zitat.</p>';
+      <button class="fav ${favs.includes(q.id) ? "on" : ""}" data-id="${q.id}" title="${esc(t("q.fav"))}">${favs.includes(q.id) ? "★" : "☆"}</button>
+      ${q.custom ? `<button class="qdel" data-id="${q.id}" title="${esc(t("q.delOwn"))}" aria-label="${esc(t("btn.delete"))}">✕</button>` : ""}
+      ${esc(wrapQuote(q.t))}<small>– ${esc(q.a)}</small>
+    </div>`).join("") : `<p style="color:var(--muted)">${esc(t("q.noFavs"))}</p>`;
   $("quoteList").querySelectorAll(".fav").forEach(b => b.onclick = () => {
     const id = b.dataset.id;
     favs = favs.includes(id) ? favs.filter(f => f !== id) : [...favs, id];
@@ -480,7 +504,7 @@ $("quoteAddForm").onsubmit = e => {
   e.preventDefault();
   const t = $("qNewText").value.trim();
   if (!t) return;
-  const a = $("qNewAuthor").value.trim() || "Unbekannt";
+  const a = $("qNewAuthor").value.trim();   // leer = "Unbekannt" in der jeweiligen Sprache
   const id = "c" + Date.now();
   customQuotes.push({ id, t, a });
   save("pomo_custom_quotes", customQuotes);
@@ -518,16 +542,21 @@ function showMonkQuote() {
   let i;
   do { i = Math.floor(Math.random() * MONK_QUOTES.length); } while (i === currentMonk && MONK_QUOTES.length > 1);
   currentMonk = i;
-  $("mText").textContent = MONK_QUOTES[i].t;
-  $("mText").lang = MONK_QUOTES[i].lang;
-  $("mAuthor").textContent = "– " + MONK_QUOTES[i].a;
+  paintMonkQuote();
+}
+
+function paintMonkQuote() {
+  const q = MONK_QUOTES[currentMonk];
+  $("mText").textContent = q.t;
+  $("mText").lang = q.lang;
+  $("mAuthor").textContent = "– " + monkAuthor(q);
 }
 
 function renderMonkList() {
   $("monkList").innerHTML = MONK_QUOTES.map(q => `
     <div class="q">
-      <span class="lang">${esc(q.l)}</span>
-      <span lang="${q.lang}">${esc(q.t)}</span><small>– ${esc(q.a)}</small>
+      <span class="lang">${esc(t("lang." + q.lang))}</span>
+      <span lang="${q.lang}">${esc(q.t)}</span><small>– ${esc(monkAuthor(q))}</small>
     </div>`).join("");
 }
 
@@ -542,15 +571,23 @@ function showRevoQuote() {
   let i;
   do { i = Math.floor(Math.random() * REVO_QUOTES.length); } while (i === currentRevo && REVO_QUOTES.length > 1);
   currentRevo = i;
-  $("rText").textContent = "«" + REVO_QUOTES[i].t + "»";
-  $("rAuthor").textContent = "– " + REVO_QUOTES[i].a;
+  paintRevoQuote();
+}
+
+function paintRevoQuote() {
+  const q = REVO_QUOTES[currentRevo];
+  $("rText").textContent = wrapQuote(L(q.t));
+  $("rAuthor").textContent = "– " + authorText(q);
 }
 
 function renderRevoList() {
-  $("revoList").innerHTML = REVO_QUOTES.map(q => `
+  $("revoList").innerHTML = REVO_QUOTES.map(q => {
+    const text = L(q.t);
+    return `
     <div class="q">
-      «${esc(q.t)}»${q.o ? `<span class="orig">${esc(q.o)}</span>` : ""}<small>– ${esc(q.a)}</small>
-    </div>`).join("");
+      ${esc(wrapQuote(text))}${q.o && q.o !== text ? `<span class="orig">${esc(q.o)}</span>` : ""}<small>– ${esc(authorText(q))}</small>
+    </div>`;
+  }).join("");
 }
 
 $("nextRevo").onclick = showRevoQuote;
@@ -563,26 +600,27 @@ const saveTodos = () => save("pomo_todos", todos);
 
 // Deadline als kleines Schild: Datum + wie lange noch
 const validDate = v => /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : "";
-function dueBadge(t) {
-  if (!validDate(t.due || "")) return "";
-  const [y, m, d] = t.due.split("-").map(Number);
+function dueBadge(todo) {
+  if (!validDate(todo.due || "")) return "";
+  const [y, m, d] = todo.due.split("-").map(Number);
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const diff = Math.round((new Date(y, m - 1, d) - today) / 864e5);
-  const rel = diff === 0 ? "heute" : diff === 1 ? "morgen" : diff > 1 ? `in ${diff} Tagen`
-    : diff === -1 ? "seit gestern überfällig" : `seit ${-diff} Tagen überfällig`;
-  const cls = t.done ? "" : diff < 0 ? "late" : diff <= 1 ? "soon" : "";
-  return `<span class="due ${cls}" title="Fällig am">${String(d).padStart(2, "0")}.${String(m).padStart(2, "0")}.${y} · ${rel}</span>`;
+  const rel = diff === 0 ? t("due.today") : diff === 1 ? t("due.tomorrow") : diff > 1 ? t("due.in", { n: diff })
+    : diff === -1 ? t("due.yesterday") : t("due.over", { n: -diff });
+  const cls = todo.done ? "" : diff < 0 ? "late" : diff <= 1 ? "soon" : "";
+  const date = new Date(y, m - 1, d).toLocaleDateString(locale(), { day: "2-digit", month: "2-digit", year: "numeric" });
+  return `<span class="due ${cls}" title="${esc(t("due.title"))}">${date} · ${rel}</span>`;
 }
 
 function renderTodos() {
   $("todoList").innerHTML = todos.length
-    ? todos.map(t => `
-      <li class="${t.done ? "done" : ""}" data-id="${t.id}">
-        <label><input type="checkbox" ${t.done ? "checked" : ""}><span>${esc(t.text)}</span></label>
-        ${dueBadge(t)}
-        <button class="todo-del" title="Löschen" aria-label="Löschen">✕</button>
+    ? todos.map(td => `
+      <li class="${td.done ? "done" : ""}" data-id="${td.id}">
+        <label><input type="checkbox" ${td.done ? "checked" : ""}><span>${esc(td.text)}</span></label>
+        ${dueBadge(td)}
+        <button class="todo-del" title="${esc(t("btn.delete"))}" aria-label="${esc(t("btn.delete"))}">✕</button>
       </li>`).join("")
-    : '<li class="empty">Noch keine Aufgaben. Trag oben deine erste ein.</li>';
+    : `<li class="empty">${esc(t("todo.empty"))}</li>`;
   $("todoList").querySelectorAll("li[data-id]").forEach(li => {
     const id = +li.dataset.id;
     li.querySelector("input").onchange = e => {
@@ -609,7 +647,7 @@ $("clearDone").onclick = () => { todos = todos.filter(t => !t.done); saveTodos()
    NOTIZEN (Ordner + Word-ähnlicher Editor, im Browser gespeichert)
    ============================================================ */
 let notebooks = load("pomo_notebooks", null);
-if (!Array.isArray(notebooks) || !notebooks.length) notebooks = [{ id: Date.now(), name: "Allgemein", html: "" }];
+if (!Array.isArray(notebooks) || !notebooks.length) notebooks = [{ id: Date.now(), name: t("notes.defaultName"), html: "" }];
 let currentNb = load("pomo_current_nb", notebooks[0].id);
 if (!notebooks.some(n => n.id === currentNb)) currentNb = notebooks[0].id;
 
@@ -623,9 +661,9 @@ function persistNotes() {
   try {
     localStorage.setItem("pomo_notebooks", JSON.stringify(notebooks));
     localStorage.setItem("pomo_current_nb", JSON.stringify(currentNb));
-    $("notesStatus").textContent = "Automatisch gespeichert.";
+    $("notesStatus").textContent = t("notes.saved");
   } catch {
-    $("notesStatus").textContent = "⚠ Konnte nicht speichern – die Bilder sind vermutlich zu gross.";
+    $("notesStatus").textContent = t("notes.saveErr");
   }
 }
 
@@ -633,7 +671,7 @@ function renderFolders() {
   $("folderList").innerHTML = notebooks.map(n => `
     <li class="${n.id === currentNb ? "active" : ""}" data-id="${n.id}">
       <span class="folder-name">${esc(n.name)}</span>
-      <button class="folder-del" title="Ordner löschen" aria-label="Löschen">✕</button>
+      <button class="folder-del" title="${esc(t("folder.delete"))}" aria-label="${esc(t("btn.delete"))}">✕</button>
     </li>`).join("");
   $("folderList").querySelectorAll("li").forEach(li => {
     const id = +li.dataset.id;
@@ -653,9 +691,9 @@ function switchNotebook(id) {
 }
 
 function deleteNotebook(id) {
-  if (notebooks.length <= 1) { alert("Es muss mindestens ein Ordner bleiben."); return; }
+  if (notebooks.length <= 1) { alert(t("folder.min")); return; }
   const nb = notebooks.find(n => n.id === id);
-  if (!confirm(`Ordner „${nb ? nb.name : ""}" mit allen Notizen löschen?`)) return;
+  if (!confirm(t("folder.confirm", { name: nb ? nb.name : "" }))) return;
   notebooks = notebooks.filter(n => n.id !== id);
   if (currentNb === id) currentNb = notebooks[0].id;
   persistNotes();
@@ -664,7 +702,7 @@ function deleteNotebook(id) {
 }
 
 $("addFolder").onclick = () => {
-  const name = prompt("Name des neuen Ordners (z. B. ein Fach):");
+  const name = prompt(t("folder.prompt"));
   if (!name || !name.trim()) return;
   stashEditor();
   const nb = { id: Date.now(), name: name.trim(), html: "" };
@@ -713,7 +751,7 @@ $("notesImgInput").onchange = e => {
    PROJEKTE (jedes Projekt hat eigene To-dos und Notizen)
    ============================================================ */
 let projects = load("pomo_projects", null);
-if (!Array.isArray(projects) || !projects.length) projects = [{ id: Date.now(), name: "Mein Projekt", todos: [], notesHtml: "" }];
+if (!Array.isArray(projects) || !projects.length) projects = [{ id: Date.now(), name: t("proj.defaultName"), todos: [], notesHtml: "" }];
 let currentProj = load("pomo_current_project", projects[0].id);
 if (!projects.some(p => p.id === currentProj)) currentProj = projects[0].id;
 
@@ -734,7 +772,7 @@ function renderProjectList() {
   $("projList").innerHTML = projects.map(p => `
     <li class="${p.id === currentProj ? "active" : ""}" data-id="${p.id}">
       <span class="folder-name">${esc(p.name)}</span>
-      <button class="folder-del" title="Projekt löschen" aria-label="Löschen">✕</button>
+      <button class="folder-del" title="${esc(t("proj.delete"))}" aria-label="${esc(t("btn.delete"))}">✕</button>
     </li>`).join("");
   $("projList").querySelectorAll("li").forEach(li => {
     const id = +li.dataset.id;
@@ -747,13 +785,13 @@ function renderProject() {
   const p = curProject();
   $("projTitle").textContent = p.name;
   $("projTodoList").innerHTML = p.todos.length
-    ? p.todos.map(t => `
-      <li class="${t.done ? "done" : ""}" data-id="${t.id}">
-        <label><input type="checkbox" ${t.done ? "checked" : ""}><span>${esc(t.text)}</span></label>
-        ${dueBadge(t)}
-        <button class="todo-del" title="Löschen" aria-label="Löschen">✕</button>
+    ? p.todos.map(td => `
+      <li class="${td.done ? "done" : ""}" data-id="${td.id}">
+        <label><input type="checkbox" ${td.done ? "checked" : ""}><span>${esc(td.text)}</span></label>
+        ${dueBadge(td)}
+        <button class="todo-del" title="${esc(t("btn.delete"))}" aria-label="${esc(t("btn.delete"))}">✕</button>
       </li>`).join("")
-    : '<li class="empty">Noch keine Aufgaben.</li>';
+    : `<li class="empty">${esc(t("todo.emptyShort"))}</li>`;
   $("projTodoList").querySelectorAll("li[data-id]").forEach(li => {
     const id = +li.dataset.id;
     li.querySelector("input").onchange = e => { const t = p.todos.find(x => x.id === id); if (t) { t.done = e.target.checked; persistProjects(); renderProject(); } };
@@ -765,16 +803,16 @@ function renderProject() {
 function switchProject(id) { stashProjEditor(); currentProj = id; persistProjects(); renderProjectList(); renderProject(); }
 
 function deleteProject(id) {
-  if (projects.length <= 1) { alert("Es muss mindestens ein Projekt bleiben."); return; }
+  if (projects.length <= 1) { alert(t("proj.min")); return; }
   const p = projects.find(x => x.id === id);
-  if (!confirm(`Projekt „${p ? p.name : ""}" mit To-dos und Notizen löschen?`)) return;
+  if (!confirm(t("proj.confirm", { name: p ? p.name : "" }))) return;
   projects = projects.filter(x => x.id !== id);
   if (currentProj === id) currentProj = projects[0].id;
   persistProjects(); renderProjectList(); renderProject();
 }
 
 $("addProject").onclick = () => {
-  const name = prompt("Name des neuen Projekts:");
+  const name = prompt(t("proj.prompt"));
   if (!name || !name.trim()) return;
   stashProjEditor();
   const p = { id: Date.now(), name: name.trim(), todos: [], notesHtml: "" };
@@ -843,11 +881,11 @@ function renderToday() {
 $("goalMinus").onclick = () => { settings.goal = Math.max((settings.goal || 4) - 1, 1); save("pomo_settings", settings); renderToday(); };
 $("goalPlus").onclick = () => { settings.goal = Math.min((settings.goal || 4) + 1, 12); save("pomo_settings", settings); renderToday(); };
 
+let timerQuote = "";
 function showTimerQuote() {
   const list = allQuotes();
-  const q = list[Math.floor(Math.random() * list.length)];
-  $("tQuote").textContent = "«" + q.t + "»";
-  $("tQuoteAuthor").textContent = "– " + q.a;
+  timerQuote = list[Math.floor(Math.random() * list.length)].id;
+  paintQuote("tQuote", "tQuoteAuthor", timerQuote);
 }
 
 /* ============================================================
@@ -885,8 +923,8 @@ function renderMenuEdit() {
         <label><input type="checkbox" data-i="${i}" ${m.visible ? "checked" : ""} ${locked ? "disabled" : ""}>
           <img class="icon" src="${b.querySelector("img").getAttribute("src")}" alt="">${esc(b.querySelector(".label").textContent)}</label>
         <span class="order">
-          <button type="button" data-move="-1" data-i="${i}" ${i === 0 ? "disabled" : ""} aria-label="nach oben">↑</button>
-          <button type="button" data-move="1" data-i="${i}" ${i === menuCfg.length - 1 ? "disabled" : ""} aria-label="nach unten">↓</button>
+          <button type="button" data-move="-1" data-i="${i}" ${i === 0 ? "disabled" : ""} aria-label="${esc(t("menuEdit.up"))}">↑</button>
+          <button type="button" data-move="1" data-i="${i}" ${i === menuCfg.length - 1 ? "disabled" : ""} aria-label="${esc(t("menuEdit.down"))}">↓</button>
         </span>
       </li>`;
   }).join("");
@@ -929,14 +967,11 @@ function getCardId(card, box, index) {
   return card.dataset.cardId || card.dataset.card || (box.id + "-" + index);
 }
 
-function getCardTitle(card) {
-  if (card.dataset.cardTitle) return card.dataset.cardTitle;
-  const h = card.querySelector("h2");
-  if (h) {
-    const text = h.textContent.trim();
-    if (text) return text;
-  }
-  return "Feld";
+// Übersetzungs-Schlüssel für den Titel eines Feldes (aus data-title-key oder der Überschrift)
+function getCardTitleKey(card) {
+  if (card.dataset.titleKey) return card.dataset.titleKey;
+  const h = card.querySelector("h2[data-i18n], h2 [data-i18n]");
+  return h ? h.dataset.i18n : "layout.field";
 }
 
 function boxCfg(box) {
@@ -1146,10 +1181,10 @@ function setCardSpanWithSiblings(card, desiredW) {
 function updateCardUI(card) {
   const s = getCardSize(card);
   const w = (s && s.w) ? s.w : 6;
-  const hText = (s && s.h) ? (s.h + "px") : "Auto";
+  const hText = (s && s.h) ? (s.h + "px") : t("layout.auto");
   const badge = card.querySelector(".card-dim-badge");
   if (badge) {
-    badge.textContent = `${w}/12 Spalten · Höhe: ${hText}`;
+    badge.textContent = t("layout.badge", { w, h: hText });
   }
 
   card.querySelectorAll(".btn-ctrl-span-preset").forEach(btn => {
@@ -1195,47 +1230,46 @@ layoutBoxes.forEach(box => {
   const cards = getBoxCards(box);
   cards.forEach((card, i) => {
     const cardId = getCardId(card, box, i);
-    const cardTitle = getCardTitle(card);
     card.dataset.card = cardId;
     card.dataset.pos = i;
-    card.dataset.cardTitle = cardTitle;
 
-    // Erstelle Edit-Toolbar
+    // Erstelle Edit-Toolbar (Texte über data-i18n, damit sie beim Sprachwechsel mitwechseln)
     if (!card.querySelector(".card-edit-bar")) {
       const bar = document.createElement("div");
       bar.className = "card-edit-bar";
       bar.innerHTML = `
         <div class="card-edit-header">
-          <span class="card-drag-handle" title="Gedrückt halten & ziehen zum Verschieben">
+          <span class="card-drag-handle" data-i18n-title="layout.dragHold">
             <span class="drag-icon">⋮⋮</span>
-            <span class="card-edit-title">${cardTitle}</span>
+            <span class="card-edit-title" data-i18n="${getCardTitleKey(card)}"></span>
           </span>
-          <span class="card-dim-badge">6/12 Spalten · Höhe: Auto</span>
+          <span class="card-dim-badge"></span>
         </div>
         <div class="card-edit-controls">
-          <div class="card-edit-group" title="Position im Layout verschieben">
-            <span class="ctrl-label">Pos:</span>
-            <button type="button" class="btn-ctrl btn-ctrl-move-prev" title="Nach links / oben verschieben" aria-label="Zurück">←</button>
-            <button type="button" class="btn-ctrl btn-ctrl-move-next" title="Nach rechts / unten verschieben" aria-label="Vor">→</button>
+          <div class="card-edit-group" data-i18n-title="layout.posGroup">
+            <span class="ctrl-label" data-i18n="layout.pos"></span>
+            <button type="button" class="btn-ctrl btn-ctrl-move-prev" data-i18n-title="layout.movePrev" data-i18n-aria="layout.back">←</button>
+            <button type="button" class="btn-ctrl btn-ctrl-move-next" data-i18n-title="layout.moveNext" data-i18n-aria="layout.forward">→</button>
           </div>
-          <div class="card-edit-group" title="Breite in Spalten (Raster von 12)">
-            <span class="ctrl-label">Breite:</span>
-            <button type="button" class="btn-ctrl btn-ctrl-span-minus" title="Schmaler (−1 Spalte)">−</button>
-            <button type="button" class="btn-ctrl btn-ctrl-span-preset" data-span="4" title="1/3 Breite">⅓</button>
-            <button type="button" class="btn-ctrl btn-ctrl-span-preset" data-span="6" title="1/2 Breite (Standard)">½</button>
-            <button type="button" class="btn-ctrl btn-ctrl-span-preset" data-span="8" title="2/3 Breite">⅔</button>
-            <button type="button" class="btn-ctrl btn-ctrl-span-preset" data-span="12" title="Volle Breite (100%)">Voll</button>
-            <button type="button" class="btn-ctrl btn-ctrl-span-plus" title="Breiter (+1 Spalte)">+</button>
+          <div class="card-edit-group" data-i18n-title="layout.widthGroup">
+            <span class="ctrl-label" data-i18n="layout.width"></span>
+            <button type="button" class="btn-ctrl btn-ctrl-span-minus" data-i18n-title="layout.narrower">−</button>
+            <button type="button" class="btn-ctrl btn-ctrl-span-preset" data-span="4" data-i18n-title="layout.third">⅓</button>
+            <button type="button" class="btn-ctrl btn-ctrl-span-preset" data-span="6" data-i18n-title="layout.half">½</button>
+            <button type="button" class="btn-ctrl btn-ctrl-span-preset" data-span="8" data-i18n-title="layout.twoThirds">⅔</button>
+            <button type="button" class="btn-ctrl btn-ctrl-span-preset" data-span="12" data-i18n-title="layout.full" data-i18n="layout.fullText"></button>
+            <button type="button" class="btn-ctrl btn-ctrl-span-plus" data-i18n-title="layout.wider">+</button>
           </div>
-          <div class="card-edit-group" title="Höhe anpassen">
-            <span class="ctrl-label">Höhe:</span>
-            <button type="button" class="btn-ctrl btn-ctrl-height-minus" title="Höhe verringern (−40px)">−</button>
-            <button type="button" class="btn-ctrl btn-ctrl-height-auto" title="Automatische Höhe (an Inhalt angepasst)">Auto</button>
-            <button type="button" class="btn-ctrl btn-ctrl-height-plus" title="Höhe vergrössern (+40px)">+</button>
+          <div class="card-edit-group" data-i18n-title="layout.heightGroup">
+            <span class="ctrl-label" data-i18n="layout.height"></span>
+            <button type="button" class="btn-ctrl btn-ctrl-height-minus" data-i18n-title="layout.lower">−</button>
+            <button type="button" class="btn-ctrl btn-ctrl-height-auto" data-i18n-title="layout.autoHeight" data-i18n="layout.auto"></button>
+            <button type="button" class="btn-ctrl btn-ctrl-height-plus" data-i18n-title="layout.higher">+</button>
           </div>
         </div>
       `;
       card.insertBefore(bar, card.firstChild);
+      applyI18n(bar);
     }
 
     // Resize-Griff
@@ -1243,7 +1277,8 @@ layoutBoxes.forEach(box => {
     if (!grip) {
       grip = document.createElement("span");
       grip.className = "card-resize";
-      grip.title = "Ziehen: Grösse ändern · Doppelklick: Höhe auf Auto zurücksetzen";
+      grip.dataset.i18nTitle = "layout.grip";
+      grip.title = t("layout.grip");
       card.appendChild(grip);
     }
   });
@@ -1523,8 +1558,8 @@ document.addEventListener("pointerdown", e => {
       applyCardSize(c, sizeForC);
       const badge = c.querySelector(".card-dim-badge");
       if (badge) {
-        const hText = (sizeForC && sizeForC.h) ? (sizeForC.h + "px") : "Auto";
-        badge.textContent = `${spanForC}/12 Spalten · Höhe: ${hText}`;
+        const hText = (sizeForC && sizeForC.h) ? (sizeForC.h + "px") : t("layout.auto");
+        badge.textContent = t("layout.badge", { w: spanForC, h: hText });
       }
     });
   }
@@ -1584,7 +1619,10 @@ function setLayoutEdit(on) {
   if (timerBtn) {
     timerBtn.classList.toggle("active", on);
     const label = timerBtn.querySelector(".btn-topbar-text");
-    if (label) label.textContent = on ? "✓ Fertig" : "Felder anpassen";
+    if (label) {
+      label.dataset.i18n = on ? "top.done" : "top.adjust";
+      label.textContent = t(label.dataset.i18n);
+    }
   }
 
   // Felder im freien Layout werden per Pointer-Events verschoben, nicht per HTML5-Drag
@@ -1762,7 +1800,7 @@ function freeApplyCard(card, p) {
 
 function freeUpdateBadge(card, p) {
   const badge = card.querySelector(".card-dim-badge");
-  if (badge) badge.textContent = `${Math.round(card.offsetWidth)} × ${p && p.h ? Math.round(p.h) : "Auto"} px`;
+  if (badge) badge.textContent = `${Math.round(card.offsetWidth)} × ${p && p.h ? Math.round(p.h) : t("layout.auto")} px`;
   card.querySelector(".free-h-auto")?.classList.toggle("active", !(p && p.h));
 }
 
@@ -1855,48 +1893,45 @@ function freeResetAll() {
 // Bearbeitungsleiste, Resize-Griff und Hilfslinien für jedes freie Feld anlegen
 freeBoxes.forEach(box => {
   freeCards(box).forEach((card, i) => {
-    const title = getCardTitle(card);
     card.dataset.card = card.dataset.cardId || (box.id + "-" + i);
     card.dataset.pos = i;
-    card.dataset.cardTitle = title;
 
     if (!card.querySelector(".card-edit-bar")) {
       const bar = document.createElement("div");
       bar.className = "card-edit-bar";
       bar.innerHTML = `
         <div class="card-edit-header">
-          <span class="card-drag-handle" title="Feld anfassen &amp; frei ziehen">
+          <span class="card-drag-handle" data-i18n-title="layout.dragFree">
             <span class="drag-icon">⋮⋮</span>
-            <span class="card-edit-title"></span>
+            <span class="card-edit-title" data-i18n="${getCardTitleKey(card)}"></span>
           </span>
           <span class="card-dim-badge"></span>
         </div>
         <div class="card-edit-controls">
           <div class="card-edit-group">
-            <button type="button" class="btn-ctrl free-h-auto" title="Höhe automatisch an den Inhalt anpassen">Auto-Höhe</button>
+            <button type="button" class="btn-ctrl free-h-auto" data-i18n-title="layout.autoHTitle" data-i18n="layout.autoH"></button>
           </div>
         </div>
       `;
-      bar.querySelector(".card-edit-title").textContent = title;
       card.insertBefore(bar, card.firstChild);
+      applyI18n(bar);
     }
 
     const FREE_HANDLES = [
-      { dir: "n", cls: "free-h-n", title: "Obere Kante ziehen" },
-      { dir: "s", cls: "free-h-s", title: "Untere Kante ziehen" },
-      { dir: "w", cls: "free-h-w", title: "Linke Kante ziehen" },
-      { dir: "e", cls: "free-h-e", title: "Rechte Kante ziehen" },
-      { dir: "nw", cls: "free-h-nw free-h-corner", title: "Ecke oben-links ziehen" },
-      { dir: "ne", cls: "free-h-ne free-h-corner", title: "Ecke oben-rechts ziehen" },
-      { dir: "sw", cls: "free-h-sw free-h-corner", title: "Ecke unten-links ziehen" },
-      { dir: "se", cls: "free-h-se free-h-corner", title: "Ecke unten-rechts ziehen" }
+      { dir: "n", cls: "free-h-n" },
+      { dir: "s", cls: "free-h-s" },
+      { dir: "w", cls: "free-h-w" },
+      { dir: "e", cls: "free-h-e" },
+      { dir: "nw", cls: "free-h-nw free-h-corner" },
+      { dir: "ne", cls: "free-h-ne free-h-corner" },
+      { dir: "sw", cls: "free-h-sw free-h-corner" },
+      { dir: "se", cls: "free-h-se free-h-corner" }
     ];
     if (!card.querySelector(".free-handle")) {
       FREE_HANDLES.forEach(h => {
         const grip = document.createElement("span");
         grip.className = "free-handle " + h.cls;
         grip.dataset.dir = h.dir;
-        grip.title = h.title + " · Doppelklick: Höhe automatisch";
         card.appendChild(grip);
       });
     }
@@ -2419,8 +2454,44 @@ freeBoxes.forEach(box => { if (freeIsComplete(box)) freeRender(box); });
 
 
 /* ============================================================
+   SPRACHE: Umschalten im Seitenmenü, danach alle Inhalte neu zeichnen
+   ============================================================ */
+function freeHandleTitles() {
+  document.querySelectorAll(".free-handle").forEach(g => {
+    g.title = t("layout.edgeHint", { edge: t("layout.edge." + g.dataset.dir) });
+  });
+}
+
+$("langBtn").onclick = () => setLang(nextLang());
+
+document.addEventListener("langchange", () => {
+  draw();
+  if (!paintQuote("qText", "qAuthor", currentQuote)) showQuote();
+  if (!paintQuote("tQuote", "tQuoteAuthor", timerQuote)) showTimerQuote();
+  renderQuoteList();
+  paintMonkQuote();
+  renderMonkList();
+  paintRevoQuote();
+  renderRevoList();
+  renderTodos();
+  renderFolders();
+  stashProjEditor();
+  renderProject();
+  renderProjectList();
+  renderToday();
+  renderStats();
+  if (!$("menuModal").hidden) renderMenuEdit();
+  layoutBoxes.forEach(updateBoxCardsUI);
+  freeHandleTitles();
+  freeRenderAll();
+});
+
+/* ============================================================
    START
-   ============================================================ */draw();
+   ============================================================ */
+applyI18n();
+freeHandleTitles();
+draw();
 showQuote();
 renderQuoteList();
 showMonkQuote();

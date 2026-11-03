@@ -199,25 +199,26 @@ const cloud = (() => {
   }
 
   function errorText(e) {
-    const texts = {
-      invalid_credentials: "E-Mail oder Passwort ist falsch.",
-      email_not_confirmed: "Bitte bestätige zuerst deine E-Mail-Adresse über den Link in der Mail.",
-      user_already_exists: "Zu dieser E-Mail-Adresse gibt es schon ein Konto. Melde dich an.",
-      email_exists: "Zu dieser E-Mail-Adresse gibt es schon ein Konto. Melde dich an.",
-      weak_password: "Das Passwort ist zu schwach (mindestens 6 Zeichen).",
-      email_address_invalid: "Diese E-Mail-Adresse ist ungültig.",
-      validation_failed: "Bitte E-Mail und Passwort prüfen.",
-      over_email_send_rate_limit: "Zu viele E-Mails in kurzer Zeit. Bitte später nochmals versuchen.",
-      over_request_rate_limit: "Zu viele Versuche. Bitte kurz warten.",
-      signup_disabled: "Registrieren ist zurzeit ausgeschaltet.",
-      "42P01": "Die Tabelle user_data fehlt. Bitte supabase/schema.sql ausführen.",
-      PGRST205: "Die Tabelle user_data fehlt. Bitte supabase/schema.sql ausführen."
+    // Fehlercode → Übersetzungs-Schlüssel (Texte in i18n.js)
+    const keys = {
+      invalid_credentials: "acc.err.credentials",
+      email_not_confirmed: "acc.err.notConfirmed",
+      user_already_exists: "acc.err.exists",
+      email_exists: "acc.err.exists",
+      weak_password: "acc.err.weak",
+      email_address_invalid: "acc.err.invalidEmail",
+      validation_failed: "acc.err.validation",
+      over_email_send_rate_limit: "acc.err.emailRate",
+      over_request_rate_limit: "acc.err.rate",
+      signup_disabled: "acc.err.signupOff",
+      "42P01": "acc.err.table",
+      PGRST205: "acc.err.table"
     };
-    if (texts[e?.code]) return texts[e.code];
+    if (keys[e?.code]) return t(keys[e.code]);
     if (e?.name === "AuthRetryableFetchError" || e instanceof TypeError || e?.status === 0) {
-      return "Keine Verbindung zum Server. Bist du online?";
+      return t("acc.err.offline");
     }
-    return "Das hat nicht geklappt" + (e?.message ? `: ${e.message}` : ".");
+    return e?.message ? t("acc.err.otherMsg", { msg: e.message }) : t("acc.err.other");
   }
 
   /* ---------- Oberfläche ---------- */
@@ -225,9 +226,9 @@ const cloud = (() => {
 
   function renderAccount() {
     const email = user?.email || "";
-    el("accountBtnText").textContent = email || "Anmelden";
-    el("accountBtn").title = email ? `Angemeldet als ${email}` : "Anmelden und Daten zwischen Geräten abgleichen";
-    el("accountBtn").setAttribute("aria-label", email ? `Konto: ${email}` : "Anmelden");
+    el("accountBtnText").textContent = email || t("acc.signIn");
+    el("accountBtn").title = email ? t("acc.btnTitleIn", { email }) : t("acc.btnTitle");
+    el("accountBtn").setAttribute("aria-label", email ? t("acc.btnAriaIn", { email }) : t("acc.signIn"));
     el("accountBtn").classList.toggle("signed-in", !!email);
     el("accountForm").hidden = !!email;
     el("accountInfo").hidden = !email;
@@ -270,21 +271,22 @@ const cloud = (() => {
     el("accountForm").onsubmit = e => {
       e.preventDefault();
       run(async () => {
-        setMsg("Anmelden …", true);
+        setMsg(t("acc.signingIn"), true);
         await signIn(...creds());
       });
     };
     el("accountSignUp").onclick = () => {
       if (!el("accountForm").reportValidity()) return;
       run(async () => {
-        setMsg("Konto wird erstellt …", true);
-        if (await signUp(...creds())) setMsg("Fast geschafft: Bestätige deine E-Mail-Adresse über den Link in der Mail und melde dich dann hier an.", true);
+        setMsg(t("acc.creating"), true);
+        if (await signUp(...creds())) setMsg(t("acc.almost"), true);
       });
     };
     el("accountSignOut").onclick = () => run(async () => {
       await signOut();
-      setMsg("Abgemeldet. Deine Daten bleiben auf diesem Gerät.", true);
+      setMsg(t("acc.signedOut"), true);
     });
+    document.addEventListener("langchange", renderAccount);
     renderAccount();
   }
 

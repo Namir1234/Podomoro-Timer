@@ -75,3 +75,13 @@ footer { text-align: center; color: var(--muted); font-size: .8rem; margin-top: 
   .layout { grid-template-columns: 1fr; gap: 40px; }
   .quote { border-left: 0; border-top: 1px solid var(--border); padding: 24px 0 0; }
 }
+
+/* ===== Sprachwechsel oben rechts ===== */
+.lang-switch {
+  position: absolute; top: 16px; right: 16px;
+  padding: 6px 14px; border-radius: 999px; cursor: pointer;
+  background: transparent; border: 1px solid var(--border);
+  color: var(--muted); font: inherit; font-size: .8rem; font-weight: 600;
+  transition: color .15s ease, border-color .15s ease;
+}
+.lang-switch:hover { color: var(--text); border-color: var(--accent); }

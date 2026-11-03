@@ -12,29 +12,30 @@
 </head>
 <body>
 
-<button class="hamburger" id="hamburgerBtn" type="button" aria-label="Menü öffnen" aria-expanded="false">
+<button class="hamburger" id="hamburgerBtn" type="button" aria-label="Menü öffnen" data-i18n-aria="menu.open" aria-expanded="false">
   <span></span><span></span><span></span>
 </button>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-<button class="zen-exit" id="zenExitBtn" type="button" aria-label="Nur-Timer-Ansicht beenden" title="Beenden (Esc)">
+<button class="zen-exit" id="zenExitBtn" type="button" aria-label="Nur-Timer-Ansicht beenden" title="Beenden (Esc)" data-i18n-aria="zen.exitAria" data-i18n-title="zen.exit">
   <span></span><span></span>
 </button>
 
 <aside class="sidebar" id="sidebar">
   <h1><img class="icon" src="../img/logo.svg" alt=""><span class="label">Fokus</span></h1>
   <nav>
-    <button data-page="timer" class="active"><img class="icon" src="../img/timer.svg" alt=""><span class="label">Timer</span></button>
-    <button data-page="todo"><img class="icon" src="../img/todo.svg" alt=""><span class="label">To-do</span></button>
-    <button data-page="notes"><img class="icon" src="../img/notes.svg" alt=""><span class="label">Notizen</span></button>
-    <button data-page="projects"><img class="icon" src="../img/projects.svg" alt=""><span class="label">Projekte</span></button>
-    <button data-page="stats"><img class="icon" src="../img/stats.svg" alt=""><span class="label">Statistik</span></button>
-    <button data-page="zitate"><img class="icon" src="../img/quote.svg" alt=""><span class="label">Zitate</span></button>
+    <button data-page="timer" class="active"><img class="icon" src="../img/timer.svg" alt=""><span class="label" data-i18n="nav.timer">Timer</span></button>
+    <button data-page="todo"><img class="icon" src="../img/todo.svg" alt=""><span class="label" data-i18n="nav.todo">To-do</span></button>
+    <button data-page="notes"><img class="icon" src="../img/notes.svg" alt=""><span class="label" data-i18n="nav.notes">Notizen</span></button>
+    <button data-page="projects"><img class="icon" src="../img/projects.svg" alt=""><span class="label" data-i18n="nav.projects">Projekte</span></button>
+    <button data-page="stats"><img class="icon" src="../img/stats.svg" alt=""><span class="label" data-i18n="nav.stats">Statistik</span></button>
+    <button data-page="zitate"><img class="icon" src="../img/quote.svg" alt=""><span class="label" data-i18n="nav.quotes">Zitate</span></button>
   </nav>
   <div class="sidebar-foot">
-    <button class="back" id="layoutEditBtn" type="button"><img class="icon" src="../img/layout.svg" alt=""><span class="label">Felder anordnen</span></button>
-    <button class="back" id="menuEditBtn" type="button"><img class="icon" src="../img/edit.svg" alt=""><span class="label">Menü anpassen</span></button>
-    <a class="back" href="index.html"><img class="icon" src="../img/back.svg" alt=""><span class="label">Zur Startseite</span></a>
+    <button class="back" id="layoutEditBtn" type="button"><img class="icon" src="../img/layout.svg" alt=""><span class="label" data-i18n="side.layout">Felder anordnen</span></button>
+    <button class="back" id="menuEditBtn" type="button"><img class="icon" src="../img/edit.svg" alt=""><span class="label" data-i18n="side.menu">Menü anpassen</span></button>
+    <button class="back" id="langBtn" type="button" title="Sprache wechseln" data-i18n-title="lang.change"><img class="icon" src="../img/language.svg" alt=""><span class="label" data-i18n="lang.current">Sprache: Deutsch</span></button>
+    <a class="back" href="index.html"><img class="icon" src="../img/back.svg" alt=""><span class="label" data-i18n="side.home">Zur Startseite</span></a>
   </div>
 </aside>
 
@@ -45,16 +46,16 @@
     <div class="page-topbar">
       <div class="page-topbar-info">
         <span class="page-badge">Fokus</span>
-        <span class="page-desc">Pomodoro Arbeitsbereich</span>
+        <span class="page-desc" data-i18n="top.desc">Pomodoro Arbeitsbereich</span>
       </div>
       <div class="page-topbar-actions">
-        <button class="btn-topbar" id="zenToggleBtn" type="button" title="Nur den Timer gross anzeigen (Esc zum Beenden)">
+        <button class="btn-topbar" id="zenToggleBtn" type="button" title="Nur den Timer gross anzeigen (Esc zum Beenden)" data-i18n-title="zen.title">
           <img class="icon" src="../img/expand.svg" alt="">
-          <span class="btn-topbar-text">Nur Timer</span>
+          <span class="btn-topbar-text" data-i18n="zen.label">Nur Timer</span>
         </button>
-        <button class="btn-topbar" id="timerLayoutToggleBtn" type="button" title="Felder verschieben und Grösse anpassen">
+        <button class="btn-topbar" id="timerLayoutToggleBtn" type="button" title="Felder verschieben und Grösse anpassen" data-i18n-title="top.adjustTitle">
           <img class="icon" src="../img/layout.svg" alt="">
-          <span class="btn-topbar-text">Felder anpassen</span>
+          <span class="btn-topbar-text" data-i18n="top.adjust">Felder anpassen</span>
         </button>
         <button class="btn-topbar account-btn" id="accountBtn" type="button" title="Anmelden und Daten zwischen Geräten abgleichen" aria-label="Anmelden" hidden>
           <img class="icon" src="../img/user.svg" alt="">
@@ -65,11 +66,11 @@
 
     <!-- Freies Layout: Felder ohne Spalten frei platzierbar (siehe "FREIES LAYOUT" in pomodoro.js) -->
     <div class="free-canvas" id="timerCanvas">
-    <div class="card" data-card-id="timer-clock" data-card-title="Timer">
+    <div class="card" data-card-id="timer-clock" data-title-key="card.timer">
       <div class="modes">
-        <button data-mode="focus" class="active">Fokus</button>
-        <button data-mode="short">Kurze Pause</button>
-        <button data-mode="long">Lange Pause</button>
+        <button data-mode="focus" class="active" data-i18n="mode.focus">Fokus</button>
+        <button data-mode="short" data-i18n="mode.short">Kurze Pause</button>
+        <button data-mode="long" data-i18n="mode.long">Lange Pause</button>
       </div>
 
       <div class="ring-wrap">
@@ -85,53 +86,53 @@
 
       <div class="controls">
         <button class="btn" id="startBtn">Start</button>
-        <button class="btn secondary" id="resetBtn">Reset</button>
-        <button class="btn secondary" id="skipBtn">Skip</button>
+        <button class="btn secondary" id="resetBtn" data-i18n="btn.reset">Reset</button>
+        <button class="btn secondary" id="skipBtn" data-i18n="btn.skip">Skip</button>
       </div>
 
       <div class="dots" id="dots"></div>
 
       <div class="subject-row">
-        <label for="subject">Fach / Thema:</label>
-        <input id="subject" list="subjectList" placeholder="z.B. Modul 101, Mathe, BMS" maxlength="30">
+        <label for="subject" data-i18n="subject.label">Fach / Thema:</label>
+        <input id="subject" list="subjectList" placeholder="z.B. Modul 101, Mathe, BMS" data-i18n-ph="subject.ph" maxlength="30">
         <datalist id="subjectList"></datalist>
       </div>
     </div>
 
-    <div class="card" data-card-id="timer-settings" data-card-title="Zeiten einstellen">
-      <h2><img class="icon" src="../img/settings.svg" alt="">Zeiten einstellen</h2>
+    <div class="card" data-card-id="timer-settings" data-title-key="card.settings">
+      <h2><img class="icon" src="../img/settings.svg" alt=""><span data-i18n="card.settings">Zeiten einstellen</span></h2>
       <div class="presets">
-        <button type="button" data-preset="25,5,15">Klassisch<small>25 / 5</small></button>
-        <button type="button" data-preset="50,10,30">Deep Work<small>50 / 10</small></button>
-        <button type="button" data-preset="15,3,10">Kurz<small>15 / 3</small></button>
+        <button type="button" data-preset="25,5,15"><span data-i18n="preset.classic">Klassisch</span><small>25 / 5</small></button>
+        <button type="button" data-preset="50,10,30"><span data-i18n="preset.deep">Deep Work</span><small>50 / 10</small></button>
+        <button type="button" data-preset="15,3,10"><span data-i18n="preset.short">Kurz</span><small>15 / 3</small></button>
       </div>
       <div class="steppers" id="steppers">
-        <div class="step-row" data-key="focus"><span>Fokus</span><button type="button" data-d="-1" aria-label="weniger">−</button><input class="step-val" data-field="min" type="text" inputmode="numeric" aria-label="Fokus Minuten"><span class="sec-part"><span class="colon">:</span><input class="step-val sec" data-field="sec" type="text" inputmode="numeric" aria-label="Fokus Sekunden"></span><button type="button" data-d="1" aria-label="mehr">+</button></div>
-        <div class="step-row" data-key="short"><span>Kurze Pause</span><button type="button" data-d="-1" aria-label="weniger">−</button><input class="step-val" data-field="min" type="text" inputmode="numeric" aria-label="Kurze Pause Minuten"><span class="sec-part"><span class="colon">:</span><input class="step-val sec" data-field="sec" type="text" inputmode="numeric" aria-label="Kurze Pause Sekunden"></span><button type="button" data-d="1" aria-label="mehr">+</button></div>
-        <div class="step-row" data-key="long"><span>Lange Pause</span><button type="button" data-d="-1" aria-label="weniger">−</button><input class="step-val" data-field="min" type="text" inputmode="numeric" aria-label="Lange Pause Minuten"><span class="sec-part"><span class="colon">:</span><input class="step-val sec" data-field="sec" type="text" inputmode="numeric" aria-label="Lange Pause Sekunden"></span><button type="button" data-d="1" aria-label="mehr">+</button></div>
-        <div class="step-row" data-key="rounds"><span>Runden bis zur langen Pause</span><button type="button" data-d="-1" aria-label="weniger">−</button><input class="step-val" data-field="min" type="text" inputmode="numeric" aria-label="Runden"><button type="button" data-d="1" aria-label="mehr">+</button></div>
+        <div class="step-row" data-key="focus"><span data-i18n="mode.focus">Fokus</span><button type="button" data-d="-1" aria-label="weniger" data-i18n-aria="step.less">−</button><input class="step-val" data-field="min" type="text" inputmode="numeric" aria-label="Minuten" data-i18n-aria="step.min"><span class="sec-part"><span class="colon">:</span><input class="step-val sec" data-field="sec" type="text" inputmode="numeric" aria-label="Sekunden" data-i18n-aria="step.sec"></span><button type="button" data-d="1" aria-label="mehr" data-i18n-aria="step.more">+</button></div>
+        <div class="step-row" data-key="short"><span data-i18n="mode.short">Kurze Pause</span><button type="button" data-d="-1" aria-label="weniger" data-i18n-aria="step.less">−</button><input class="step-val" data-field="min" type="text" inputmode="numeric" aria-label="Minuten" data-i18n-aria="step.min"><span class="sec-part"><span class="colon">:</span><input class="step-val sec" data-field="sec" type="text" inputmode="numeric" aria-label="Sekunden" data-i18n-aria="step.sec"></span><button type="button" data-d="1" aria-label="mehr" data-i18n-aria="step.more">+</button></div>
+        <div class="step-row" data-key="long"><span data-i18n="mode.long">Lange Pause</span><button type="button" data-d="-1" aria-label="weniger" data-i18n-aria="step.less">−</button><input class="step-val" data-field="min" type="text" inputmode="numeric" aria-label="Minuten" data-i18n-aria="step.min"><span class="sec-part"><span class="colon">:</span><input class="step-val sec" data-field="sec" type="text" inputmode="numeric" aria-label="Sekunden" data-i18n-aria="step.sec"></span><button type="button" data-d="1" aria-label="mehr" data-i18n-aria="step.more">+</button></div>
+        <div class="step-row" data-key="rounds"><span data-i18n="step.rounds">Runden bis zur langen Pause</span><button type="button" data-d="-1" aria-label="weniger" data-i18n-aria="step.less">−</button><input class="step-val" data-field="min" type="text" inputmode="numeric" aria-label="Runden" data-i18n-aria="step.rounds"><button type="button" data-d="1" aria-label="mehr" data-i18n-aria="step.more">+</button></div>
       </div>
-      <label class="toggle"><input type="checkbox" id="setSeconds"><span class="switch"></span>Sekunden anzeigen</label>
-      <label class="toggle"><input type="checkbox" id="setSound"><span class="switch"></span>Ton am Ende</label>
+      <label class="toggle"><input type="checkbox" id="setSeconds"><span class="switch"></span><span data-i18n="toggle.seconds">Sekunden anzeigen</span></label>
+      <label class="toggle"><input type="checkbox" id="setSound"><span class="switch"></span><span data-i18n="toggle.sound">Ton am Ende</span></label>
       <p class="hint" id="cycleHint"></p>
     </div>
 
-      <div class="card today-card" data-card-id="timer-today" data-card-title="Heute">
-        <h2>Heute</h2>
+      <div class="card today-card" data-card-id="timer-today" data-title-key="card.today">
+        <h2 data-i18n="card.today">Heute</h2>
         <div class="today-stats">
-          <div><strong id="tMin">0</strong><span>Min fokussiert</span></div>
-          <div><strong id="tSessions">0</strong><span>Sessions</span></div>
-          <div><strong id="tStreak">0</strong><span>Tage Streak</span></div>
+          <div><strong id="tMin">0</strong><span data-i18n="today.min">Min fokussiert</span></div>
+          <div><strong id="tSessions">0</strong><span data-i18n="today.sessions">Sessions</span></div>
+          <div><strong id="tStreak">0</strong><span data-i18n="today.streak">Tage Streak</span></div>
         </div>
         <div class="goal">
-          <div class="goal-head"><span>Tagesziel</span><span id="goalCount">0 / 4</span></div>
+          <div class="goal-head"><span data-i18n="today.goal">Tagesziel</span><span id="goalCount">0 / 4</span></div>
           <div class="goal-bar"><div class="goal-fill" id="goalFill"></div></div>
-          <div class="goal-ctrl"><button type="button" id="goalMinus" aria-label="weniger">−</button><span>Ziel: <output id="goalVal">4</output> Sessions</span><button type="button" id="goalPlus" aria-label="mehr">+</button></div>
+          <div class="goal-ctrl"><button type="button" id="goalMinus" aria-label="weniger" data-i18n-aria="step.less">−</button><span><span data-i18n="today.goalLabel">Ziel:</span> <output id="goalVal">4</output> <span data-i18n="today.sessions">Sessions</span></span><button type="button" id="goalPlus" aria-label="mehr" data-i18n-aria="step.more">+</button></div>
         </div>
       </div>
 
-      <div class="card quote-card" data-card-id="timer-quote" data-card-title="Zum Fokussieren">
-        <h2>Zum Fokussieren</h2>
+      <div class="card quote-card" data-card-id="timer-quote" data-title-key="card.quote">
+        <h2 data-i18n="card.quote">Zum Fokussieren</h2>
         <blockquote id="tQuote"></blockquote>
         <cite id="tQuoteAuthor"></cite>
       </div>
@@ -141,14 +142,14 @@
   <!-- ================= TO-DO ================= -->
   <section id="todo" class="page">
     <div class="card">
-      <h2>To-do</h2>
+      <h2 data-i18n="todo.title">To-do</h2>
       <form id="todoForm" class="todo-add">
-        <input id="todoInput" type="text" placeholder="Neue Aufgabe…" maxlength="120" autocomplete="off">
-        <input id="todoDate" type="date" title="Fällig am (optional)" aria-label="Fällig am (optional)">
-        <button class="btn" type="submit">Hinzufügen</button>
+        <input id="todoInput" type="text" placeholder="Neue Aufgabe…" data-i18n-ph="todo.ph" maxlength="120" autocomplete="off">
+        <input id="todoDate" type="date" title="Fällig am (optional)" aria-label="Fällig am (optional)" data-i18n-title="todo.due" data-i18n-aria="todo.due">
+        <button class="btn" type="submit" data-i18n="btn.add">Hinzufügen</button>
       </form>
       <ul class="todo-list" id="todoList"></ul>
-      <button class="link-btn" id="clearDone">Erledigte entfernen</button>
+      <button class="link-btn" id="clearDone" data-i18n="todo.clear">Erledigte entfernen</button>
     </div>
   </section>
 
@@ -156,22 +157,22 @@
   <section id="notes" class="page">
     <div class="card notes-card">
       <div class="notes-folders">
-        <h2>Ordner</h2>
+        <h2 data-i18n="notes.folders">Ordner</h2>
         <ul class="folder-list" id="folderList"></ul>
-        <button class="link-btn" id="addFolder">+ Neuer Ordner</button>
+        <button class="link-btn" id="addFolder" data-i18n="notes.addFolder">+ Neuer Ordner</button>
       </div>
       <div class="notes-main">
         <div class="editor-toolbar">
-          <button type="button" data-cmd="bold" title="Fett"><b>F</b></button>
-          <button type="button" data-cmd="italic" title="Kursiv"><i>K</i></button>
-          <button type="button" data-cmd="underline" title="Unterstrichen"><u>U</u></button>
-          <button type="button" data-cmd="formatBlock" data-val="h3" title="Überschrift">H</button>
-          <button type="button" data-cmd="insertUnorderedList" title="Aufzählung">Liste</button>
-          <button type="button" id="insertImg" title="Bild einfügen">Bild</button>
+          <button type="button" data-cmd="bold" title="Fett" data-i18n-title="ed.bold"><b data-i18n="ed.boldKey">F</b></button>
+          <button type="button" data-cmd="italic" title="Kursiv" data-i18n-title="ed.italic"><i data-i18n="ed.italicKey">K</i></button>
+          <button type="button" data-cmd="underline" title="Unterstrichen" data-i18n-title="ed.underline"><u>U</u></button>
+          <button type="button" data-cmd="formatBlock" data-val="h3" title="Überschrift" data-i18n-title="ed.heading">H</button>
+          <button type="button" data-cmd="insertUnorderedList" title="Aufzählung" data-i18n-title="ed.list" data-i18n="ed.listText">Liste</button>
+          <button type="button" id="insertImg" title="Bild einfügen" data-i18n-title="ed.image" data-i18n="ed.imageText">Bild</button>
         </div>
         <div class="editor" id="notesEditor" contenteditable="true"></div>
         <input type="file" id="notesImgInput" accept="image/*" hidden>
-        <p class="hint" id="notesStatus">Automatisch gespeichert.</p>
+        <p class="hint" id="notesStatus" data-i18n="notes.saved">Automatisch gespeichert.</p>
       </div>
     </div>
   </section>
@@ -180,29 +181,29 @@
   <section id="projects" class="page">
     <div class="card proj-card">
       <div class="proj-list-col">
-        <h2>Projekte</h2>
+        <h2 data-i18n="proj.title">Projekte</h2>
         <ul class="folder-list" id="projList"></ul>
-        <button class="link-btn" id="addProject">+ Neues Projekt</button>
+        <button class="link-btn" id="addProject" data-i18n="proj.add">+ Neues Projekt</button>
       </div>
       <div class="proj-main">
         <h2 class="proj-title" id="projTitle"></h2>
 
-        <h3 class="proj-sub">To-do</h3>
+        <h3 class="proj-sub" data-i18n="proj.todo">To-do</h3>
         <form id="projTodoForm" class="todo-add">
-          <input id="projTodoInput" type="text" placeholder="Neue Aufgabe…" maxlength="120" autocomplete="off">
-          <input id="projTodoDate" type="date" title="Fällig am (optional)" aria-label="Fällig am (optional)">
-          <button class="btn" type="submit">Hinzufügen</button>
+          <input id="projTodoInput" type="text" placeholder="Neue Aufgabe…" data-i18n-ph="todo.ph" maxlength="120" autocomplete="off">
+          <input id="projTodoDate" type="date" title="Fällig am (optional)" aria-label="Fällig am (optional)" data-i18n-title="todo.due" data-i18n-aria="todo.due">
+          <button class="btn" type="submit" data-i18n="btn.add">Hinzufügen</button>
         </form>
         <ul class="todo-list" id="projTodoList"></ul>
 
-        <h3 class="proj-sub">Notizen</h3>
+        <h3 class="proj-sub" data-i18n="proj.notes">Notizen</h3>
         <div class="editor-toolbar">
-          <button type="button" data-pcmd="bold" title="Fett"><b>F</b></button>
-          <button type="button" data-pcmd="italic" title="Kursiv"><i>K</i></button>
-          <button type="button" data-pcmd="underline" title="Unterstrichen"><u>U</u></button>
-          <button type="button" data-pcmd="formatBlock" data-val="h3" title="Überschrift">H</button>
-          <button type="button" data-pcmd="insertUnorderedList" title="Aufzählung">Liste</button>
-          <button type="button" id="projInsertImg" title="Bild einfügen">Bild</button>
+          <button type="button" data-pcmd="bold" title="Fett" data-i18n-title="ed.bold"><b data-i18n="ed.boldKey">F</b></button>
+          <button type="button" data-pcmd="italic" title="Kursiv" data-i18n-title="ed.italic"><i data-i18n="ed.italicKey">K</i></button>
+          <button type="button" data-pcmd="underline" title="Unterstrichen" data-i18n-title="ed.underline"><u>U</u></button>
+          <button type="button" data-pcmd="formatBlock" data-val="h3" title="Überschrift" data-i18n-title="ed.heading">H</button>
+          <button type="button" data-pcmd="insertUnorderedList" title="Aufzählung" data-i18n-title="ed.list" data-i18n="ed.listText">Liste</button>
+          <button type="button" id="projInsertImg" title="Bild einfügen" data-i18n-title="ed.image" data-i18n="ed.imageText">Bild</button>
         </div>
         <div class="editor" id="projEditor" contenteditable="true"></div>
         <input type="file" id="projImgInput" accept="image/*" hidden>
@@ -212,39 +213,39 @@
 
   <!-- ================= STATISTIK ================= -->
   <section id="stats" class="page">
-    <div class="card" data-card-id="stats-overview" data-card-title="Übersicht">
-      <h2>Übersicht</h2>
+    <div class="card" data-card-id="stats-overview" data-title-key="stats.overview">
+      <h2 data-i18n="stats.overview">Übersicht</h2>
       <div class="stat-grid">
-        <div class="stat"><div class="num" id="stToday">0</div><div class="desc">Minuten heute</div></div>
-        <div class="stat"><div class="num" id="stWeek">0</div><div class="desc">Minuten diese Woche</div></div>
-        <div class="stat"><div class="num" id="stStreak">0</div><div class="desc"><img class="icon" src="../img/streak.svg" alt="">Tage Streak</div></div>
-        <div class="stat"><div class="num" id="stTotal">0</div><div class="desc">Fokus-Sessions total</div></div>
+        <div class="stat"><div class="num" id="stToday">0</div><div class="desc" data-i18n="stats.today">Minuten heute</div></div>
+        <div class="stat"><div class="num" id="stWeek">0</div><div class="desc" data-i18n="stats.week">Minuten diese Woche</div></div>
+        <div class="stat"><div class="num" id="stStreak">0</div><div class="desc"><img class="icon" src="../img/streak.svg" alt=""><span data-i18n="stats.streak">Tage Streak</span></div></div>
+        <div class="stat"><div class="num" id="stTotal">0</div><div class="desc" data-i18n="stats.total">Fokus-Sessions total</div></div>
       </div>
     </div>
 
-    <div class="card" data-card-id="stats-chart" data-card-title="Letzte 7 Tage">
-      <h2>Letzte 7 Tage (Minuten)</h2>
+    <div class="card" data-card-id="stats-chart" data-title-key="stats.chart">
+      <h2 data-i18n="stats.chart">Letzte 7 Tage (Minuten)</h2>
       <div class="chart" id="chart"></div>
     </div>
 
-    <div class="card" data-card-id="stats-subjects" data-card-title="Nach Fach">
-      <h2>Nach Fach</h2>
+    <div class="card" data-card-id="stats-subjects" data-title-key="stats.subjects">
+      <h2 data-i18n="stats.subjects">Nach Fach</h2>
       <div id="subjectStats"></div>
     </div>
 
-    <div class="card" data-card-id="stats-history" data-card-title="Letzte Sessions">
-      <h2>Letzte Sessions</h2>
+    <div class="card" data-card-id="stats-history" data-title-key="stats.history">
+      <h2 data-i18n="stats.history">Letzte Sessions</h2>
       <ul class="history" id="history"></ul>
-      <button class="link-btn" id="clearBtn">Alle Daten löschen</button>
+      <button class="link-btn" id="clearBtn" data-i18n="stats.clear">Alle Daten löschen</button>
     </div>
   </section>
 
   <!-- ================= ZITATE ================= -->
   <section id="zitate" class="page">
     <div class="qtabs">
-      <button class="active" data-qtab="general">Allgemein</button>
-      <button data-qtab="monks">Mönche</button>
-      <button data-qtab="revo">Revolutionäre</button>
+      <button class="active" data-qtab="general" data-i18n="q.tabGeneral">Allgemein</button>
+      <button data-qtab="monks" data-i18n="q.tabMonks">Mönche</button>
+      <button data-qtab="revo" data-i18n="q.tabRevo">Revolutionäre</button>
     </div>
 
     <!-- Allgemein -->
@@ -252,19 +253,19 @@
       <div class="card quote-main">
         <blockquote id="qText"></blockquote>
         <cite id="qAuthor"></cite>
-        <div class="controls"><button class="btn" id="nextQuote">Neues Zitat</button></div>
+        <div class="controls"><button class="btn" id="nextQuote" data-i18n="q.next">Neues Zitat</button></div>
       </div>
       <div class="card">
-        <h2>Alle Zitate</h2>
+        <h2 data-i18n="q.all">Alle Zitate</h2>
         <form id="quoteAddForm" class="quote-add">
-          <input id="qNewText" type="text" placeholder="Eigenes Zitat…" maxlength="200" autocomplete="off">
-          <input id="qNewAuthor" type="text" placeholder="Autor (optional)" maxlength="60" autocomplete="off">
-          <button class="btn" type="submit">Hinzufügen</button>
+          <input id="qNewText" type="text" placeholder="Eigenes Zitat…" data-i18n-ph="q.ownPh" maxlength="200" autocomplete="off">
+          <input id="qNewAuthor" type="text" placeholder="Autor (optional)" data-i18n-ph="q.authorPh" maxlength="60" autocomplete="off">
+          <button class="btn" type="submit" data-i18n="btn.add">Hinzufügen</button>
         </form>
         <div class="chips">
-          <button class="active" data-filter="all">Auswahl</button>
-          <button data-filter="fav">★ Favoriten</button>
-          <button type="button" class="shuffle" id="shuffleQuotes">Neue Auswahl</button>
+          <button class="active" data-filter="all" data-i18n="q.selection">Auswahl</button>
+          <button data-filter="fav" data-i18n="q.favs">★ Favoriten</button>
+          <button type="button" class="shuffle" id="shuffleQuotes" data-i18n="q.shuffle">Neue Auswahl</button>
         </div>
         <div class="quote-list" id="quoteList"></div>
       </div>
@@ -275,10 +276,10 @@
       <div class="card quote-main">
         <blockquote id="mText"></blockquote>
         <cite id="mAuthor"></cite>
-        <div class="controls"><button class="btn" id="nextMonk">Neues Zitat</button></div>
+        <div class="controls"><button class="btn" id="nextMonk" data-i18n="q.next">Neues Zitat</button></div>
       </div>
       <div class="card">
-        <h2>Alle Mönchs-Zitate</h2>
+        <h2 data-i18n="q.allMonks">Alle Mönchs-Zitate</h2>
         <div class="quote-list" id="monkList"></div>
       </div>
     </div>
@@ -288,10 +289,10 @@
       <div class="card quote-main">
         <blockquote id="rText"></blockquote>
         <cite id="rAuthor"></cite>
-        <div class="controls"><button class="btn" id="nextRevo">Neues Zitat</button></div>
+        <div class="controls"><button class="btn" id="nextRevo" data-i18n="q.next">Neues Zitat</button></div>
       </div>
       <div class="card">
-        <h2>Alle Revolutions-Zitate</h2>
+        <h2 data-i18n="q.allRevo">Alle Revolutions-Zitate</h2>
         <div class="quote-list" id="revoList"></div>
       </div>
     </div>
@@ -302,12 +303,12 @@
 <!-- Menü anpassen -->
 <div class="modal" id="menuModal" hidden>
   <div class="card modal-box" role="dialog" aria-modal="true" aria-labelledby="menuModalTitle">
-    <h2 id="menuModalTitle">Menü anpassen</h2>
-    <p class="hint">Häkchen = im Menü sichtbar. Mit den Pfeilen änderst du die Reihenfolge.</p>
+    <h2 id="menuModalTitle" data-i18n="menuEdit.title">Menü anpassen</h2>
+    <p class="hint" data-i18n="menuEdit.hint">Häkchen = im Menü sichtbar. Mit den Pfeilen änderst du die Reihenfolge.</p>
     <ul class="menu-edit-list" id="menuEditList"></ul>
     <div class="controls">
-      <button class="btn secondary" type="button" id="menuReset">Zurücksetzen</button>
-      <button class="btn" type="button" id="menuDone">Fertig</button>
+      <button class="btn secondary" type="button" id="menuReset" data-i18n="btn.reset2">Zurücksetzen</button>
+      <button class="btn" type="button" id="menuDone" data-i18n="btn.done">Fertig</button>
     </div>
   </div>
 </div>
@@ -315,45 +316,46 @@
 <!-- Felder anordnen -->
 <div class="layout-bar" id="layoutBar" hidden>
   <div class="layout-bar-text">
-    <strong>Layout bearbeiten:</strong> Felder frei ziehen zum Verschieben, Kanten &amp; Ecken ziehen für die Grösse.
+    <strong data-i18n="layout.barTitle">Layout bearbeiten:</strong> <span data-i18n="layout.barText">Felder frei ziehen zum Verschieben, Kanten &amp; Ecken ziehen für die Grösse.</span>
   </div>
   <div class="layout-bar-actions">
-    <button class="btn secondary" type="button" id="layoutReset">Zurücksetzen</button>
-    <button class="btn" type="button" id="layoutDone">Fertig</button>
+    <button class="btn secondary" type="button" id="layoutReset" data-i18n="btn.reset2">Zurücksetzen</button>
+    <button class="btn" type="button" id="layoutDone" data-i18n="btn.done">Fertig</button>
   </div>
 </div>
 
 <!-- Konto: Anmelden / Registrieren / Abmelden -->
 <div class="modal" id="accountModal" hidden>
   <div class="card modal-box" role="dialog" aria-modal="true" aria-labelledby="accountModalTitle">
-    <h2 id="accountModalTitle">Konto</h2>
+    <h2 id="accountModalTitle" data-i18n="acc.title">Konto</h2>
     <form class="account-form" id="accountForm">
-      <p class="hint">Mit einem Konto werden Einstellungen, Notizen, To-dos, Projekte und Statistik gespeichert und zwischen deinen Geräten abgeglichen.</p>
-      <label>E-Mail <input type="email" id="accountEmail" autocomplete="email" required></label>
-      <label>Passwort <input type="password" id="accountPassword" autocomplete="current-password" minlength="6" required></label>
+      <p class="hint" data-i18n="acc.intro">Mit einem Konto werden Einstellungen, Notizen, To-dos, Projekte und Statistik gespeichert und zwischen deinen Geräten abgeglichen.</p>
+      <label><span data-i18n="acc.email">E-Mail</span> <input type="email" id="accountEmail" autocomplete="email" required></label>
+      <label><span data-i18n="acc.password">Passwort</span> <input type="password" id="accountPassword" autocomplete="current-password" minlength="6" required></label>
       <p class="account-msg" id="accountMsg" role="status"></p>
       <div class="controls">
-        <button class="btn secondary" type="button" id="accountSignUp">Registrieren</button>
-        <button class="btn" type="submit">Anmelden</button>
+        <button class="btn secondary" type="button" id="accountSignUp" data-i18n="acc.signUp">Registrieren</button>
+        <button class="btn" type="submit" data-i18n="acc.signIn">Anmelden</button>
       </div>
-      <button class="link-btn account-cancel" type="button" id="accountCancel">Abbrechen</button>
+      <button class="link-btn account-cancel" type="button" id="accountCancel" data-i18n="acc.cancel">Abbrechen</button>
     </form>
     <div class="account-info" id="accountInfo" hidden>
-      <p>Angemeldet als <strong id="accountUser"></strong></p>
-      <p class="hint">Deine Daten werden automatisch gespeichert. Nach dem Abmelden bleiben sie auf diesem Gerät, werden aber nicht mehr abgeglichen.</p>
+      <p><span data-i18n="acc.signedInAs">Angemeldet als</span> <strong id="accountUser"></strong></p>
+      <p class="hint" data-i18n="acc.info">Deine Daten werden automatisch gespeichert. Nach dem Abmelden bleiben sie auf diesem Gerät, werden aber nicht mehr abgeglichen.</p>
       <p class="account-msg" id="accountInfoMsg" role="status"></p>
       <div class="controls">
-        <button class="btn secondary" type="button" id="accountClose">Schliessen</button>
-        <button class="btn" type="button" id="accountSignOut">Abmelden</button>
+        <button class="btn secondary" type="button" id="accountClose" data-i18n="acc.close">Schliessen</button>
+        <button class="btn" type="button" id="accountSignOut" data-i18n="acc.signOut">Abmelden</button>
       </div>
     </div>
   </div>
 </div>
 
+<script src="../js/i18n.js?v=1"></script>
 <script src="../js/vendor/supabase.js"></script>
 <script src="../js/cloud-config.js"></script>
 <script src="../js/cloud.js"></script>
-<script src="../js/pomodoro.js?v=12"></script>
+<script src="../js/pomodoro.js?v=13"></script>
 <script>
   // Mobile Schublade: Hamburger-Menü öffnen/schliessen
   (() => {

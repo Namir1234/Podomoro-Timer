@@ -8,64 +8,71 @@
 <meta name="theme-color" content="#1b2119">
 <link rel="apple-touch-icon" href="../img/icons/apple-touch-icon.png">
 <link rel="stylesheet" href="../style/fonts/inter.css">
-<link rel="stylesheet" href="../style/start.css?v=3">
+<link rel="stylesheet" href="../style/start.css?v=4">
 </head>
 <body>
+
+<button class="lang-switch" id="langSwitch" type="button" data-i18n="start.switch" data-i18n-aria="start.switchAria">English</button>
 
 <main class="layout">
 
   <!-- ================= INTRO ================= -->
   <section class="intro">
     <h1><img class="icon" src="../img/logo.svg" alt="" width="40" height="40">Fokus</h1>
-    <p class="tagline">Der Pomodoro-Timer mit Statistik – und der Weisheit alter Mönche.</p>
+    <p class="tagline" data-i18n="start.tagline">Der Pomodoro-Timer mit Statistik – und der Weisheit alter Mönche.</p>
 
-    <p class="lead">
+    <p class="lead" data-i18n="start.lead">
       Fokus hilft dir, konzentriert zu lernen: Du arbeitest 25 Minuten am Stück
       und machst dann eine kurze Pause. Nach vier Runden gibt es eine längere Pause.
       So bleibst du länger dran, ohne auszubrennen.
     </p>
 
     <ul class="features">
-      <li><img src="../img/timer.svg" alt="" width="20" height="20">Timer mit eigenen Zeiten und Tagesziel</li>
-      <li><img src="../img/todo.svg" alt="" width="20" height="20">To-dos, Notizen und Projekte</li>
-      <li><img src="../img/stats.svg" alt="" width="20" height="20">Statistik: wie viel du pro Tag und Fach lernst</li>
+      <li><img src="../img/timer.svg" alt="" width="20" height="20"><span data-i18n="start.f1">Timer mit eigenen Zeiten und Tagesziel</span></li>
+      <li><img src="../img/todo.svg" alt="" width="20" height="20"><span data-i18n="start.f2">To-dos, Notizen und Projekte</span></li>
+      <li><img src="../img/stats.svg" alt="" width="20" height="20"><span data-i18n="start.f3">Statistik: wie viel du pro Tag und Fach lernst</span></li>
     </ul>
 
-    <a class="btn" href="pomodoro.html">Timer öffnen</a>
-    <p class="note">Kostenlos, ohne Anmeldung. Deine Daten bleiben in deinem Browser.</p>
+    <a class="btn" href="pomodoro.html" data-i18n="start.open">Timer öffnen</a>
+    <p class="note" data-i18n="start.note">Kostenlos, ohne Anmeldung. Deine Daten bleiben in deinem Browser.</p>
   </section>
 
   <!-- ================= ZITAT (dezent) ================= -->
-  <aside class="quote" aria-label="Zitat">
+  <aside class="quote" aria-label="Zitat" data-i18n-aria="start.quote">
     <img id="qImg" src="../img/monk-ikkyu.jpg" alt="" width="72" height="72">
     <blockquote id="qText"></blockquote>
     <p class="trans" id="qTrans"></p>
     <cite id="qCite"></cite>
-    <button class="next" id="qNext" type="button">Nächstes Zitat</button>
+    <button class="next" id="qNext" type="button" data-i18n="start.next">Nächstes Zitat</button>
   </aside>
 
 </main>
 
-<footer>Bilder: Wikimedia Commons, gemeinfrei.</footer>
+<footer data-i18n="start.footer">Bilder: Wikimedia Commons, gemeinfrei.</footer>
 
+<script src="../js/i18n.js?v=1"></script>
 <script>
   // Mönchs-Zitate: es wird immer nur eines gezeigt
   const MONKS = [
     { img: "monk-ikkyu.jpg", lang: "ja",
       text: "門松は冥土の旅の一里塚　めでたくもありめでたくもなし",
-      trans: "«Die Neujahrskiefer am Tor ist ein Meilenstein auf der Reise ins Totenreich – erfreulich und auch wieder nicht.»",
+      trans: { de: "«Die Neujahrskiefer am Tor ist ein Meilenstein auf der Reise ins Totenreich – erfreulich und auch wieder nicht.»",
+             en: "“The New Year’s pine at the gate is a milestone on the journey to the land of the dead – a cause for joy, and yet not.”" },
       cite: "一休宗純 (Ikkyū Sōjun)" },
     { img: "monk-linji.jpg", lang: "zh-Hant",
       text: "逢佛殺佛，逢祖殺祖。",
-      trans: "«Triffst du den Buddha, töte den Buddha; triffst du den Patriarchen, töte den Patriarchen.»",
+      trans: { de: "«Triffst du den Buddha, töte den Buddha; triffst du den Patriarchen, töte den Patriarchen.»",
+             en: "“If you meet the Buddha, kill the Buddha; if you meet the patriarch, kill the patriarch.”" },
       cite: "臨濟義玄 (Linji Yixuan)" },
     { img: "monk-yunmen.jpg", lang: "zh-Hant",
       text: "「如何是佛？」「乾屎橛。」",
-      trans: "«Was ist der Buddha?» – «Ein getrockneter Kotstab.»",
+      trans: { de: "«Was ist der Buddha?» – «Ein getrockneter Kotstab.»",
+             en: "“What is the Buddha?” – “A dried shit-stick.”" },
       cite: "雲門文偃 (Yunmen Wenyan)" },
     { img: "monk-zhaozhou.jpg", lang: "zh-Hant",
       text: "「喫粥了也未？」「喫粥了也。」「洗鉢盂去。」",
-      trans: "«Hast du den Reisbrei schon gegessen?» – «Ja.» – «Dann wasch deine Schale.»",
+      trans: { de: "«Hast du den Reisbrei schon gegessen?» – «Ja.» – «Dann wasch deine Schale.»",
+             en: "“Have you eaten your rice porridge?” – “Yes.” – “Then wash your bowl.”" },
       cite: "趙州從諗 (Zhaozhou Congshen)" }
   ];
 
@@ -74,11 +81,11 @@
   function showQuote(i) {
     const m = MONKS[i];
     document.getElementById("qImg").src = "../img/" + m.img;
-    document.getElementById("qImg").alt = "Porträt von " + m.cite;
+    document.getElementById("qImg").alt = t("start.portrait", { name: m.cite });
     const q = document.getElementById("qText");
     q.textContent = m.text;
     q.lang = m.lang;
-    document.getElementById("qTrans").textContent = m.trans;
+    document.getElementById("qTrans").textContent = L(m.trans);
     document.getElementById("qCite").textContent = m.cite;
   }
 
@@ -87,6 +94,10 @@
     showQuote(current);
   });
 
+  document.getElementById("langSwitch").addEventListener("click", () => setLang(nextLang()));
+  document.addEventListener("langchange", () => showQuote(current));
+
+  applyI18n();
   showQuote(current);
 
   if ("serviceWorker" in navigator) {

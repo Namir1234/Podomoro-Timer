@@ -1,4 +1,4 @@
-const CACHE_NAME = "fokus-cache-v6";
+const CACHE_NAME = "fokus-cache-v7";
 
 const ASSETS = [
   "./",
@@ -7,6 +7,7 @@ const ASSETS = [
   "./pages/pomodoro.html",
   "./style/start.css",
   "./style/pomodoro.css",
+  "./js/i18n.js",
   "./js/pomodoro.js",
   "./js/cloud.js",
   "./js/cloud-config.js",
@@ -19,6 +20,7 @@ const ASSETS = [
   "./img/back.svg",
   "./img/edit.svg",
   "./img/expand.svg",
+  "./img/language.svg",
   "./img/layout.svg",
   "./img/notes.svg",
   "./img/projects.svg",
