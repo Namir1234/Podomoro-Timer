@@ -4,7 +4,7 @@ Stand: 4. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Tim
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (67 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (69 Commits,
 6. Oktober bis 4. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
@@ -30,9 +30,10 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
 - Oberfläche färbt sich gegen Ende der Phase rot
 - Übersicht „Heute“: Fortschritt mit Tagesziel, Statistik, Zitat-Karte
 - Nur-Timer-Ansicht (Timer gross, alles andere ausgeblendet)
-- Seite „Uhren“: beliebig viele eigene Timer und Stoppuhren (mit Runden),
-  laufen auch nach dem Neuladen weiter
-- Felder auf allen Seiten (Timer, Uhren, To-do, Notizen, Projekte, Statistik, Zitate)
+- Umschalter oben auf der Timer-Seite: **Pomodoro**, **Timer**, **Stoppuhr** –
+  beliebig viele eigene Timer und Stoppuhren (mit Runden), laufen auch nach
+  dem Neuladen weiter
+- Felder auf allen Seiten (Timer, To-do, Notizen, Projekte, Statistik, Zitate)
   frei verschieben und in der Grösse ändern, Inhalt skaliert mit
 - To-dos (mit optionaler Deadline), Notizen mit Ordnern und Editor mit Bildern,
   Projekte mit eigenen To-dos und Notizen
@@ -274,7 +275,9 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | --- | --- | --- | --- | --- |
 | 11:26 | `1827153` | Eigene Timer und Stoppuhren auf neuer Seite Uhren | main | 7, +273 / −5 |
 | 11:28 | `bcf96e2` | Dokumentation nachgefuehrt: Uhren | main | 1, +25 / −4 |
-| 11:33 | (dieser Commit) | Push vermerkt | main | Doku |
+| 11:33 | `e3b38da` | Push vermerkt | main | 1, +6 / −3 |
+| 11:40 | `fb04890` | Timer und Stoppuhr als Umschalter auf der Timer-Seite statt eigener Menuepunkt | main | 6, +129 / −40 |
+| 11:42 | (dieser Commit) | Dokumentation nachgefuehrt: Umschalter | main | Doku |
 
 - **`1827153`** – Neue Seite **Uhren** (Menüpunkt mit Stoppuhr-Icon
   `img/stopwatch.svg`, im Menü ein-/ausblendbar). Dort lassen sich beliebig viele
@@ -286,7 +289,18 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
   Übersetzungen in allen fünf Sprachen, Styles für Original und Coral,
   `CACHE_NAME` auf `fokus-cache-v26`.
 - **`bcf96e2`** – Chronik und Funktionsliste um die Uhren ergänzt.
-  Zusammen mit diesem Commit gepusht nach `origin/main`.
+  Zusammen mit `e3b38da` gepusht nach `origin/main`.
+- **`fb04890`** – Auf Wunsch kein eigener Menüpunkt mehr: Die Seite „Uhren“
+  ist entfernt. Stattdessen sitzt oben in der Kopfzeile der Timer-Seite ein
+  kleiner Umschalter **[Pomodoro] [Timer] [Stoppuhr]** (ersetzt den Text
+  „Pomodoro Arbeitsbereich“). Timer und Stoppuhren haben je eine eigene Fläche
+  (`clockTimerCanvas`, `clockWatchCanvas`) im freien Layout, lange Listen
+  scrollen. Der gewählte Tab wird pro Gerät gemerkt (`fokus_timer_tab`, nicht
+  synchronisiert). „Nur Timer“ erscheint nur bei Pomodoro und springt immer
+  dorthin. Auf schmalen Bildschirmen wird „Fokus“ neben dem Umschalter
+  ausgeblendet. Übersetzungs-Keys `ttab.*`, `clocks.emptyTimer`/`emptyWatch`
+  neu, `nav.clocks`, `clocks.title`, `clocks.empty` entfernt.
+  `CACHE_NAME` auf `fokus-cache-v27`.
 
 ---
 
@@ -295,7 +309,7 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 4. November 2026 |
-| Commits | 67 (davon 1 Merge) |
+| Commits | 69 (davon 1 Merge) |
 | Aktive Tage | 10 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
