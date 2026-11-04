@@ -1,13 +1,12 @@
 /* ============================================================
-   SPRACHE (Deutsch / Englisch)
+   SPRACHE (Deutsch / Englisch / Französisch / Italienisch / Ungarisch)
    - Texte im HTML: data-i18n (Text), data-i18n-title, data-i18n-aria, data-i18n-ph (Platzhalter)
    - Texte im JS: t("schluessel", { platzhalter })
-   - Werte mit { de, en }: L(wert)
+   - Werte mit { de, en, fr, it, hu }: L(wert)
    Die Wahl wird im localStorage ("pomo_lang") gespeichert und gilt für alle Seiten.
    ============================================================ */
 const I18N = {
   de: {
-    "lang.name": "Deutsch",
     "lang.current": "Sprache: Deutsch",
     "lang.change": "Sprache wechseln",
     "lang.ja": "Japanisch",
@@ -27,8 +26,6 @@ const I18N = {
     "start.next": "Nächstes Zitat",
     "start.portrait": "Porträt von {name}",
     "start.footer": "Bilder: Wikimedia Commons, gemeinfrei.",
-    "start.switch": "English",
-    "start.switchAria": "Switch to English",
 
     // Seitenmenü
     "menu.open": "Menü öffnen",
@@ -257,7 +254,6 @@ const I18N = {
   },
 
   en: {
-    "lang.name": "English",
     "lang.current": "Language: English",
     "lang.change": "Change language",
     "lang.ja": "Japanese",
@@ -276,8 +272,6 @@ const I18N = {
     "start.next": "Next quote",
     "start.portrait": "Portrait of {name}",
     "start.footer": "Images: Wikimedia Commons, public domain.",
-    "start.switch": "Deutsch",
-    "start.switchAria": "Auf Deutsch wechseln",
 
     "menu.open": "Open menu",
     "nav.timer": "Timer",
@@ -492,28 +486,736 @@ const I18N = {
     "acc.err.offline": "No connection to the server. Are you online?",
     "acc.err.other": "That didn't work.",
     "acc.err.otherMsg": "That didn't work: {msg}"
+  },
+
+  fr: {
+    "lang.current": "Langue : français",
+    "lang.change": "Changer de langue",
+    "lang.ja": "Japonais",
+    "lang.zh-Hant": "Chinois",
+    "lang.ko": "Coréen",
+
+    "start.title": "Fokus – Minuteur Pomodoro",
+    "start.tagline": "Le minuteur Pomodoro avec statistiques – et la sagesse des moines d’autrefois.",
+    "start.lead": "Fokus t’aide à étudier avec concentration : tu travailles 25 minutes d’affilée, puis tu fais une courte pause. Après quatre tours, tu as droit à une pause plus longue. Ainsi, tu tiens plus longtemps sans t’épuiser.",
+    "start.f1": "Minuteur avec tes propres durées et un objectif quotidien",
+    "start.f2": "Tâches, notes et projets",
+    "start.f3": "Statistiques : combien tu étudies par jour et par matière",
+    "start.open": "Ouvrir le minuteur",
+    "start.note": "Gratuit, sans inscription. Tes données restent dans ton navigateur.",
+    "start.quote": "Citation",
+    "start.next": "Citation suivante",
+    "start.portrait": "Portrait de {name}",
+    "start.footer": "Images : Wikimedia Commons, domaine public.",
+
+    "menu.open": "Ouvrir le menu",
+    "nav.timer": "Minuteur",
+    "nav.todo": "Tâches",
+    "nav.notes": "Notes",
+    "nav.projects": "Projets",
+    "nav.stats": "Statistiques",
+    "nav.quotes": "Citations",
+    "side.layout": "Disposer les champs",
+    "side.menu": "Personnaliser le menu",
+    "side.home": "Retour à l’accueil",
+
+    "doc.title": "Fokus – Pomodoro",
+    "top.desc": "Espace de travail Pomodoro",
+    "top.adjust": "Ajuster les champs",
+    "top.adjustTitle": "Déplacer les champs et modifier leur taille",
+    "top.done": "✓ Terminé",
+    "card.timer": "Minuteur",
+    "card.settings": "Régler les durées",
+    "card.today": "Aujourd’hui",
+    "card.quote": "Pour se concentrer",
+    "mode.focus": "Focus",
+    "mode.short": "Pause courte",
+    "mode.long": "Pause longue",
+    "mode.focusText": "C’est le moment de se concentrer",
+    "btn.start": "Démarrer",
+    "btn.pause": "Pause",
+    "btn.resume": "Reprendre",
+    "btn.reset": "Réinit.",
+    "btn.skip": "Passer",
+    "btn.add": "Ajouter",
+    "btn.delete": "Supprimer",
+    "btn.reset2": "Réinitialiser",
+    "btn.done": "Terminé",
+    "subject.label": "Matière / sujet :",
+    "subject.ph": "p. ex. Module 101, Maths, Physique",
+    "subject.none": "Sans matière",
+    "preset.classic": "Classique",
+    "preset.deep": "Deep Work",
+    "preset.short": "Court",
+    "step.rounds": "Tours avant la pause longue",
+    "step.less": "moins",
+    "step.more": "plus",
+    "step.min": "Minutes",
+    "step.sec": "Secondes",
+    "toggle.seconds": "Afficher les secondes",
+    "toggle.sound": "Son à la fin",
+    "cycle": "Déroulement : {r}× {f} de focus, avec {s} de pause entre deux, puis {l} de pause longue.",
+    "dur.min": "{n} min",
+    "dur.sec": "{n} s",
+    "today.min": "min de focus",
+    "today.sessions": "Sessions",
+    "today.streak": "jours d’affilée",
+    "today.goal": "Objectif du jour",
+    "today.goalLabel": "Objectif :",
+
+    "todo.title": "Tâches",
+    "todo.ph": "Nouvelle tâche…",
+    "todo.due": "Échéance (facultatif)",
+    "todo.clear": "Supprimer les tâches terminées",
+    "todo.empty": "Aucune tâche pour l’instant. Ajoute ta première ci-dessus.",
+    "todo.emptyShort": "Aucune tâche pour l’instant.",
+    "due.title": "Échéance",
+    "due.today": "aujourd’hui",
+    "due.tomorrow": "demain",
+    "due.in": "dans {n} jours",
+    "due.yesterday": "en retard depuis hier",
+    "due.over": "en retard de {n} jours",
+
+    "notes.folders": "Dossiers",
+    "notes.addFolder": "+ Nouveau dossier",
+    "notes.saved": "Enregistré automatiquement.",
+    "notes.saveErr": "⚠ Impossible d’enregistrer – les images sont probablement trop grandes.",
+    "notes.defaultName": "Général",
+    "folder.delete": "Supprimer le dossier",
+    "folder.min": "Il doit rester au moins un dossier.",
+    "folder.confirm": "Supprimer le dossier « {name} » avec toutes ses notes ?",
+    "folder.prompt": "Nom du nouveau dossier (p. ex. une matière) :",
+    "ed.bold": "Gras",
+    "ed.boldKey": "G",
+    "ed.italic": "Italique",
+    "ed.italicKey": "I",
+    "ed.underline": "Souligné",
+    "ed.heading": "Titre",
+    "ed.list": "Liste à puces",
+    "ed.listText": "Liste",
+    "ed.image": "Insérer une image",
+    "ed.imageText": "Image",
+
+    "proj.title": "Projets",
+    "proj.add": "+ Nouveau projet",
+    "proj.todo": "Tâches",
+    "proj.notes": "Notes",
+    "proj.delete": "Supprimer le projet",
+    "proj.min": "Il doit rester au moins un projet.",
+    "proj.confirm": "Supprimer le projet « {name} » avec ses tâches et ses notes ?",
+    "proj.prompt": "Nom du nouveau projet :",
+    "proj.defaultName": "Mon projet",
+
+    "stats.overview": "Vue d’ensemble",
+    "stats.chart": "7 derniers jours (minutes)",
+    "stats.subjects": "Par matière",
+    "stats.history": "Dernières sessions",
+    "stats.today": "Minutes aujourd’hui",
+    "stats.week": "Minutes cette semaine",
+    "stats.streak": "Jours d’affilée",
+    "stats.total": "Sessions de focus au total",
+    "stats.noData": "Pas encore de données. Lance ta première session !",
+    "stats.nothing": "Rien pour l’instant.",
+    "stats.clear": "Supprimer toutes les données",
+    "stats.confirm": "Vraiment supprimer toutes les statistiques ?",
+
+    "q.wrap": "« {t} »",
+    "q.tabGeneral": "Général",
+    "q.tabMonks": "Moines",
+    "q.tabRevo": "Révolutionnaires",
+    "q.next": "Nouvelle citation",
+    "q.all": "Toutes les citations",
+    "q.allMonks": "Toutes les citations de moines",
+    "q.allRevo": "Toutes les citations de révolutionnaires",
+    "q.ownPh": "Ta propre citation…",
+    "q.authorPh": "Auteur (facultatif)",
+    "q.selection": "Sélection",
+    "q.favs": "★ Favoris",
+    "q.shuffle": "Nouvelle sélection",
+    "q.fav": "Favori",
+    "q.delOwn": "Supprimer ta citation",
+    "q.noFavs": "Pas encore de favoris. Touche l’étoile à côté d’une citation.",
+    "q.unknown": "Inconnu",
+    "q.attr": "attribué",
+    "q.para": "librement",
+    "q.last": "derniers mots",
+    "q.farewell": "poème d’adieu",
+
+    "menuEdit.title": "Personnaliser le menu",
+    "menuEdit.hint": "Coché = visible dans le menu. Les flèches changent l’ordre.",
+    "menuEdit.up": "monter",
+    "menuEdit.down": "descendre",
+
+    "layout.barTitle": "Modifier la disposition :",
+    "layout.barText": "Fais glisser les champs pour les déplacer, tire les bords et les coins pour la taille.",
+    "layout.field": "Champ",
+    "layout.auto": "Auto",
+    "layout.badge": "{w}/12 colonnes · hauteur : {h}",
+    "layout.dragHold": "Maintenir et faire glisser pour déplacer",
+    "layout.posGroup": "Déplacer la position dans la disposition",
+    "layout.pos": "Pos. :",
+    "layout.movePrev": "Déplacer vers la gauche / le haut",
+    "layout.moveNext": "Déplacer vers la droite / le bas",
+    "layout.back": "Arrière",
+    "layout.forward": "Avant",
+    "layout.widthGroup": "Largeur en colonnes (grille de 12)",
+    "layout.width": "Largeur :",
+    "layout.narrower": "Plus étroit (−1 colonne)",
+    "layout.third": "1/3 de largeur",
+    "layout.half": "1/2 largeur (par défaut)",
+    "layout.twoThirds": "2/3 de largeur",
+    "layout.full": "Pleine largeur (100 %)",
+    "layout.fullText": "Plein",
+    "layout.wider": "Plus large (+1 colonne)",
+    "layout.heightGroup": "Ajuster la hauteur",
+    "layout.height": "Hauteur :",
+    "layout.lower": "Réduire la hauteur (−40px)",
+    "layout.autoHeight": "Hauteur automatique (adaptée au contenu)",
+    "layout.higher": "Augmenter la hauteur (+40px)",
+    "layout.grip": "Glisser : changer la taille · Double-clic : hauteur automatique",
+    "layout.dragFree": "Saisir le champ et le déplacer librement",
+    "layout.autoH": "Hauteur auto",
+    "layout.autoHTitle": "Adapter automatiquement la hauteur au contenu",
+    "layout.edge.n": "Tirer le bord supérieur",
+    "layout.edge.s": "Tirer le bord inférieur",
+    "layout.edge.w": "Tirer le bord gauche",
+    "layout.edge.e": "Tirer le bord droit",
+    "layout.edge.nw": "Tirer le coin supérieur gauche",
+    "layout.edge.ne": "Tirer le coin supérieur droit",
+    "layout.edge.sw": "Tirer le coin inférieur gauche",
+    "layout.edge.se": "Tirer le coin inférieur droit",
+    "layout.edgeHint": "{edge} · Double-clic : hauteur automatique",
+    "zen.label": "Minuteur seul",
+    "zen.title": "Afficher seulement le minuteur en grand (Échap pour quitter)",
+    "zen.exit": "Quitter (Échap)",
+    "zen.exitAria": "Quitter la vue minuteur seul",
+
+    "acc.title": "Compte",
+    "acc.intro": "Avec un compte, tes réglages, notes, tâches, projets et statistiques sont enregistrés et synchronisés entre tes appareils.",
+    "acc.email": "E-mail",
+    "acc.password": "Mot de passe",
+    "acc.signUp": "S’inscrire",
+    "acc.signIn": "Se connecter",
+    "acc.cancel": "Annuler",
+    "acc.signedInAs": "Connecté en tant que",
+    "acc.info": "Tes données sont enregistrées automatiquement. Après la déconnexion, elles restent sur cet appareil mais ne sont plus synchronisées.",
+    "acc.close": "Fermer",
+    "acc.signOut": "Se déconnecter",
+    "acc.btnTitle": "Se connecter et synchroniser tes données entre appareils",
+    "acc.btnTitleIn": "Connecté en tant que {email}",
+    "acc.btnAriaIn": "Compte : {email}",
+    "acc.signingIn": "Connexion …",
+    "acc.creating": "Création du compte …",
+    "acc.almost": "Presque fini : confirme ton adresse e-mail grâce au lien reçu, puis connecte-toi ici.",
+    "acc.signedOut": "Déconnecté. Tes données restent sur cet appareil.",
+    "acc.err.credentials": "E-mail ou mot de passe incorrect.",
+    "acc.err.notConfirmed": "Confirme d’abord ton adresse e-mail grâce au lien reçu.",
+    "acc.err.exists": "Un compte existe déjà pour cette adresse e-mail. Connecte-toi.",
+    "acc.err.weak": "Le mot de passe est trop faible (au moins 6 caractères).",
+    "acc.err.invalidEmail": "Cette adresse e-mail n’est pas valide.",
+    "acc.err.validation": "Vérifie l’e-mail et le mot de passe.",
+    "acc.err.emailRate": "Trop d’e-mails en peu de temps. Réessaie plus tard.",
+    "acc.err.rate": "Trop de tentatives. Patiente un instant.",
+    "acc.err.signupOff": "L’inscription est actuellement désactivée.",
+    "acc.err.table": "La table user_data est manquante. Exécute supabase/schema.sql.",
+    "acc.err.offline": "Pas de connexion au serveur. Es-tu en ligne ?",
+    "acc.err.other": "Cela n’a pas fonctionné.",
+    "acc.err.otherMsg": "Cela n’a pas fonctionné : {msg}"
+  },
+
+  it: {
+    "lang.current": "Lingua: italiano",
+    "lang.change": "Cambia lingua",
+    "lang.ja": "Giapponese",
+    "lang.zh-Hant": "Cinese",
+    "lang.ko": "Coreano",
+
+    "start.title": "Fokus – Timer Pomodoro",
+    "start.tagline": "Il timer Pomodoro con statistiche – e la saggezza degli antichi monaci.",
+    "start.lead": "Fokus ti aiuta a studiare con concentrazione: lavori 25 minuti di fila e poi fai una breve pausa. Dopo quattro round arriva una pausa più lunga. Così resisti più a lungo senza esaurirti.",
+    "start.f1": "Timer con le tue durate e un obiettivo giornaliero",
+    "start.f2": "Attività, note e progetti",
+    "start.f3": "Statistiche: quanto studi al giorno e per materia",
+    "start.open": "Apri il timer",
+    "start.note": "Gratis, senza registrazione. I tuoi dati restano nel tuo browser.",
+    "start.quote": "Citazione",
+    "start.next": "Citazione successiva",
+    "start.portrait": "Ritratto di {name}",
+    "start.footer": "Immagini: Wikimedia Commons, pubblico dominio.",
+
+    "menu.open": "Apri il menu",
+    "nav.timer": "Timer",
+    "nav.todo": "Attività",
+    "nav.notes": "Note",
+    "nav.projects": "Progetti",
+    "nav.stats": "Statistiche",
+    "nav.quotes": "Citazioni",
+    "side.layout": "Disponi i riquadri",
+    "side.menu": "Personalizza il menu",
+    "side.home": "Torna alla home",
+
+    "doc.title": "Fokus – Pomodoro",
+    "top.desc": "Area di lavoro Pomodoro",
+    "top.adjust": "Modifica riquadri",
+    "top.adjustTitle": "Sposta i riquadri e cambiane la dimensione",
+    "top.done": "✓ Fatto",
+    "card.timer": "Timer",
+    "card.settings": "Imposta le durate",
+    "card.today": "Oggi",
+    "card.quote": "Per concentrarsi",
+    "mode.focus": "Focus",
+    "mode.short": "Pausa breve",
+    "mode.long": "Pausa lunga",
+    "mode.focusText": "È ora di concentrarsi",
+    "btn.start": "Avvia",
+    "btn.pause": "Pausa",
+    "btn.resume": "Riprendi",
+    "btn.reset": "Reset",
+    "btn.skip": "Salta",
+    "btn.add": "Aggiungi",
+    "btn.delete": "Elimina",
+    "btn.reset2": "Reimposta",
+    "btn.done": "Fatto",
+    "subject.label": "Materia / argomento:",
+    "subject.ph": "p. es. Modulo 101, Matematica, Fisica",
+    "subject.none": "Nessuna materia",
+    "preset.classic": "Classico",
+    "preset.deep": "Deep Work",
+    "preset.short": "Breve",
+    "step.rounds": "Round fino alla pausa lunga",
+    "step.less": "meno",
+    "step.more": "più",
+    "step.min": "Minuti",
+    "step.sec": "Secondi",
+    "toggle.seconds": "Mostra i secondi",
+    "toggle.sound": "Suono alla fine",
+    "cycle": "Sequenza: {r}× {f} di focus con {s} di pausa in mezzo, poi {l} di pausa lunga.",
+    "dur.min": "{n} min",
+    "dur.sec": "{n} sec",
+    "today.min": "min di focus",
+    "today.sessions": "Sessioni",
+    "today.streak": "giorni di fila",
+    "today.goal": "Obiettivo giornaliero",
+    "today.goalLabel": "Obiettivo:",
+
+    "todo.title": "Attività",
+    "todo.ph": "Nuova attività…",
+    "todo.due": "Scadenza (facoltativa)",
+    "todo.clear": "Rimuovi completate",
+    "todo.empty": "Ancora nessuna attività. Aggiungi la prima qui sopra.",
+    "todo.emptyShort": "Ancora nessuna attività.",
+    "due.title": "Scadenza",
+    "due.today": "oggi",
+    "due.tomorrow": "domani",
+    "due.in": "tra {n} giorni",
+    "due.yesterday": "scaduta da ieri",
+    "due.over": "scaduta da {n} giorni",
+
+    "notes.folders": "Cartelle",
+    "notes.addFolder": "+ Nuova cartella",
+    "notes.saved": "Salvato automaticamente.",
+    "notes.saveErr": "⚠ Impossibile salvare – probabilmente le immagini sono troppo grandi.",
+    "notes.defaultName": "Generale",
+    "folder.delete": "Elimina cartella",
+    "folder.min": "Deve rimanere almeno una cartella.",
+    "folder.confirm": "Eliminare la cartella «{name}» con tutte le note?",
+    "folder.prompt": "Nome della nuova cartella (p. es. una materia):",
+    "ed.bold": "Grassetto",
+    "ed.boldKey": "G",
+    "ed.italic": "Corsivo",
+    "ed.italicKey": "C",
+    "ed.underline": "Sottolineato",
+    "ed.heading": "Titolo",
+    "ed.list": "Elenco puntato",
+    "ed.listText": "Elenco",
+    "ed.image": "Inserisci immagine",
+    "ed.imageText": "Immagine",
+
+    "proj.title": "Progetti",
+    "proj.add": "+ Nuovo progetto",
+    "proj.todo": "Attività",
+    "proj.notes": "Note",
+    "proj.delete": "Elimina progetto",
+    "proj.min": "Deve rimanere almeno un progetto.",
+    "proj.confirm": "Eliminare il progetto «{name}» con attività e note?",
+    "proj.prompt": "Nome del nuovo progetto:",
+    "proj.defaultName": "Il mio progetto",
+
+    "stats.overview": "Panoramica",
+    "stats.chart": "Ultimi 7 giorni (minuti)",
+    "stats.subjects": "Per materia",
+    "stats.history": "Ultime sessioni",
+    "stats.today": "Minuti oggi",
+    "stats.week": "Minuti questa settimana",
+    "stats.streak": "Giorni di fila",
+    "stats.total": "Sessioni di focus totali",
+    "stats.noData": "Ancora nessun dato. Avvia la tua prima sessione!",
+    "stats.nothing": "Ancora niente.",
+    "stats.clear": "Elimina tutti i dati",
+    "stats.confirm": "Eliminare davvero tutte le statistiche?",
+
+    "q.wrap": "«{t}»",
+    "q.tabGeneral": "Generali",
+    "q.tabMonks": "Monaci",
+    "q.tabRevo": "Rivoluzionari",
+    "q.next": "Nuova citazione",
+    "q.all": "Tutte le citazioni",
+    "q.allMonks": "Tutte le citazioni dei monaci",
+    "q.allRevo": "Tutte le citazioni dei rivoluzionari",
+    "q.ownPh": "La tua citazione…",
+    "q.authorPh": "Autore (facoltativo)",
+    "q.selection": "Selezione",
+    "q.favs": "★ Preferiti",
+    "q.shuffle": "Nuova selezione",
+    "q.fav": "Preferito",
+    "q.delOwn": "Elimina la tua citazione",
+    "q.noFavs": "Ancora nessun preferito. Tocca la stella accanto a una citazione.",
+    "q.unknown": "Sconosciuto",
+    "q.attr": "attribuita",
+    "q.para": "parafrasata",
+    "q.last": "ultime parole",
+    "q.farewell": "poesia d’addio",
+
+    "menuEdit.title": "Personalizza il menu",
+    "menuEdit.hint": "Spuntato = visibile nel menu. Con le frecce cambi l’ordine.",
+    "menuEdit.up": "su",
+    "menuEdit.down": "giù",
+
+    "layout.barTitle": "Modifica layout:",
+    "layout.barText": "Trascina i riquadri per spostarli, trascina bordi e angoli per la dimensione.",
+    "layout.field": "Riquadro",
+    "layout.auto": "Auto",
+    "layout.badge": "{w}/12 colonne · altezza: {h}",
+    "layout.dragHold": "Tieni premuto e trascina per spostare",
+    "layout.posGroup": "Sposta la posizione nel layout",
+    "layout.pos": "Pos.:",
+    "layout.movePrev": "Sposta a sinistra / in alto",
+    "layout.moveNext": "Sposta a destra / in basso",
+    "layout.back": "Indietro",
+    "layout.forward": "Avanti",
+    "layout.widthGroup": "Larghezza in colonne (griglia da 12)",
+    "layout.width": "Larghezza:",
+    "layout.narrower": "Più stretto (−1 colonna)",
+    "layout.third": "1/3 di larghezza",
+    "layout.half": "1/2 larghezza (predefinita)",
+    "layout.twoThirds": "2/3 di larghezza",
+    "layout.full": "Larghezza piena (100%)",
+    "layout.fullText": "Piena",
+    "layout.wider": "Più largo (+1 colonna)",
+    "layout.heightGroup": "Regola l’altezza",
+    "layout.height": "Altezza:",
+    "layout.lower": "Riduci l’altezza (−40px)",
+    "layout.autoHeight": "Altezza automatica (adattata al contenuto)",
+    "layout.higher": "Aumenta l’altezza (+40px)",
+    "layout.grip": "Trascina: ridimensiona · Doppio clic: altezza automatica",
+    "layout.dragFree": "Afferra il riquadro e trascinalo liberamente",
+    "layout.autoH": "Altezza auto",
+    "layout.autoHTitle": "Adatta automaticamente l’altezza al contenuto",
+    "layout.edge.n": "Trascina il bordo superiore",
+    "layout.edge.s": "Trascina il bordo inferiore",
+    "layout.edge.w": "Trascina il bordo sinistro",
+    "layout.edge.e": "Trascina il bordo destro",
+    "layout.edge.nw": "Trascina l’angolo in alto a sinistra",
+    "layout.edge.ne": "Trascina l’angolo in alto a destra",
+    "layout.edge.sw": "Trascina l’angolo in basso a sinistra",
+    "layout.edge.se": "Trascina l’angolo in basso a destra",
+    "layout.edgeHint": "{edge} · Doppio clic: altezza automatica",
+    "zen.label": "Solo timer",
+    "zen.title": "Mostra solo il timer a grandezza piena (Esc per uscire)",
+    "zen.exit": "Esci (Esc)",
+    "zen.exitAria": "Esci dalla vista solo timer",
+
+    "acc.title": "Account",
+    "acc.intro": "Con un account, impostazioni, note, attività, progetti e statistiche vengono salvati e sincronizzati tra i tuoi dispositivi.",
+    "acc.email": "E-mail",
+    "acc.password": "Password",
+    "acc.signUp": "Registrati",
+    "acc.signIn": "Accedi",
+    "acc.cancel": "Annulla",
+    "acc.signedInAs": "Accesso effettuato come",
+    "acc.info": "I tuoi dati vengono salvati automaticamente. Dopo la disconnessione restano su questo dispositivo, ma non vengono più sincronizzati.",
+    "acc.close": "Chiudi",
+    "acc.signOut": "Esci",
+    "acc.btnTitle": "Accedi e sincronizza i tuoi dati tra i dispositivi",
+    "acc.btnTitleIn": "Accesso effettuato come {email}",
+    "acc.btnAriaIn": "Account: {email}",
+    "acc.signingIn": "Accesso in corso …",
+    "acc.creating": "Creazione dell’account …",
+    "acc.almost": "Quasi fatto: conferma il tuo indirizzo e-mail tramite il link nella mail, poi accedi qui.",
+    "acc.signedOut": "Disconnesso. I tuoi dati restano su questo dispositivo.",
+    "acc.err.credentials": "E-mail o password errata.",
+    "acc.err.notConfirmed": "Conferma prima il tuo indirizzo e-mail tramite il link nella mail.",
+    "acc.err.exists": "Esiste già un account con questo indirizzo e-mail. Accedi.",
+    "acc.err.weak": "La password è troppo debole (almeno 6 caratteri).",
+    "acc.err.invalidEmail": "Questo indirizzo e-mail non è valido.",
+    "acc.err.validation": "Controlla e-mail e password.",
+    "acc.err.emailRate": "Troppe e-mail in poco tempo. Riprova più tardi.",
+    "acc.err.rate": "Troppi tentativi. Attendi un momento.",
+    "acc.err.signupOff": "La registrazione è al momento disattivata.",
+    "acc.err.table": "Manca la tabella user_data. Esegui supabase/schema.sql.",
+    "acc.err.offline": "Nessuna connessione al server. Sei online?",
+    "acc.err.other": "Non ha funzionato.",
+    "acc.err.otherMsg": "Non ha funzionato: {msg}"
+  },
+
+  hu: {
+    "lang.current": "Nyelv: magyar",
+    "lang.change": "Nyelv váltása",
+    "lang.ja": "Japán",
+    "lang.zh-Hant": "Kínai",
+    "lang.ko": "Koreai",
+
+    "start.title": "Fokus – Pomodoro időzítő",
+    "start.tagline": "Pomodoro időzítő statisztikával – és régi szerzetesek bölcsességével.",
+    "start.lead": "A Fokus segít koncentráltan tanulni: 25 percig egyhuzamban dolgozol, aztán tartasz egy rövid szünetet. Négy kör után hosszabb szünet jár. Így tovább bírod kiégés nélkül.",
+    "start.f1": "Időzítő saját időtartamokkal és napi céllal",
+    "start.f2": "Teendők, jegyzetek és projektek",
+    "start.f3": "Statisztika: mennyit tanulsz naponta és tantárgyanként",
+    "start.open": "Időzítő megnyitása",
+    "start.note": "Ingyenes, regisztráció nélkül. Az adataid a böngésződben maradnak.",
+    "start.quote": "Idézet",
+    "start.next": "Következő idézet",
+    "start.portrait": "{name} portréja",
+    "start.footer": "Képek: Wikimedia Commons, közkincs.",
+
+    "menu.open": "Menü megnyitása",
+    "nav.timer": "Időzítő",
+    "nav.todo": "Teendők",
+    "nav.notes": "Jegyzetek",
+    "nav.projects": "Projektek",
+    "nav.stats": "Statisztika",
+    "nav.quotes": "Idézetek",
+    "side.layout": "Mezők elrendezése",
+    "side.menu": "Menü testreszabása",
+    "side.home": "Vissza a kezdőlapra",
+
+    "doc.title": "Fokus – Pomodoro",
+    "top.desc": "Pomodoro munkaterület",
+    "top.adjust": "Mezők igazítása",
+    "top.adjustTitle": "Mezők mozgatása és átméretezése",
+    "top.done": "✓ Kész",
+    "card.timer": "Időzítő",
+    "card.settings": "Időtartamok beállítása",
+    "card.today": "Ma",
+    "card.quote": "A fókuszhoz",
+    "mode.focus": "Fókusz",
+    "mode.short": "Rövid szünet",
+    "mode.long": "Hosszú szünet",
+    "mode.focusText": "Ideje fókuszálni",
+    "btn.start": "Indítás",
+    "btn.pause": "Szünet",
+    "btn.resume": "Folytatás",
+    "btn.reset": "Reset",
+    "btn.skip": "Kihagyás",
+    "btn.add": "Hozzáadás",
+    "btn.delete": "Törlés",
+    "btn.reset2": "Visszaállítás",
+    "btn.done": "Kész",
+    "subject.label": "Tantárgy / téma:",
+    "subject.ph": "pl. 101-es modul, matek, fizika",
+    "subject.none": "Tantárgy nélkül",
+    "preset.classic": "Klasszikus",
+    "preset.deep": "Deep Work",
+    "preset.short": "Rövid",
+    "step.rounds": "Körök a hosszú szünetig",
+    "step.less": "kevesebb",
+    "step.more": "több",
+    "step.min": "Perc",
+    "step.sec": "Másodperc",
+    "toggle.seconds": "Másodpercek mutatása",
+    "toggle.sound": "Hang a végén",
+    "cycle": "Menet: {r}× {f} fókusz, közben {s} szünet, utána {l} hosszú szünet.",
+    "dur.min": "{n} perc",
+    "dur.sec": "{n} mp",
+    "today.min": "perc fókusz",
+    "today.sessions": "Szakasz",
+    "today.streak": "napos sorozat",
+    "today.goal": "Napi cél",
+    "today.goalLabel": "Cél:",
+
+    "todo.title": "Teendők",
+    "todo.ph": "Új feladat…",
+    "todo.due": "Határidő (nem kötelező)",
+    "todo.clear": "Elvégzettek törlése",
+    "todo.empty": "Még nincs feladat. Írd be fent az elsőt.",
+    "todo.emptyShort": "Még nincs feladat.",
+    "due.title": "Határidő",
+    "due.today": "ma",
+    "due.tomorrow": "holnap",
+    "due.in": "{n} nap múlva",
+    "due.yesterday": "tegnap óta lejárt",
+    "due.over": "{n} napja lejárt",
+
+    "notes.folders": "Mappák",
+    "notes.addFolder": "+ Új mappa",
+    "notes.saved": "Automatikusan mentve.",
+    "notes.saveErr": "⚠ Nem sikerült menteni – a képek valószínűleg túl nagyok.",
+    "notes.defaultName": "Általános",
+    "folder.delete": "Mappa törlése",
+    "folder.min": "Legalább egy mappának maradnia kell.",
+    "folder.confirm": "Törlöd a(z) „{name}” mappát az összes jegyzettel együtt?",
+    "folder.prompt": "Az új mappa neve (pl. egy tantárgy):",
+    "ed.bold": "Félkövér",
+    "ed.boldKey": "F",
+    "ed.italic": "Dőlt",
+    "ed.italicKey": "D",
+    "ed.underline": "Aláhúzott",
+    "ed.heading": "Címsor",
+    "ed.list": "Felsorolás",
+    "ed.listText": "Lista",
+    "ed.image": "Kép beszúrása",
+    "ed.imageText": "Kép",
+
+    "proj.title": "Projektek",
+    "proj.add": "+ Új projekt",
+    "proj.todo": "Teendők",
+    "proj.notes": "Jegyzetek",
+    "proj.delete": "Projekt törlése",
+    "proj.min": "Legalább egy projektnek maradnia kell.",
+    "proj.confirm": "Törlöd a(z) „{name}” projektet a teendőkkel és jegyzetekkel együtt?",
+    "proj.prompt": "Az új projekt neve:",
+    "proj.defaultName": "Saját projekt",
+
+    "stats.overview": "Áttekintés",
+    "stats.chart": "Utolsó 7 nap (perc)",
+    "stats.subjects": "Tantárgyanként",
+    "stats.history": "Legutóbbi szakaszok",
+    "stats.today": "Perc ma",
+    "stats.week": "Perc ezen a héten",
+    "stats.streak": "Napos sorozat",
+    "stats.total": "Fókuszszakaszok összesen",
+    "stats.noData": "Még nincs adat. Indítsd el az első szakaszt!",
+    "stats.nothing": "Még semmi.",
+    "stats.clear": "Összes adat törlése",
+    "stats.confirm": "Biztosan törlöd az összes statisztikai adatot?",
+
+    "q.wrap": "„{t}”",
+    "q.tabGeneral": "Általános",
+    "q.tabMonks": "Szerzetesek",
+    "q.tabRevo": "Forradalmárok",
+    "q.next": "Új idézet",
+    "q.all": "Összes idézet",
+    "q.allMonks": "Összes szerzetesidézet",
+    "q.allRevo": "Összes forradalmáridézet",
+    "q.ownPh": "Saját idézet…",
+    "q.authorPh": "Szerző (nem kötelező)",
+    "q.selection": "Válogatás",
+    "q.favs": "★ Kedvencek",
+    "q.shuffle": "Új válogatás",
+    "q.fav": "Kedvenc",
+    "q.delOwn": "Saját idézet törlése",
+    "q.noFavs": "Még nincsenek kedvencek. Koppints a csillagra egy idézet mellett.",
+    "q.unknown": "Ismeretlen",
+    "q.attr": "neki tulajdonítják",
+    "q.para": "szabadon",
+    "q.last": "utolsó szavai",
+    "q.farewell": "búcsúvers",
+
+    "menuEdit.title": "Menü testreszabása",
+    "menuEdit.hint": "Bejelölve = látható a menüben. A nyilakkal változtathatod a sorrendet.",
+    "menuEdit.up": "feljebb",
+    "menuEdit.down": "lejjebb",
+
+    "layout.barTitle": "Elrendezés szerkesztése:",
+    "layout.barText": "Húzd a mezőket a mozgatáshoz, a széleket és sarkokat az átméretezéshez.",
+    "layout.field": "Mező",
+    "layout.auto": "Auto",
+    "layout.badge": "{w}/12 oszlop · magasság: {h}",
+    "layout.dragHold": "Nyomd le, tartsd és húzd a mozgatáshoz",
+    "layout.posGroup": "Pozíció módosítása az elrendezésben",
+    "layout.pos": "Poz.:",
+    "layout.movePrev": "Mozgatás balra / fel",
+    "layout.moveNext": "Mozgatás jobbra / le",
+    "layout.back": "Vissza",
+    "layout.forward": "Előre",
+    "layout.widthGroup": "Szélesség oszlopokban (12-es rács)",
+    "layout.width": "Szélesség:",
+    "layout.narrower": "Keskenyebb (−1 oszlop)",
+    "layout.third": "1/3 szélesség",
+    "layout.half": "1/2 szélesség (alapértelmezett)",
+    "layout.twoThirds": "2/3 szélesség",
+    "layout.full": "Teljes szélesség (100%)",
+    "layout.fullText": "Teljes",
+    "layout.wider": "Szélesebb (+1 oszlop)",
+    "layout.heightGroup": "Magasság igazítása",
+    "layout.height": "Magasság:",
+    "layout.lower": "Magasság csökkentése (−40px)",
+    "layout.autoHeight": "Automatikus magasság (a tartalomhoz igazodik)",
+    "layout.higher": "Magasság növelése (+40px)",
+    "layout.grip": "Húzás: átméretezés · Dupla kattintás: automatikus magasság",
+    "layout.dragFree": "Fogd meg a mezőt, és húzd szabadon",
+    "layout.autoH": "Auto magasság",
+    "layout.autoHTitle": "Magasság automatikus igazítása a tartalomhoz",
+    "layout.edge.n": "Felső él húzása",
+    "layout.edge.s": "Alsó él húzása",
+    "layout.edge.w": "Bal él húzása",
+    "layout.edge.e": "Jobb él húzása",
+    "layout.edge.nw": "Bal felső sarok húzása",
+    "layout.edge.ne": "Jobb felső sarok húzása",
+    "layout.edge.sw": "Bal alsó sarok húzása",
+    "layout.edge.se": "Jobb alsó sarok húzása",
+    "layout.edgeHint": "{edge} · Dupla kattintás: automatikus magasság",
+    "zen.label": "Csak időzítő",
+    "zen.title": "Csak az időzítő nagyban (kilépés: Esc)",
+    "zen.exit": "Kilépés (Esc)",
+    "zen.exitAria": "Kilépés a csak időzítő nézetből",
+
+    "acc.title": "Fiók",
+    "acc.intro": "Fiókkal a beállításaid, jegyzeteid, teendőid, projektjeid és statisztikáid mentésre kerülnek, és szinkronizálódnak az eszközeid között.",
+    "acc.email": "E-mail",
+    "acc.password": "Jelszó",
+    "acc.signUp": "Regisztráció",
+    "acc.signIn": "Bejelentkezés",
+    "acc.cancel": "Mégse",
+    "acc.signedInAs": "Bejelentkezve mint",
+    "acc.info": "Az adataid automatikusan mentésre kerülnek. Kijelentkezés után ezen az eszközön maradnak, de már nem szinkronizálódnak.",
+    "acc.close": "Bezárás",
+    "acc.signOut": "Kijelentkezés",
+    "acc.btnTitle": "Jelentkezz be, és szinkronizáld az adataidat az eszközeid között",
+    "acc.btnTitleIn": "Bejelentkezve mint {email}",
+    "acc.btnAriaIn": "Fiók: {email}",
+    "acc.signingIn": "Bejelentkezés …",
+    "acc.creating": "Fiók létrehozása …",
+    "acc.almost": "Majdnem kész: erősítsd meg az e-mail-címedet a levélben kapott linkkel, aztán jelentkezz be itt.",
+    "acc.signedOut": "Kijelentkeztél. Az adataid ezen az eszközön maradnak.",
+    "acc.err.credentials": "Hibás e-mail-cím vagy jelszó.",
+    "acc.err.notConfirmed": "Előbb erősítsd meg az e-mail-címedet a levélben kapott linkkel.",
+    "acc.err.exists": "Ehhez az e-mail-címhez már tartozik fiók. Jelentkezz be.",
+    "acc.err.weak": "A jelszó túl gyenge (legalább 6 karakter).",
+    "acc.err.invalidEmail": "Ez az e-mail-cím érvénytelen.",
+    "acc.err.validation": "Ellenőrizd az e-mail-címet és a jelszót.",
+    "acc.err.emailRate": "Túl sok e-mail rövid idő alatt. Próbáld újra később.",
+    "acc.err.rate": "Túl sok próbálkozás. Várj egy kicsit.",
+    "acc.err.signupOff": "A regisztráció jelenleg ki van kapcsolva.",
+    "acc.err.table": "Hiányzik a user_data tábla. Futtasd a supabase/schema.sql fájlt.",
+    "acc.err.offline": "Nincs kapcsolat a szerverrel. Online vagy?",
+    "acc.err.other": "Ez nem sikerült.",
+    "acc.err.otherMsg": "Ez nem sikerült: {msg}"
   }
 };
 
 const LANGS = Object.keys(I18N);
-const LOCALES = { de: "de-CH", en: "en-GB" };
+// Namen in der jeweiligen Sprache selbst, damit man seine Sprache immer findet
+const LANG_NAMES = { de: "Deutsch", en: "English", fr: "Français", it: "Italiano", hu: "Magyar" };
+const LOCALES = { de: "de-CH", en: "en-GB", fr: "fr-CH", it: "it-CH", hu: "hu-HU" };
 
 let lang = (() => {
   try {
     const saved = JSON.parse(localStorage.getItem("pomo_lang"));
     if (LANGS.includes(saved)) return saved;
   } catch {}
-  return (navigator.language || "de").toLowerCase().startsWith("de") ? "de" : "en";
+  const browser = (navigator.language || "de").toLowerCase().slice(0, 2);
+  return LANGS.includes(browser) ? browser : "en";
 })();
 
-// Übersetzung holen; fehlt sie, gilt Deutsch. {name}-Platzhalter werden ersetzt.
+// Übersetzung holen; fehlt sie, gilt Englisch, dann Deutsch. {name}-Platzhalter werden ersetzt.
 function t(key, vars) {
-  const s = I18N[lang][key] ?? I18N.de[key] ?? key;
+  const s = I18N[lang][key] ?? I18N.en[key] ?? I18N.de[key] ?? key;
   return vars ? s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m)) : s;
 }
 
-// Wert in der aktuellen Sprache: { de: "...", en: "..." } oder einfacher Text
-const L = v => (v && typeof v === "object") ? (v[lang] ?? v.de) : v;
+// Wert in der aktuellen Sprache: { de: "...", en: "...", … } oder einfacher Text
+const L = v => (v && typeof v === "object") ? (v[lang] ?? v.en ?? v.de) : v;
 
 const locale = () => LOCALES[lang];
 
@@ -522,16 +1224,79 @@ function applyI18n(root = document) {
   root.querySelectorAll("[data-i18n-title]").forEach(el => { el.title = t(el.dataset.i18nTitle); });
   root.querySelectorAll("[data-i18n-aria]").forEach(el => { el.setAttribute("aria-label", t(el.dataset.i18nAria)); });
   root.querySelectorAll("[data-i18n-ph]").forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+  root.querySelectorAll("[data-lang-name]").forEach(el => { el.textContent = LANG_NAMES[lang]; });
   if (root === document) document.documentElement.lang = lang;
 }
 
 // Sprache wechseln: speichern, statische Texte tauschen und "langchange" melden (für dynamische Inhalte)
 function setLang(next) {
-  if (!LANGS.includes(next)) return;
+  if (!LANGS.includes(next) || next === lang) return;
   lang = next;
   try { localStorage.setItem("pomo_lang", JSON.stringify(lang)); } catch {}
   applyI18n();
   document.dispatchEvent(new CustomEvent("langchange", { detail: lang }));
 }
 
-const nextLang = () => LANGS[(LANGS.indexOf(lang) + 1) % LANGS.length];
+/* Sprachmenü: klappt beim Knopf auf (unterhalb, sonst oberhalb), schliesst bei Auswahl,
+   Klick daneben oder Esc. Pfeiltasten wechseln zwischen den Sprachen. */
+let langMenu = null;
+
+function closeLangMenu() {
+  if (!langMenu) return;
+  const { el, anchor, onDoc, onKey } = langMenu;
+  langMenu = null;
+  el.remove();
+  document.removeEventListener("pointerdown", onDoc, true);
+  document.removeEventListener("keydown", onKey, true);
+  window.removeEventListener("resize", closeLangMenu);
+  anchor.setAttribute("aria-expanded", "false");
+  anchor.closest(".sidebar")?.classList.remove("menu-open");
+}
+
+function openLangMenu(anchor) {
+  if (langMenu) { const same = langMenu.anchor === anchor; closeLangMenu(); if (same) return; }
+
+  const el = document.createElement("ul");
+  el.className = "lang-menu";
+  el.setAttribute("role", "menu");
+  el.setAttribute("aria-label", t("lang.change"));
+  el.innerHTML = LANGS.map(code => `
+    <li role="none"><button type="button" role="menuitemradio" lang="${code}" data-lang="${code}"
+      aria-checked="${code === lang}">${LANG_NAMES[code]}</button></li>`).join("");
+  document.body.appendChild(el);
+
+  const items = [...el.querySelectorAll("button")];
+  el.addEventListener("click", e => {
+    const b = e.target.closest("[data-lang]");
+    if (!b) return;
+    closeLangMenu();
+    setLang(b.dataset.lang);
+    anchor.focus();
+  });
+
+  // Seitenmenü bleibt aufgeklappt, solange die Auswahl offen ist
+  anchor.closest(".sidebar")?.classList.add("menu-open");
+
+  const r = anchor.getBoundingClientRect();
+  const m = el.getBoundingClientRect();
+  const gap = 6, pad = 8;
+  const below = r.bottom + gap + m.height <= innerHeight - pad;
+  el.style.top = (below ? r.bottom + gap : Math.max(pad, r.top - gap - m.height)) + "px";
+  el.style.left = Math.min(Math.max(pad, r.left), innerWidth - m.width - pad) + "px";
+
+  const onDoc = e => { if (!el.contains(e.target) && !anchor.contains(e.target)) closeLangMenu(); };
+  const onKey = e => {
+    const i = items.indexOf(document.activeElement);
+    if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); closeLangMenu(); anchor.focus(); }
+    else if (e.key === "ArrowDown") { e.preventDefault(); items[(i + 1) % items.length].focus(); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+    else if (e.key === "Tab") closeLangMenu();
+  };
+  document.addEventListener("pointerdown", onDoc, true);
+  document.addEventListener("keydown", onKey, true);
+  window.addEventListener("resize", closeLangMenu);
+
+  langMenu = { el, anchor, onDoc, onKey };
+  anchor.setAttribute("aria-expanded", "true");
+  (items.find(b => b.dataset.lang === lang) || items[0]).focus();
+}

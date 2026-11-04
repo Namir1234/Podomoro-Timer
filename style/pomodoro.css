@@ -31,11 +31,11 @@ body.pause { --accent: var(--break); }
   display: flex; flex-direction: column;
   transition: width .22s ease;
 }
-.sidebar:hover { width: 230px; box-shadow: 6px 0 28px rgba(0,0,0,.45); }
+.sidebar:hover, .sidebar.menu-open { width: 230px; box-shadow: 6px 0 28px rgba(0,0,0,.45); }
 
 /* Beschriftungen nur sichtbar, wenn die Leiste aufgeklappt ist */
 .sidebar .label { opacity: 0; transition: opacity .15s ease; }
-.sidebar:hover .label { opacity: 1; }
+.sidebar:hover .label, .sidebar.menu-open .label { opacity: 1; }
 
 h1 { font-size: 1.35rem; font-weight: 700; letter-spacing: 0; padding: 0 14px 20px; display: flex; align-items: center; }
 

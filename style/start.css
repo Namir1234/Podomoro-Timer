@@ -84,4 +84,7 @@ footer { text-align: center; color: var(--muted); font-size: .8rem; margin-top: 
   color: var(--muted); font: inherit; font-size: .8rem; font-weight: 600;
   transition: color .15s ease, border-color .15s ease;
 }
-.lang-switch:hover { color: var(--text); border-color: var(--accent); }
+.lang-switch { display: flex; align-items: center; gap: 6px; }
+.lang-switch .icon { width: 14px; height: 14px; opacity: .7; }
+.lang-switch .caret { font-size: .7rem; opacity: .7; }
+.lang-switch:hover, .lang-switch[aria-expanded="true"] { color: var(--text); border-color: var(--accent); }

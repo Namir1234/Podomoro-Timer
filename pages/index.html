@@ -8,11 +8,12 @@
 <meta name="theme-color" content="#1b2119">
 <link rel="apple-touch-icon" href="../img/icons/apple-touch-icon.png">
 <link rel="stylesheet" href="../style/fonts/inter.css">
-<link rel="stylesheet" href="../style/start.css?v=4">
+<link rel="stylesheet" href="../style/start.css?v=5">
+<link rel="stylesheet" href="../style/lang-menu.css?v=1">
 </head>
 <body>
 
-<button class="lang-switch" id="langSwitch" type="button" data-i18n="start.switch" data-i18n-aria="start.switchAria">English</button>
+<button class="lang-switch" id="langSwitch" type="button" aria-haspopup="menu" aria-expanded="false" title="Sprache wechseln" data-i18n-title="lang.change"><img class="icon" src="../img/language.svg" alt=""><span data-lang-name>Deutsch</span><span class="caret" aria-hidden="true">▾</span></button>
 
 <main class="layout">
 
@@ -50,29 +51,29 @@
 
 <footer data-i18n="start.footer">Bilder: Wikimedia Commons, gemeinfrei.</footer>
 
-<script src="../js/i18n.js?v=1"></script>
+<script src="../js/i18n.js?v=2"></script>
 <script>
   // Mönchs-Zitate: es wird immer nur eines gezeigt
   const MONKS = [
     { img: "monk-ikkyu.jpg", lang: "ja",
       text: "門松は冥土の旅の一里塚　めでたくもありめでたくもなし",
       trans: { de: "«Die Neujahrskiefer am Tor ist ein Meilenstein auf der Reise ins Totenreich – erfreulich und auch wieder nicht.»",
-             en: "“The New Year’s pine at the gate is a milestone on the journey to the land of the dead – a cause for joy, and yet not.”" },
+             en: "“The New Year’s pine at the gate is a milestone on the journey to the land of the dead – a cause for joy, and yet not.”", fr: "« Le pin du Nouvel An à la porte est une borne sur le chemin du pays des morts – une joie, et pourtant non. »", it: "«Il pino di Capodanno al portone è una pietra miliare sul viaggio verso il regno dei morti – motivo di gioia, eppure no.»", hu: "„Az újévi fenyő a kapuban mérföldkő a holtak birodalmába vezető úton – örömteli, és mégsem az.”" },
       cite: "一休宗純 (Ikkyū Sōjun)" },
     { img: "monk-linji.jpg", lang: "zh-Hant",
       text: "逢佛殺佛，逢祖殺祖。",
       trans: { de: "«Triffst du den Buddha, töte den Buddha; triffst du den Patriarchen, töte den Patriarchen.»",
-             en: "“If you meet the Buddha, kill the Buddha; if you meet the patriarch, kill the patriarch.”" },
+             en: "“If you meet the Buddha, kill the Buddha; if you meet the patriarch, kill the patriarch.”", fr: "« Si tu rencontres le Bouddha, tue le Bouddha ; si tu rencontres le patriarche, tue le patriarche. »", it: "«Se incontri il Buddha, uccidi il Buddha; se incontri il patriarca, uccidi il patriarca.»", hu: "„Ha találkozol a Buddhával, öld meg a Buddhát; ha találkozol a pátriárkával, öld meg a pátriárkát.”" },
       cite: "臨濟義玄 (Linji Yixuan)" },
     { img: "monk-yunmen.jpg", lang: "zh-Hant",
       text: "「如何是佛？」「乾屎橛。」",
       trans: { de: "«Was ist der Buddha?» – «Ein getrockneter Kotstab.»",
-             en: "“What is the Buddha?” – “A dried shit-stick.”" },
+             en: "“What is the Buddha?” – “A dried shit-stick.”", fr: "« Qu’est-ce que le Bouddha ? » – « Un bâton à merde séché. »", it: "«Che cos’è il Buddha?» – «Un bastoncino di sterco secco.»", hu: "„Mi a Buddha?” – „Egy kiszáradt szarbot.”" },
       cite: "雲門文偃 (Yunmen Wenyan)" },
     { img: "monk-zhaozhou.jpg", lang: "zh-Hant",
       text: "「喫粥了也未？」「喫粥了也。」「洗鉢盂去。」",
       trans: { de: "«Hast du den Reisbrei schon gegessen?» – «Ja.» – «Dann wasch deine Schale.»",
-             en: "“Have you eaten your rice porridge?” – “Yes.” – “Then wash your bowl.”" },
+             en: "“Have you eaten your rice porridge?” – “Yes.” – “Then wash your bowl.”", fr: "« As-tu mangé ta bouillie de riz ? » – « Oui. » – « Alors lave ton bol. »", it: "«Hai già mangiato la pappa di riso?» – «Sì.» – «Allora lava la tua ciotola.»", hu: "„Megetted már a rizskását?” – „Igen.” – „Akkor mosd el a táladat.”" },
       cite: "趙州從諗 (Zhaozhou Congshen)" }
   ];
 
@@ -94,7 +95,7 @@
     showQuote(current);
   });
 
-  document.getElementById("langSwitch").addEventListener("click", () => setLang(nextLang()));
+  document.getElementById("langSwitch").addEventListener("click", e => openLangMenu(e.currentTarget));
   document.addEventListener("langchange", () => showQuote(current));
 
   applyI18n();
