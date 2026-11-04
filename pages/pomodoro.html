@@ -3,13 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fokus – Pomodoro Timer</title>
+<title>Fokus: Pomodoro-Timer</title>
+<meta name="description" content="Pomodoro-Timer mit Statistik, To-dos, Notizen und Projekten.">
 <link rel="manifest" href="../manifest.json">
-<meta name="theme-color" content="#1b2119">
+<meta name="theme-color" content="#001b0d">
 <link rel="apple-touch-icon" href="../img/icons/apple-touch-icon.png">
-<link rel="stylesheet" href="../style/fonts/inter.css">
-<link rel="stylesheet" href="../style/pomodoro.css?v=18">
-<link rel="stylesheet" href="../style/lang-menu.css?v=1">
+<link rel="stylesheet" href="../style/fonts/hedgerow.css">
+<link rel="stylesheet" href="../style/pomodoro.css?v=19">
+<link rel="stylesheet" href="../style/lang-menu.css?v=2">
 </head>
 <body>
 
@@ -75,7 +76,7 @@
       </div>
 
       <div class="ring-wrap">
-        <svg class="ring" viewBox="0 0 260 260">
+        <svg class="ring" viewBox="0 0 260 260" aria-hidden="true">
           <circle class="bg" cx="130" cy="130" r="114"/>
           <circle class="fg" id="ringFg" cx="130" cy="130" r="114"/>
         </svg>
@@ -356,7 +357,7 @@
 <script src="../js/vendor/supabase.js"></script>
 <script src="../js/cloud-config.js"></script>
 <script src="../js/cloud.js"></script>
-<script src="../js/pomodoro.js?v=24"></script>
+<script src="../js/pomodoro.js?v=25"></script>
 <script>
   // Mobile Schublade: Hamburger-Menü öffnen/schliessen
   (() => {
