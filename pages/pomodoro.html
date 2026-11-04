@@ -10,8 +10,8 @@
 <link rel="apple-touch-icon" href="../img/icons/apple-touch-icon.png">
 <link rel="stylesheet" href="../style/fonts/inter.css">
 <link rel="stylesheet" href="../style/fonts/coral.css">
-<link rel="stylesheet" href="../style/pomodoro-original.css?v=1" data-design="original">
-<link rel="stylesheet" href="../style/pomodoro.css?v=21" data-design="coral">
+<link rel="stylesheet" href="../style/pomodoro-original.css?v=2" data-design="original">
+<link rel="stylesheet" href="../style/pomodoro.css?v=22" data-design="coral">
 <link rel="stylesheet" href="../style/lang-menu.css?v=3">
 <script src="../js/design-boot.js?v=2"></script>
 </head>
@@ -30,6 +30,7 @@
   <h1><img class="icon" src="../img/logo.svg" alt=""><span class="label">Fokus</span></h1>
   <nav>
     <button data-page="timer" class="active"><img class="icon" src="../img/timer.svg" alt=""><span class="label" data-i18n="nav.timer">Timer</span></button>
+    <button data-page="clocks"><img class="icon" src="../img/stopwatch.svg" alt=""><span class="label" data-i18n="nav.clocks">Uhren</span></button>
     <button data-page="todo"><img class="icon" src="../img/todo.svg" alt=""><span class="label" data-i18n="nav.todo">To-do</span></button>
     <button data-page="notes"><img class="icon" src="../img/notes.svg" alt=""><span class="label" data-i18n="nav.notes">Notizen</span></button>
     <button data-page="projects"><img class="icon" src="../img/projects.svg" alt=""><span class="label" data-i18n="nav.projects">Projekte</span></button>
@@ -142,6 +143,20 @@
         <blockquote id="tQuote"></blockquote>
         <cite id="tQuoteAuthor"></cite>
       </div>
+    </div><!-- /.free-canvas -->
+  </section>
+
+  <!-- ================= UHREN: eigene Timer und Stoppuhren ================= -->
+  <section id="clocks" class="page">
+    <div class="free-canvas" id="clocksCanvas">
+    <div class="card" data-card-id="clocks-main" data-title-key="clocks.title">
+      <h2 data-i18n="clocks.title">Timer &amp; Stoppuhren</h2>
+      <div class="clock-add">
+        <button class="btn" type="button" id="addClockTimer" data-i18n="clocks.addTimer">+ Timer</button>
+        <button class="btn secondary" type="button" id="addClockWatch" data-i18n="clocks.addWatch">+ Stoppuhr</button>
+      </div>
+      <ul class="clock-list" id="clockList"></ul>
+    </div>
     </div><!-- /.free-canvas -->
   </section>
 
@@ -371,11 +386,11 @@
   </div>
 </div>
 
-<script src="../js/i18n.js?v=3"></script>
+<script src="../js/i18n.js?v=4"></script>
 <script src="../js/vendor/supabase.js"></script>
 <script src="../js/cloud-config.js"></script>
 <script src="../js/cloud.js"></script>
-<script src="../js/pomodoro.js?v=29"></script>
+<script src="../js/pomodoro.js?v=30"></script>
 <script>
   // Mobile Schublade: Hamburger-Menü öffnen/schliessen
   (() => {

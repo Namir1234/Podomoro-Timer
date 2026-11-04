@@ -907,6 +907,134 @@ function showTimerQuote() {
 }
 
 /* ============================================================
+   UHREN: beliebig viele eigene Timer und Stoppuhren
+   Gespeichert in pomo_clocks: [{ id, type: "timer"|"watch", name, dur: Sekunden (nur Timer),
+     acc: bisher gelaufene ms, start: Zeitpunkt des Starts (ms) oder null, laps: [ms] (nur Stoppuhr) }]
+   Laufende Uhren merken sich nur den Startzeitpunkt → laufen auch nach dem Neuladen weiter.
+   ============================================================ */
+const CLOCK_MAX_SEC = 100 * 3600 - 1;
+const CLOCK_MAX_LAPS = 99;
+let clocks = load("pomo_clocks", []);
+if (!Array.isArray(clocks)) clocks = [];
+let clockTick = null;
+const saveClocks = () => save("pomo_clocks", clocks);
+
+const clockElapsed = c => c.acc + (c.start ? Date.now() - c.start : 0);
+const clockLeft = c => Math.max(0, c.dur * 1000 - clockElapsed(c));
+const clockIdle = c => !c.start && !c.acc;
+const clockDone = c => c.type === "timer" && !c.start && c.acc > 0 && clockLeft(c) <= 0;
+
+// 1:05:09 bzw. 05:09 – Stoppuhren zusätzlich mit Zehntelsekunden
+function fmtClock(ms, tenths) {
+  const total = tenths ? Math.floor(ms / 1000) : Math.ceil(ms / 1000);
+  const h = Math.floor(total / 3600), m = Math.floor(total / 60) % 60, s = total % 60;
+  const p = n => String(n).padStart(2, "0");
+  return (h ? h + ":" + p(m) : p(m)) + ":" + p(s) + (tenths ? "." + Math.floor(ms % 1000 / 100) : "");
+}
+
+function clockStartLabel(c) {
+  if (c.start) return t("btn.pause");
+  return clockIdle(c) || clockDone(c) ? t("btn.start") : t("btn.resume");
+}
+
+// Abgelaufene Timer anhalten (beim Laden ohne Ton)
+function clockCheckDone(silent) {
+  let hit = false;
+  clocks.forEach(c => {
+    if (c.type === "timer" && c.start && clockLeft(c) <= 0) {
+      c.acc = c.dur * 1000; c.start = null; hit = true;
+    }
+  });
+  if (!hit) return;
+  if (!silent) beep();
+  saveClocks();
+  renderClocks();
+}
+
+function paintClocks() {
+  clockCheckDone(false);
+  $("clockList").querySelectorAll("li[data-id]").forEach(li => {
+    const c = clocks.find(x => x.id === +li.dataset.id);
+    if (!c) return;
+    const el = li.querySelector(".clock-time");
+    if (el) el.textContent = c.type === "timer" ? fmtClock(clockLeft(c)) : fmtClock(clockElapsed(c), true);
+    const fill = li.querySelector(".clock-fill");
+    if (fill) fill.style.width = (c.dur ? 100 * clockLeft(c) / (c.dur * 1000) : 0) + "%";
+  });
+}
+
+function clockEnsureTick() {
+  const any = clocks.some(c => c.start);
+  if (any && !clockTick) clockTick = setInterval(paintClocks, 100);
+  if (!any && clockTick) { clearInterval(clockTick); clockTick = null; }
+}
+
+function renderClocks() {
+  $("clockList").innerHTML = clocks.length ? clocks.map(c => {
+    const timer = c.type === "timer";
+    const idle = clockIdle(c);
+    const h = Math.floor(c.dur / 3600), m = Math.floor(c.dur / 60) % 60, s = c.dur % 60;
+    const field = (f, v, label) => `<input class="clock-set-val" data-f="${f}" type="text" inputmode="numeric" maxlength="2" value="${String(v).padStart(2, "0")}" aria-label="${esc(t(label))}">`;
+    const laps = c.laps || [];
+    return `
+      <li class="clock-item ${timer ? "is-timer" : "is-watch"} ${c.start ? "running" : ""} ${clockDone(c) ? "done" : ""}" data-id="${c.id}">
+        <div class="clock-head">
+          <img class="icon" src="../img/${timer ? "timer" : "stopwatch"}.svg" alt="">
+          <input class="clock-name" type="text" maxlength="40" value="${esc(c.name)}" aria-label="${esc(t("clocks.name"))}">
+          <button class="todo-del clock-del" type="button" title="${esc(t("btn.delete"))}" aria-label="${esc(t("btn.delete"))}">✕</button>
+        </div>
+        ${timer && idle
+          ? `<div class="clock-set">${field("h", h, "clocks.h")}<span class="colon">:</span>${field("m", m, "clocks.m")}<span class="colon">:</span>${field("s", s, "clocks.s")}</div>`
+          : `<div class="clock-time"></div>`}
+        ${timer ? `<div class="clock-bar"><div class="clock-fill"></div></div>` : ""}
+        ${clockDone(c) ? `<p class="clock-msg">${esc(t("clocks.done"))}</p>` : ""}
+        <div class="controls">
+          <button class="btn clock-start" type="button" ${timer && !c.dur ? "disabled" : ""}>${esc(clockStartLabel(c))}</button>
+          ${!timer && c.start ? `<button class="btn secondary clock-lap" type="button" ${laps.length >= CLOCK_MAX_LAPS ? "disabled" : ""}>${esc(t("clocks.lap"))}</button>` : ""}
+          <button class="btn secondary clock-reset" type="button" ${idle ? "disabled" : ""}>${esc(t("btn.reset"))}</button>
+        </div>
+        ${laps.length ? `<ol class="clock-laps">${laps.map((ms, i) => `<li><span>${esc(t("clocks.lapN", { n: i + 1 }))}</span><span>${fmtClock(ms - (laps[i - 1] || 0), true)}</span><span>${fmtClock(ms, true)}</span></li>`).reverse().join("")}</ol>` : ""}
+      </li>`;
+  }).join("") : `<li class="empty">${esc(t("clocks.empty"))}</li>`;
+
+  $("clockList").querySelectorAll("li[data-id]").forEach(li => {
+    const c = clocks.find(x => x.id === +li.dataset.id);
+    const update = () => { saveClocks(); renderClocks(); };
+    li.querySelector(".clock-name").onchange = e => { c.name = e.target.value.trim() || c.name; e.target.value = c.name; saveClocks(); };
+    li.querySelector(".clock-del").onclick = () => { clocks = clocks.filter(x => x !== c); update(); };
+    li.querySelector(".clock-start").onclick = () => {
+      if (c.start) { c.acc = clockElapsed(c); c.start = null; }
+      else { if (clockDone(c)) c.acc = 0; c.start = Date.now(); }
+      update();
+    };
+    li.querySelector(".clock-reset").onclick = () => { c.acc = 0; c.start = null; c.laps = []; update(); };
+    const lap = li.querySelector(".clock-lap");
+    if (lap) lap.onclick = () => { (c.laps = c.laps || []).push(clockElapsed(c)); update(); };
+    li.querySelectorAll(".clock-set-val").forEach(inp => {
+      inp.onfocus = () => inp.select();
+      inp.onkeydown = e => { if (e.key === "Enter") inp.blur(); };
+      inp.onchange = () => {
+        const v = f => +li.querySelector(`[data-f="${f}"]`).value.replace(/\D/g, "") || 0;
+        c.dur = Math.min(CLOCK_MAX_SEC, v("h") * 3600 + Math.min(v("m"), 59) * 60 + Math.min(v("s"), 59));
+        update();
+      };
+    });
+  });
+  paintClocks();
+  clockEnsureTick();
+}
+
+function addClock(type) {
+  const n = clocks.filter(c => c.type === type).length + 1;
+  // Eindeutige ID, auch wenn zwei Uhren in derselben Millisekunde entstehen
+  const id = Math.max(Date.now(), ...clocks.map(c => c.id + 1));
+  clocks.push({ id, type, name: t(type === "timer" ? "clocks.timerName" : "clocks.watchName", { n }), dur: type === "timer" ? 300 : 0, acc: 0, start: null, laps: [] });
+  saveClocks(); renderClocks();
+}
+$("addClockTimer").onclick = () => addClock("timer");
+$("addClockWatch").onclick = () => addClock("watch");
+
+/* ============================================================
    MENÜ ANPASSEN: sichtbare Menüpunkte und Reihenfolge
    ============================================================ */
 const navEl = document.querySelector("nav");
@@ -2663,6 +2791,7 @@ document.addEventListener("langchange", () => {
   paintRevoQuote();
   renderRevoList();
   renderTodos();
+  renderClocks();
   renderFolders();
   stashProjEditor();
   renderProject();
@@ -2688,6 +2817,8 @@ renderMonkList();
 showRevoQuote();
 renderRevoList();
 renderTodos();
+clockCheckDone(true);
+renderClocks();
 renderFolders();
 loadEditor();
 renderProjectList();

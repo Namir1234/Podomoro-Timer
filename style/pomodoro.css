@@ -351,6 +351,31 @@ h2 .icon { width: 18px; height: 18px; margin-right: var(--space-xs); opacity: .8
 
 .quote-list .q .orig { display: block; color: var(--muted); font-style: italic; margin-top: var(--space-2xs); }
 
+/* ===== Uhren (eigene Timer und Stoppuhren) ===== */
+.clock-add { display: flex; flex-wrap: wrap; gap: var(--space-xs); margin-bottom: var(--space-md); }
+.clock-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--space-sm); }
+.clock-list > li.empty { grid-column: 1 / -1; color: var(--muted); }
+.clock-item { background: var(--inset); border: var(--rule-hair) solid var(--border); border-radius: var(--radius-stock); padding: var(--space-sm) var(--space-md) var(--space-md); }
+.clock-item.running { border-color: var(--accent); }
+.clock-item.done { border-color: var(--color-error); }
+.clock-head { display: flex; align-items: center; gap: var(--space-xs); }
+.clock-head .icon { width: 16px; height: 16px; opacity: .6; flex-shrink: 0; }
+.clock-name { flex: 1; min-width: 0; background: transparent; border-color: transparent; font-weight: 500; padding-left: var(--space-2xs); }
+.clock-time, .clock-set { font-family: var(--font-outlier); font-size: 2.6rem; letter-spacing: -.03em; font-variant-numeric: tabular-nums; line-height: 1.15; text-align: center; margin: var(--space-sm) 0 var(--space-xs); }
+.clock-set { display: flex; align-items: center; justify-content: center; gap: var(--space-3xs); }
+.clock-set .colon { color: var(--muted); }
+.clock-set-val { width: 2.1em; padding: 0 var(--space-3xs); text-align: center; font: inherit; }
+.clock-bar { height: 4px; background: var(--track); border-radius: 2px; overflow: hidden; }
+.clock-fill { height: 100%; background: var(--accent); width: 100%; }
+.clock-item.done .clock-time, .clock-msg { color: var(--color-error); }
+.clock-msg { text-align: center; font-size: var(--text-sm); font-weight: 500; margin-top: var(--space-xs); }
+.clock-item .controls { flex-wrap: wrap; }
+.clock-item .btn { padding: 0 var(--space-md); }
+.clock-item .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+.clock-laps { list-style: none; margin-top: var(--space-sm); max-height: 160px; overflow-y: auto; font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
+.clock-laps li { display: flex; justify-content: space-between; gap: var(--space-sm); padding: var(--space-3xs) 0; border-bottom: var(--rule-hair) solid var(--border); }
+.clock-laps li span:first-child { color: var(--muted); }
+
 /* ===== To-do ===== */
 .todo-add { display: flex; flex-wrap: wrap; gap: var(--space-xs); margin-bottom: var(--space-md); }
 .todo-add input { flex: 1; min-width: 160px; }
