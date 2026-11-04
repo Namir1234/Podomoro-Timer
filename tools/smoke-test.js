@@ -28,7 +28,7 @@ function auswerten(befund) {
     fehler.push(`Zeitanzeige fehlt oder unerwartet: ${JSON.stringify(befund.zeit)}`);
   }
   if (befund.menue === 0) fehler.push("Seitenmenue ist leer");
-  if (!befund.interGeladen) fehler.push("Inter-Schrift wurde nicht geladen");
+  if (!befund.schriftGeladen) fehler.push(`Schrift des Designs wurde nicht geladen: ${befund.schrift}`);
   if (!befund.localStorageOk) fehler.push("localStorage nicht verfuegbar");
   for (const src of befund.bilderKaputt) fehler.push(`Bild fehlt: ${src}`);
 }

@@ -12,8 +12,8 @@ const dist = join(root, "dist");
 const COPY = ["pages", "js", "style", "img", "manifest.json"];
 
 // Die Registrierung im Browser laedt sw.js nach; in der App uebernimmt
-// das Caching die App-Huelle selbst.
-const SW_BLOCK = /\n\s*if \("serviceWorker" in navigator\) \{[\s\S]*?\n\s*\}\n/;
+// das Caching die App-Huelle selbst. \r? deckt Windows-Zeilenenden ab.
+const SW_BLOCK = /\r?\n\s*if \("serviceWorker" in navigator\) \{[\s\S]*?\r?\n\s*\}\r?\n/;
 
 // Login und Sync laufen ueber Supabase. Die URL kommt aus js/cloud-config.js;
 // ist dort noch nichts eingetragen, sind alle Supabase-Projekte erlaubt.

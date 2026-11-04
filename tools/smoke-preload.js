@@ -13,7 +13,12 @@ function befundErheben() {
   return {
     zeit: zeit ? zeit.textContent.trim().split("\n")[0].trim() : null,
     menue: document.querySelectorAll(".sidebar nav button").length,
-    interGeladen: [...document.fonts].some((f) => f.family === "Inter" && f.status === "loaded"),
+    // Schrift des aktiven Designs (Coral: General Sans, Original: Inter)
+    schrift: getComputedStyle(document.body).fontFamily.split(",")[0].trim().replace(/["']/g, ""),
+    schriftGeladen: (() => {
+      const fam = getComputedStyle(document.body).fontFamily.split(",")[0].trim().replace(/["']/g, "");
+      return [...document.fonts].some((f) => f.family.replace(/["']/g, "") === fam && f.status === "loaded");
+    })(),
     bilderKaputt: [...document.images]
       .filter((i) => !i.complete || i.naturalWidth === 0)
       .map((i) => i.getAttribute("src")),
