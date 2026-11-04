@@ -53,6 +53,18 @@ nav button.active { background: var(--accent); color: #fff; }
 
 main { flex: 1; min-width: 0; margin-left: 76px; padding: 24px 24px 60px; }
 
+/* Felder anordnen: Seite etwas verkleinert, damit alle Felder auf einmal zu sehen sind.
+   pomodoro.js rechnet Mauswege mit zoomOf() in Seiten-Pixel um.
+   Nicht auf der Timer-Seite: die passt sich selbst dem Bildschirm an, und beim Bearbeiten
+   soll die Anordnung genau so aussehen wie danach. */
+body.layout-edit main > .page:not(#timer) { zoom: .8; }
+
+/* Inhalt wächst und schrumpft mit dem Feld (--card-zoom setzt pomodoro.js).
+   Nicht in der Nur-Timer-Ansicht und nicht auf schmalen Bildschirmen, dort gelten eigene Grössen. */
+.card > :not(.card-edit-bar):not(.card-resize):not(.free-handle) { zoom: var(--card-zoom, 1); }
+body.zen .card > * { zoom: 1 !important; }
+@media (max-width: 720px) { .card > * { zoom: 1 !important; } }
+
 /* Timer-Seite: alles auf einer Seite ohne Seiten-Scrollen */
 body:has(#timer.active),
 body.page-timer {
@@ -169,7 +181,8 @@ h2 { font-size: 1.02rem; font-weight: 600; letter-spacing: 0; margin-bottom: 12p
 .modes button:hover { color: var(--text); }
 .modes button.active { background: var(--card); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.35); }
 
-.ring-wrap { position: relative; width: min(100%, 220px); aspect-ratio: 1; margin: 0 auto 10px; }
+/* Zeit und Text richten sich nach der Kreisgrösse (cqi = % der Kreisbreite) und bleiben immer innerhalb des Rings */
+.ring-wrap { position: relative; width: min(100%, 220px); aspect-ratio: 1; margin: 0 auto 10px; container-type: inline-size; }
 svg.ring { width: 100%; height: 100%; transform: rotate(-90deg); }
 .ring circle { fill: none; stroke-width: 12; }
 .ring .bg { stroke: var(--track); }
@@ -178,8 +191,12 @@ svg.ring { width: 100%; height: 100%; transform: rotate(-90deg); }
   position: absolute; inset: 0; display: flex; flex-direction: column;
   align-items: center; justify-content: center;
 }
-.time .digits { font-size: clamp(2.6rem, 9vw, 3.8rem); font-weight: 700; letter-spacing: -1px; font-variant-numeric: tabular-nums; line-height: 1; }
-.time .label { color: var(--muted); font-size: .84rem; font-weight: 500; margin-top: 6px; }
+.time .digits { font-size: 21cqi; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; line-height: 1; }
+.time .digits.long { font-size: 17cqi; }
+.time .label {
+  max-width: 62cqi; margin-top: 3cqi; text-align: center; line-height: 1.25;
+  color: var(--muted); font-size: clamp(.68rem, 5.4cqi, 1.15rem); font-weight: 500;
+}
 
 .controls { display: flex; gap: 10px; justify-content: center; margin-top: 12px; }
 .btn {
@@ -453,6 +470,7 @@ button.back { border: 0; background: transparent; width: 100%; font-family: inhe
   padding: 8px 14px;
   font-size: .88rem;
   font-weight: 600;
+  line-height: 16px;   /* fest, sonst macht das ✓ in «Fertig» den Knopf höher und die Felder rutschen */
   cursor: pointer;
   transition: all .15s ease;
 }
@@ -906,8 +924,6 @@ body.zen .free-canvas > .card[data-card-id="timer-clock"] > * { flex-shrink: 0; 
 /* Timer selbst deutlich groesser */
 body.zen .ring-wrap { width: min(58vmin, 540px); margin: 0 auto; }
 body.zen .ring circle { stroke-width: 9; }
-body.zen .time .digits { font-size: clamp(2.8rem, 13vmin, 7rem); }
-body.zen .time .label { font-size: clamp(.9rem, 2.2vmin, 1.15rem); margin-top: 10px; }
 body.zen .modes button { padding: 9px 18px; font-size: .92rem; }
 body.zen .controls .btn { padding: 13px 30px; font-size: 1.02rem; }
 body.zen .dots .dot { width: 12px; height: 12px; }
