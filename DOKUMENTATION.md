@@ -4,8 +4,8 @@ Stand: 4. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Tim
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (60 Commits,
-6. Oktober bis 4. November 2026).
+Die Chronik weiter unten ist aus der Git-Historie erstellt (64 Commits,
+6. Oktober bis 4. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
 
@@ -30,7 +30,8 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
 - Oberfläche färbt sich gegen Ende der Phase rot
 - Übersicht „Heute“: Fortschritt mit Tagesziel, Statistik, Zitat-Karte
 - Nur-Timer-Ansicht (Timer gross, alles andere ausgeblendet)
-- Felder auf der Timer-Seite verschieben und in der Grösse ändern, Inhalt skaliert mit
+- Felder auf allen Seiten (Timer, To-do, Notizen, Projekte, Statistik, Zitate)
+  frei verschieben und in der Grösse ändern, Inhalt skaliert mit
 - To-dos (mit optionaler Deadline), Notizen mit Ordnern und Editor mit Bildern,
   Projekte mit eigenen To-dos und Notizen
 - Zitate: grosser Pool, zufällige Auswahl, eigene Zitate mit Autor
@@ -38,7 +39,8 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
 - Mobile Ansicht mit Hamburger-Menü
 - Sprache: Deutsch, Englisch, Französisch, Italienisch, Ungarisch
 - Design wählbar: **Original** (Olivgrün) oder **Coral**
-- Login und Cloud-Sync über Supabase
+- Login und Cloud-Sync über Supabase – inklusive Feldgrössen und Design
+  (nur die Menü-Einstellung bleibt pro Gerät)
 
 ### Projektstruktur
 
@@ -238,6 +240,30 @@ Neu dazugekommen: `js/design-boot.js` (setzt das gewählte Design vor dem ersten
 Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 `style/start-coral.css`, Schriften General Sans und Geist Mono.
 
+### Phase 9 – Freie Felder überall, Sync von Layout und Design (4. November 2026)
+
+| Zeit | Hash | Commit | Branch | Umfang |
+| --- | --- | --- | --- | --- |
+| 10:53 | `5db0d94` | Projektdokumentation mit Chronik aller Commits | main | 1, +262 / −0 |
+| 10:59 | `f2f4ebc` | Felder auf allen Seiten frei anpassbar wie auf der Timer-Seite | main | 6, +45 / −19 |
+| 10:59 | `3283f8c` | Feldgrössen und Design mit dem Konto abgleichen | main | 4, +20 / −6 |
+| 11:02 | (dieser Commit) | Dokumentation nachgeführt, Regel für laufende Nachführung | main | Doku |
+
+- **`5db0d94`** – Diese Datei (`DOKUMENTATION.md`) angelegt.
+- **`f2f4ebc`** – To-do, Notizen, Projekte, Statistik und die drei Zitate-Tabs
+  liegen jetzt im selben freien Layout (`.free-canvas`) wie die Timer-Seite:
+  Felder verschieben, an allen Rändern und Ecken skalieren, Hilfslinien, Auto-Höhe.
+  Der Inhalt wächst mit dem Feld (Standardbreite = halbe Breite, ein einzelnes
+  Feld = ganze Breite). Eine früher gespeicherte Raster-Anordnung wird übernommen.
+  Wächst ein Feld (z. B. neue Aufgaben), rutschen die Felder darunter nach.
+  Neuer Übersetzungs-Key `q.current` („Zitat“) in allen fünf Sprachen,
+  `CACHE_NAME` auf `fokus-cache-v25`.
+- **`3283f8c`** – `pomo_layout` und `pomo_design` sind in `js/cloud.js` nicht mehr
+  „nur pro Gerät“ und werden über Supabase auf alle angemeldeten Geräte
+  übertragen; nur `pomo_menu` bleibt lokal. Ein Designwechsel auf der Startseite
+  (dort läuft `cloud.js` nicht) wird in `pomo__dirty` vorgemerkt und beim
+  nächsten Öffnen der Timer-Seite hochgeladen. Gepusht nach `origin/main`.
+
 ---
 
 ## 4. Zahlen
@@ -245,7 +271,7 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 4. November 2026 |
-| Commits | 60 (davon 1 Merge) |
+| Commits | 64 (davon 1 Merge) |
 | Aktive Tage | 10 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
