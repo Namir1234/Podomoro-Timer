@@ -212,6 +212,7 @@ function animateRing() {
 
 function draw() {
   $("digits").textContent = fmt(remaining);
+  $("digits").classList.toggle("long", remaining >= 6000);   // ab 100 Minuten dreistellig
   $("modeLabel").textContent = t(MODE_TEXT[mode]);
   drawRing();
   document.body.classList.toggle("pause", mode !== "focus");
@@ -1441,6 +1442,12 @@ document.addEventListener("dragend", () => {
   }
 });
 
+// Im Modus "Felder anordnen" ist die Seite verkleinert (CSS zoom). Mauswege und getBoundingClientRect
+// sind Bildschirm-Pixel, Feldmasse (offset*, clientWidth, style) Seiten-Pixel – das ist der Faktor dazwischen.
+function zoomOf(el) {
+  return (el.getBoundingClientRect().width / el.offsetWidth) || 1;
+}
+
 // Resize über Griff unten rechts per Pointer Events
 document.addEventListener("pointerdown", e => {
   if (!document.body.classList.contains("layout-edit")) return;
@@ -1452,7 +1459,8 @@ document.addEventListener("pointerdown", e => {
 
   const card = grip.closest(".card");
   const box = card.parentElement;
-  const rect = card.getBoundingClientRect();
+  const z = zoomOf(box);
+  const rect = { width: card.offsetWidth, height: card.offsetHeight };
   const startX = e.clientX, startY = e.clientY;
   const gap = parseFloat(getComputedStyle(box).columnGap) || 16;
   const colW = (box.clientWidth - gap * (GRID_COLS - 1)) / GRID_COLS;
@@ -1475,8 +1483,8 @@ document.addEventListener("pointerdown", e => {
   }
 
   function onPointerMove(pe) {
-    const dx = pe.clientX - startX;
-    const dy = pe.clientY - startY;
+    const dx = (pe.clientX - startX) / z;
+    const dy = (pe.clientY - startY) / z;
 
     // Höhe (px) wenn vertikal gezogen
     if (Math.abs(dy) > 8) touchedH = true;
@@ -1741,15 +1749,16 @@ function freeMeasureDefaults(box) {
 
   const W = box.clientWidth;
   const bRect = box.getBoundingClientRect();
+  const z = zoomOf(box);
   const cfg = freeCfg(box);
   const sorted = [...cards].sort((a, b) => (+a.style.order) - (+b.style.order));
   sorted.forEach((c, i) => {
     const r = c.getBoundingClientRect();
     const s = sizes[c.dataset.card] || {};
     cfg[c.dataset.card] = {
-      x: (r.left - bRect.left) / W,
-      y: Math.round(r.top - bRect.top),
-      w: r.width / W,
+      x: (r.left - bRect.left) / z / W,
+      y: Math.round((r.top - bRect.top) / z),
+      w: r.width / z / W,
       ...(s.h ? { h: s.h } : {}),
       z: i + 1
     };
@@ -1807,10 +1816,68 @@ function freeUpdateBadge(card, p) {
 // Containerhöhe an das unterste Feld anpassen (absolut positionierte Felder haben keine Flusshöhe)
 function freeUpdateHeight(box) {
   if (!box.classList.contains("free-ready")) return;
+  freeFitToScreen(box);
   let bottom = 0;
   freeCards(box).forEach(c => { bottom = Math.max(bottom, c.offsetTop + c.offsetHeight); });
   const extra = document.body.classList.contains("layout-edit") ? FREE_EDIT_EXTRA : 0;
   box.style.height = (bottom + extra) + "px";
+}
+
+// Timer-Seite: alles auf einem Bildschirm. Felder mit fester Höhe enden höchstens am unteren Rand
+// (nur Anzeige, gespeichert bleibt die eigene Höhe). Reicht das nicht, wird das ganze Raster
+// verkleinert (CSS zoom) – bei mehr Platz wieder grösser.
+const FREE_FIT_MIN = 0.45;
+function freeFitToScreen(box) {
+  if (box.id !== "timerCanvas") return;
+  // Nicht während des Ziehens – sonst ändert sich der Massstab unter dem Zeiger
+  if (document.body.classList.contains("free-dragging") || document.body.classList.contains("free-resizing")) return;
+  box.style.removeProperty("zoom");
+  if (freeStackedMQ.matches || document.body.classList.contains("zen") || !box.clientWidth) return;
+
+  const main = box.closest("main");
+  const avail = () => main.getBoundingClientRect().bottom - parseFloat(getComputedStyle(main).paddingBottom) - box.getBoundingClientRect().top;
+  const bottom = () => Math.max(0, ...freeCards(box).map(c => c.offsetTop + c.offsetHeight));
+
+  freeCapHeights(box);
+
+  // Grösster Massstab, bei dem alles hineinpasst. Ein breiteres Raster bricht Text anders um,
+  // darum wird gesucht statt gerechnet – so endet das unterste Feld genau am unteren Rand.
+  const fits = () => bottom() * zoomOf(box) <= avail() + 1;   // in Bildschirm-Pixeln
+  let own = 1;
+  if (!fits()) {
+    let lo = FREE_FIT_MIN, hi = 1;
+    for (let i = 0; i < 10; i++) {
+      const mid = (lo + hi) / 2;
+      box.style.zoom = mid;
+      if (fits()) lo = mid; else hi = mid;
+    }
+    own = lo;
+    box.style.zoom = own;
+  }
+  // Nach dem Verkleinern ist unten wieder Platz: gekürzte Felder bis zum selben unteren Rand verlängern
+  if (own < 1) freeCapHeights(box);
+}
+window.addEventListener("resize", () => freeBoxes.forEach(freeFitToScreen));
+
+// Feste Höhen, die über den unteren Bildschirmrand reichen, auf den Platz kürzen (nur Anzeige)
+function freeCapHeights(box) {
+  if (box.id !== "timerCanvas" || freeStackedMQ.matches || document.body.classList.contains("zen")) return;
+  const main = box.closest("main");
+  const room = (main.getBoundingClientRect().bottom - parseFloat(getComputedStyle(main).paddingBottom)
+    - box.getBoundingClientRect().top) / zoomOf(box);          // Platz in Seiten-Pixeln
+  const cfg = freeCfg(box);
+  const rects = freeCards(box).map(c => ({ c, l: c.offsetLeft, r: c.offsetLeft + c.offsetWidth, t: c.offsetTop }));
+  rects.forEach(me => {
+    const p = cfg[me.c.dataset.card];
+    if (!p?.h) return;
+    // Höchstens bis zum unteren Rand und nie in ein Feld darunter hinein
+    let limit = room;
+    rects.forEach(o => {
+      if (o !== me && o.t > me.t && o.l < me.r - 1 && me.l < o.r - 1) limit = Math.min(limit, o.t - FREE_GAP);
+    });
+    const h = Math.max(FREE_MIN_H, Math.min(p.h, Math.floor(limit - me.t)));
+    if (me.c.offsetHeight !== h) me.c.style.height = h + "px";
+  });
 }
 
 function freeNormalizeZ(box) {
@@ -1842,6 +1909,8 @@ function freeRender(box) {
     const p = freeSanitize(cfg[c.dataset.card]);
     freeApplyCard(c, p);
   });
+  box.style.removeProperty("zoom");   // gekürzt wird in normaler Grösse, verkleinert erst danach
+  freeCapHeights(box);
   freeResolveOverlaps(box);
   freeUpdateHeight(box);
   cards.forEach(c => freeUpdateBadge(c, cfg[c.dataset.card]));
@@ -2039,6 +2108,7 @@ document.addEventListener("pointerdown", e => {
   const id = card.dataset.card;
   const p = { ...cfg[id] };
   const W = box.clientWidth;
+  const z = zoomOf(box);
   const rectOf = c => ({ l: c.offsetLeft, t: c.offsetTop, w: c.offsetWidth, h: c.offsetHeight });
   const a0 = rectOf(card);
   const startX = e.clientX + window.scrollX;
@@ -2092,8 +2162,8 @@ document.addEventListener("pointerdown", e => {
     if (scrollDy) window.scrollBy(0, scrollDy);
     const scrolled = window.scrollY !== beforeScroll;
 
-    const dx = lastX + window.scrollX - startX;
-    const dy = lastY + window.scrollY - startY;
+    const dx = (lastX + window.scrollX - startX) / z;
+    const dy = (lastY + window.scrollY - startY) / z;
     let sx = null, sy = null;
 
     if (mode === "move") {
@@ -2447,6 +2517,83 @@ if ("ResizeObserver" in window) {
   window.addEventListener("resize", freeRenderAll);
 }
 freeStackedMQ.addEventListener?.("change", freeRenderAll);
+
+/* ============================================================
+   INHALT WÄCHST MIT DEM FELD
+   Schrift, Knöpfe, Timer-Kreis … werden mit dem Feld grösser oder kleiner (CSS zoom über --card-zoom).
+   Massstab: Feldbreite im Vergleich zur Standardbreite. Kleiner wird es im gleichen Verhältnis,
+   grösser nur gedämpft (1,5× so breit = ca. 1,2×) und höchstens bis CARD_ZOOM_MAX.
+   Bei fester Feldhöhe wird nur so weit vergrössert, wie der Inhalt noch hineinpasst.
+   ============================================================ */
+const CARD_ZOOM_MIN = 0.5, CARD_ZOOM_MAX = 1.3;   // kleinster / grösster Massstab
+const FREE_DEFAULTS = freeGetInitialPositions();
+
+// Breite des Feldes geteilt durch seine Standardbreite
+function cardWidthRatio(card) {
+  const box = card.parentElement;
+  if (!box) return 1;
+  if (box.classList.contains("free-canvas")) {
+    const p = freeCfg(box)[card.dataset.card];
+    const def = box.id === "timerCanvas" ? FREE_DEFAULTS[card.dataset.card]?.w : null;
+    return p && def ? p.w / def : 1;
+  }
+  const s = getCardSize(card);
+  if (!s.w) return 1;
+  const onlyChild = box.querySelectorAll(":scope > .card").length === 1;
+  return s.w / (onlyChild ? GRID_COLS : 6);
+}
+
+function setCardZoom(card, z) {
+  const v = String(Math.floor(z * 100 + 1e-6) / 100);
+  if (card.style.getPropertyValue("--card-zoom") === v) return false;
+  card.style.setProperty("--card-zoom", v);
+  return true;
+}
+
+const cardFits = card => card.scrollHeight <= card.clientHeight && card.scrollWidth <= card.clientWidth;
+
+function applyCardZoom(card) {
+  const before = card.style.getPropertyValue("--card-zoom");
+  let z;
+  if (card.classList.contains("sized") && card.parentElement?.id === "timerCanvas") {
+    // Timer-Seite mit fester Feldgrösse: Inhalt füllt das Feld aus –
+    // grösster Massstab, bei dem in Höhe und Breite noch alles hineinpasst
+    let lo = CARD_ZOOM_MIN, hi = CARD_ZOOM_MAX;
+    setCardZoom(card, lo);
+    if (cardFits(card)) {
+      for (let i = 0; i < 8; i++) {
+        const mid = (lo + hi) / 2;
+        setCardZoom(card, mid);
+        if (cardFits(card)) lo = mid; else hi = mid;
+      }
+    }
+    z = lo;
+  } else {
+    const r = cardWidthRatio(card);
+    z = Math.min(CARD_ZOOM_MAX, Math.max(CARD_ZOOM_MIN, r < 1 ? r : Math.sqrt(r)));
+    setCardZoom(card, z);
+    // Feste Höhe: Vergrösserung zurücknehmen, bis nichts mehr übersteht (nie kleiner als normal)
+    for (let i = 0; i < 3 && z > 1 && card.classList.contains("sized") && !cardFits(card); i++) {
+      z = Math.max(1, z * card.clientHeight / card.scrollHeight);
+      setCardZoom(card, z);
+    }
+  }
+  setCardZoom(card, z);
+  const changed = card.style.getPropertyValue("--card-zoom") !== before;
+  // Im freien Layout ändert sich dadurch die Höhe – Nachbarfelder neu ausrichten
+  if (changed && card.parentElement?.classList.contains("free-canvas")) freeSchedule(card.parentElement, true);
+}
+
+const allCards = () => document.querySelectorAll(".page .card, .qview .card");
+if ("ResizeObserver" in window) {
+  // Erst im nächsten Frame anwenden – sonst meldet der Browser eine ResizeObserver-Schleife
+  const zoomRO = new ResizeObserver(entries => {
+    const cards = entries.map(en => en.target);
+    requestAnimationFrame(() => cards.forEach(applyCardZoom));
+  });
+  allCards().forEach(c => zoomRO.observe(c));
+}
+document.addEventListener("langchange", () => allCards().forEach(applyCardZoom));
 
 // Gespeicherte Anordnung sofort anwenden; erste Messung erst nach dem Laden der Schrift
 freeBoxes.forEach(box => { if (freeIsComplete(box)) freeRender(box); });
