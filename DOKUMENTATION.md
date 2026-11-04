@@ -4,7 +4,7 @@ Stand: 4. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Tim
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (70 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (72 Commits,
 6. Oktober bis 4. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
@@ -278,7 +278,9 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | 11:33 | `e3b38da` | Push vermerkt | main | 1, +6 / −3 |
 | 11:40 | `fb04890` | Timer und Stoppuhr als Umschalter auf der Timer-Seite statt eigener Menuepunkt | main | 6, +129 / −40 |
 | 11:40 | `cc221b4` | Dokumentation nachgefuehrt: Umschalter | main | 1, +21 / −7 |
-| 11:42 | (dieser Commit) | Push vermerkt | main | Doku |
+| 11:42 | `07301db` | Push vermerkt | main | 1, +6 / −3 |
+| 12:18 | `3ffd5a4` | Timer und Stoppuhr im gleichen Design wie der Pomodoro-Timer | main | 6, +85 / −54 |
+| 12:18 | (dieser Commit) | Dokumentation nachgefuehrt: Uhren-Design | main | Doku |
 
 - **`1827153`** – Neue Seite **Uhren** (Menüpunkt mit Stoppuhr-Icon
   `img/stopwatch.svg`, im Menü ein-/ausblendbar). Dort lassen sich beliebig viele
@@ -303,7 +305,16 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
   neu, `nav.clocks`, `clocks.title`, `clocks.empty` entfernt.
   `CACHE_NAME` auf `fokus-cache-v27`.
 - **`cc221b4`** – Chronik und Funktionsliste zum Umschalter nachgeführt.
-  Zusammen mit dem folgenden Commit gepusht nach `origin/main`.
+  Zusammen mit `07301db` gepusht nach `origin/main`.
+- **`3ffd5a4`** – Jeder Timer und jede Stoppuhr ist jetzt eine eigene Karte im
+  gleichen Design wie der Pomodoro-Timer: gleicher Ring (`.ring-wrap`), grosse
+  Ziffern in der Mitte mit Text darunter, gleiche Knöpfe. Timer: Ring zeigt die
+  Restzeit, darunter „von 05:00“ bzw. „Abgelaufen“ in Rot; im Ruhezustand
+  werden die Ziffern direkt im Ring eingestellt („Zum Ändern antippen“).
+  Stoppuhr: Ring läuft einmal pro Minute voll, darunter die laufende Runde.
+  Der Name steht oben in einer Pille wie die Modus-Knöpfe. Das umschliessende
+  Feld ist unsichtbar, die Uhren liegen direkt auf der Fläche. Neue Keys
+  `clocks.setHint`, `clocks.of`; `CACHE_NAME` auf `fokus-cache-v28`.
 
 ---
 
@@ -312,7 +323,7 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 4. November 2026 |
-| Commits | 70 (davon 1 Merge) |
+| Commits | 72 (davon 1 Merge) |
 | Aktive Tage | 10 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
