@@ -4,7 +4,7 @@ Stand: 4. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Tim
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (66 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (67 Commits,
 6. Oktober bis 4. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
@@ -273,7 +273,8 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | Zeit | Hash | Commit | Branch | Umfang |
 | --- | --- | --- | --- | --- |
 | 11:26 | `1827153` | Eigene Timer und Stoppuhren auf neuer Seite Uhren | main | 7, +273 / −5 |
-| 11:28 | (dieser Commit) | Dokumentation nachgefuehrt: Uhren | main | Doku |
+| 11:28 | `bcf96e2` | Dokumentation nachgefuehrt: Uhren | main | 1, +25 / −4 |
+| 11:33 | (dieser Commit) | Push vermerkt | main | Doku |
 
 - **`1827153`** – Neue Seite **Uhren** (Menüpunkt mit Stoppuhr-Icon
   `img/stopwatch.svg`, im Menü ein-/ausblendbar). Dort lassen sich beliebig viele
@@ -284,6 +285,8 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
   nur den Startzeitpunkt und laufen deshalb auch nach dem Neuladen weiter.
   Übersetzungen in allen fünf Sprachen, Styles für Original und Coral,
   `CACHE_NAME` auf `fokus-cache-v26`.
+- **`bcf96e2`** – Chronik und Funktionsliste um die Uhren ergänzt.
+  Zusammen mit diesem Commit gepusht nach `origin/main`.
 
 ---
 
@@ -292,7 +295,7 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 4. November 2026 |
-| Commits | 66 (davon 1 Merge) |
+| Commits | 67 (davon 1 Merge) |
 | Aktive Tage | 10 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
