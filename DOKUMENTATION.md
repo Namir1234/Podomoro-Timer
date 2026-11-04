@@ -4,7 +4,7 @@ Stand: 4. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Tim
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (64 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (66 Commits,
 6. Oktober bis 4. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
@@ -30,7 +30,9 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
 - Oberfläche färbt sich gegen Ende der Phase rot
 - Übersicht „Heute“: Fortschritt mit Tagesziel, Statistik, Zitat-Karte
 - Nur-Timer-Ansicht (Timer gross, alles andere ausgeblendet)
-- Felder auf allen Seiten (Timer, To-do, Notizen, Projekte, Statistik, Zitate)
+- Seite „Uhren“: beliebig viele eigene Timer und Stoppuhren (mit Runden),
+  laufen auch nach dem Neuladen weiter
+- Felder auf allen Seiten (Timer, Uhren, To-do, Notizen, Projekte, Statistik, Zitate)
   frei verschieben und in der Grösse ändern, Inhalt skaliert mit
 - To-dos (mit optionaler Deadline), Notizen mit Ordnern und Editor mit Bildern,
   Projekte mit eigenen To-dos und Notizen
@@ -247,7 +249,7 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | 10:53 | `5db0d94` | Projektdokumentation mit Chronik aller Commits | main | 1, +262 / −0 |
 | 10:59 | `f2f4ebc` | Felder auf allen Seiten frei anpassbar wie auf der Timer-Seite | main | 6, +45 / −19 |
 | 10:59 | `3283f8c` | Feldgrössen und Design mit dem Konto abgleichen | main | 4, +20 / −6 |
-| 11:02 | (dieser Commit) | Dokumentation nachgeführt, Regel für laufende Nachführung | main | Doku |
+| 11:02 | `1c7c354` | Dokumentation nachgefuehrt, Regel fuer laufende Nachfuehrung | main | 2, +49 / −5 |
 
 - **`5db0d94`** – Diese Datei (`DOKUMENTATION.md`) angelegt.
 - **`f2f4ebc`** – To-do, Notizen, Projekte, Statistik und die drei Zitate-Tabs
@@ -263,6 +265,25 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
   übertragen; nur `pomo_menu` bleibt lokal. Ein Designwechsel auf der Startseite
   (dort läuft `cloud.js` nicht) wird in `pomo__dirty` vorgemerkt und beim
   nächsten Öffnen der Timer-Seite hochgeladen. Gepusht nach `origin/main`.
+- **`1c7c354`** – Chronik bis hierher nachgeführt und in `CLAUDE.md` die Regel
+  festgehalten, dass jeder Commit und Push hier eingetragen wird.
+
+### Phase 10 – Eigene Timer und Stoppuhren (4. November 2026)
+
+| Zeit | Hash | Commit | Branch | Umfang |
+| --- | --- | --- | --- | --- |
+| 11:26 | `1827153` | Eigene Timer und Stoppuhren auf neuer Seite Uhren | main | 7, +273 / −5 |
+| 11:28 | (dieser Commit) | Dokumentation nachgefuehrt: Uhren | main | Doku |
+
+- **`1827153`** – Neue Seite **Uhren** (Menüpunkt mit Stoppuhr-Icon
+  `img/stopwatch.svg`, im Menü ein-/ausblendbar). Dort lassen sich beliebig viele
+  normale Timer (Stunden:Minuten:Sekunden, Fortschrittsbalken, Ton und
+  „Abgelaufen“ am Ende) und Stoppuhren (Zehntelsekunden, Runden) hinzufügen,
+  umbenennen, starten, pausieren, zurücksetzen und löschen. Gespeichert in
+  `pomo_clocks` (wird mit dem Konto abgeglichen). Laufende Uhren merken sich
+  nur den Startzeitpunkt und laufen deshalb auch nach dem Neuladen weiter.
+  Übersetzungen in allen fünf Sprachen, Styles für Original und Coral,
+  `CACHE_NAME` auf `fokus-cache-v26`.
 
 ---
 
@@ -271,7 +292,7 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 4. November 2026 |
-| Commits | 64 (davon 1 Merge) |
+| Commits | 66 (davon 1 Merge) |
 | Aktive Tage | 10 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
