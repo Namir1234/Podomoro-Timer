@@ -8,12 +8,18 @@
 <meta name="theme-color" content="#1b2119">
 <link rel="apple-touch-icon" href="../img/icons/apple-touch-icon.png">
 <link rel="stylesheet" href="../style/fonts/inter.css">
-<link rel="stylesheet" href="../style/start.css?v=5">
-<link rel="stylesheet" href="../style/lang-menu.css?v=1">
+<link rel="stylesheet" href="../style/fonts/coral.css">
+<link rel="stylesheet" href="../style/start.css?v=6">
+<link rel="stylesheet" href="../style/start-coral.css?v=1" data-design="coral">
+<link rel="stylesheet" href="../style/lang-menu.css?v=3">
+<script src="../js/design-boot.js?v=1"></script>
 </head>
 <body>
 
+<div class="top-switches">
+<button class="lang-switch" id="designSwitch" type="button" title="Design wechseln" data-i18n-title="design.change"><img class="icon" src="../img/design.svg" alt=""><span id="designName">Design: Coral</span></button>
 <button class="lang-switch" id="langSwitch" type="button" aria-haspopup="menu" aria-expanded="false" title="Sprache wechseln" data-i18n-title="lang.change"><img class="icon" src="../img/language.svg" alt=""><span data-lang-name>Deutsch</span><span class="caret" aria-hidden="true">▾</span></button>
+</div>
 
 <main class="layout">
 
@@ -51,7 +57,7 @@
 
 <footer data-i18n="start.footer">Bilder: Wikimedia Commons, gemeinfrei.</footer>
 
-<script src="../js/i18n.js?v=2"></script>
+<script src="../js/i18n.js?v=3"></script>
 <script>
   // Mönchs-Zitate: es wird immer nur eines gezeigt
   const MONKS = [
@@ -98,8 +104,15 @@
   document.getElementById("langSwitch").addEventListener("click", e => openLangMenu(e.currentTarget));
   document.addEventListener("langchange", () => showQuote(current));
 
+  // Design: gleich wie auf der Timer-Seite (js/design-boot.js)
+  const designName = () => { document.getElementById("designName").textContent = designLabelText(readDesign()); };
+  document.getElementById("designSwitch").addEventListener("click", () => saveDesign(readDesign() === "original" ? "coral" : "original"));
+  document.addEventListener("designchange", designName);
+  document.addEventListener("langchange", designName);
+
   applyI18n();
   showQuote(current);
+  designName();
 
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {

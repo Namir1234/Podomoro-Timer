@@ -2629,28 +2629,22 @@ function freeHandleTitles() {
 $("langBtn").onclick = () => openLangMenu($("langBtn"));
 
 /* ============================================================
-   DESIGN: Original oder Coral, pro Gerät gespeichert (pomo_design, siehe DEVICE_ONLY in cloud.js)
+   DESIGN: Original oder Coral, gemeinsam mit der Startseite (js/design-boot.js)
    ============================================================ */
-const DESIGN_COLOR = { original: "#1b2119", coral: "#181411" };
-
 function designLabel() {
-  $("designLabel").textContent = t("design.label") + ": " + (design === "original" ? t("design.original") : "Coral");
+  $("designLabel").textContent = designLabelText(design);
 }
 
-function setDesign(next) {
-  design = next;
-  try { localStorage.setItem("pomo_design", JSON.stringify(design)); } catch {}
-  document.documentElement.dataset.design = design;
-  $("themeOriginal").disabled = design !== "original";
-  $("themeCoral").disabled = design === "original";
-  document.querySelector('meta[name="theme-color"]').content = DESIGN_COLOR[design];
+// Auch beim Umschalten in einem anderen Tab (storage-Event in design-boot.js)
+document.addEventListener("designchange", e => {
+  design = e.detail;
   designLabel();
   drawRing();
   // Schrift und Abstände ändern sich: Feldinhalte neu einpassen
   requestAnimationFrame(() => { allCards().forEach(applyCardZoom); freeRenderAll(); });
-}
+});
 
-$("designBtn").onclick = () => setDesign(design === "original" ? "coral" : "original");
+$("designBtn").onclick = () => saveDesign(design === "original" ? "coral" : "original");
 designLabel();
 document.addEventListener("langchange", designLabel);
 

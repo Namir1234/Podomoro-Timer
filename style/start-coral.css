@@ -1,0 +1,45 @@
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: Coral (by request, dark colourway: evening desk) · redesign: restyle
+ * nav: kept (language and design switch top right) · signature: the open-timer action as a pressed cream card on the dark desk · states: kept · coral: dark
+ * axes: dark/grotesk-sans/warm · posture: restrained · contrast: pass · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E4 S3 R5 V3 · weakest: S, the start page keeps its layout; it shares the timer's desk, type and pressed controls so both pages read as one app */
+@import url("./tokens.css");
+
+/* ===== Startseite in Coral: liegt über start.css und ist nur aktiv, wenn das Design Coral gewählt ist ===== */
+:root {
+  --bg: var(--color-paper);
+  --card: var(--color-stock);
+  --border: var(--color-rule);
+  --secondary: var(--color-paper-3);
+  --text: var(--color-ink);
+  --muted: var(--color-muted);
+  --accent: var(--color-accent);
+  --radius: var(--radius-card);
+}
+body { font-family: var(--font-body); }
+:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+h1 { font-weight: 600; letter-spacing: -.03em; }
+.lead { color: var(--color-ink-2); }
+
+.btn {
+  padding: var(--space-sm) var(--space-xl); border-radius: var(--radius-stock); font-weight: 500;
+  background: var(--color-ink); color: var(--color-accent-ink);
+  box-shadow: var(--cast-stock);
+  transition: transform var(--dur-short) var(--ease-out), box-shadow var(--dur-short) var(--ease-out);
+}
+.btn:hover { filter: none; transform: translateY(-1px); box-shadow: var(--cast-stock-lift); }
+.btn:active { transform: translateY(1px); box-shadow: var(--edge-stock); }
+
+.quote { transition: opacity var(--dur-short) var(--ease-out); }
+.quote blockquote { font-weight: 500; }
+.quote cite { color: var(--muted); font-weight: 500; }
+.quote .next {
+  border-radius: var(--radius-stock); border-color: transparent; font-weight: 500;
+  background: var(--color-paper-3); box-shadow: var(--edge-stock), var(--cast-stock);
+  transition: transform var(--dur-short) var(--ease-out), box-shadow var(--dur-short) var(--ease-out);
+}
+.quote .next:hover { filter: none; transform: translateY(-1px); box-shadow: var(--edge-stock), var(--cast-stock-lift); }
+.quote .next:active { transform: translateY(1px); box-shadow: var(--edge-stock); }
+
+.lang-switch { border-radius: var(--radius-stock); font-weight: 500; }
+.lang-switch:hover, .lang-switch[aria-expanded="true"] { border-color: var(--color-rule-2); }

@@ -10,20 +10,10 @@
 <link rel="apple-touch-icon" href="../img/icons/apple-touch-icon.png">
 <link rel="stylesheet" href="../style/fonts/inter.css">
 <link rel="stylesheet" href="../style/fonts/coral.css">
-<link rel="stylesheet" href="../style/pomodoro-original.css?v=1" id="themeOriginal">
-<link rel="stylesheet" href="../style/pomodoro.css?v=21" id="themeCoral">
+<link rel="stylesheet" href="../style/pomodoro-original.css?v=1" data-design="original">
+<link rel="stylesheet" href="../style/pomodoro.css?v=21" data-design="coral">
 <link rel="stylesheet" href="../style/lang-menu.css?v=3">
-<script>
-  // Design (Original oder Coral) vor dem ersten Zeichnen wählen, damit nichts aufblitzt. Umschalten: setDesign() in pomodoro.js
-  (() => {
-    let d = "coral";
-    try { if (JSON.parse(localStorage.getItem("pomo_design")) === "original") d = "original"; } catch {}
-    document.documentElement.dataset.design = d;
-    document.getElementById("themeOriginal").disabled = d !== "original";
-    document.getElementById("themeCoral").disabled = d === "original";
-    if (d === "original") document.querySelector('meta[name="theme-color"]').content = "#1b2119";
-  })();
-</script>
+<script src="../js/design-boot.js?v=1"></script>
 </head>
 <body>
 
@@ -371,7 +361,7 @@
 <script src="../js/vendor/supabase.js"></script>
 <script src="../js/cloud-config.js"></script>
 <script src="../js/cloud.js"></script>
-<script src="../js/pomodoro.js?v=27"></script>
+<script src="../js/pomodoro.js?v=28"></script>
 <script>
   // Mobile Schublade: Hamburger-Menü öffnen/schliessen
   (() => {
