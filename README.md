@@ -52,7 +52,7 @@ Einrichten:
    Content-Security-Policy.
 
 So funktioniert der Abgleich: Jeder `pomo_*`-Key ist eine Zeile in
-`user_data`, ausser `pomo_layout` und `pomo_menu`, die pro Geraet bleiben. Aenderungen werden nach etwa einer Sekunde hochgeladen; offline
+`user_data`, ausser `pomo_menu`, das pro Geraet bleibt (Feldgroessen und Design werden mitsynchronisiert). Aenderungen werden nach etwa einer Sekunde hochgeladen; offline
 merkt sich die App die offenen Keys (`pomo__dirty`) und holt das spaeter nach.
 Beim Start und beim Login holt sie den Stand aus der Cloud und laedt die
 Seite neu, falls sich etwas geaendert hat. Die Statistik (`pomo_sessions`)

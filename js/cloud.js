@@ -11,8 +11,9 @@ const cloud = (() => {
   const AUTH_KEY = "fokus-auth";            // hier legt supabase-js die Anmeldung ab
   const RELOAD_KEY = "fokus_sync_reload";   // Schutz gegen Neulade-Schleifen
   const SESSIONS = "pomo_sessions";
-  // Anordnung und Menü passen je nach Bildschirm, darum bleiben sie pro Gerät.
-  const DEVICE_ONLY = new Set(["pomo_layout", "pomo_menu", "pomo_design"]);
+  // Das Menü passt je nach Bildschirm, darum bleibt es pro Gerät. Feldanordnung und Design
+  // werden mit dem Konto abgeglichen.
+  const DEVICE_ONLY = new Set(["pomo_menu"]);
 
   const url = typeof SUPABASE_URL === "string" ? SUPABASE_URL.trim() : "";
   const anonKey = typeof SUPABASE_ANON_KEY === "string" ? SUPABASE_ANON_KEY.trim() : "";
