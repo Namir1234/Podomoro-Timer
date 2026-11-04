@@ -351,10 +351,30 @@ h2 .icon { width: 18px; height: 18px; margin-right: var(--space-xs); opacity: .8
 
 .quote-list .q .orig { display: block; color: var(--muted); font-style: italic; margin-top: var(--space-2xs); }
 
+/* ===== Umschalter Pomodoro / Timer / Stoppuhr ===== */
+/* Umschalter oben auf der Timer-Seite: nur die gewählte Ansicht zeigen */
+#timer .free-canvas.tview:not(.active) { display: none !important; }
+#timer.active .tview:not(#timerCanvas) { overflow-y: auto; }
+body:not(.tab-pomodoro) #zenToggleBtn { display: none; }
+.page-topbar-info:has(.ttabs) { align-items: center; }
+.ttabs { display: flex; gap: var(--space-3xs); background: var(--inset); box-shadow: var(--press-groove); padding: var(--space-3xs); border-radius: var(--radius-groove); }
+.ttabs button {
+  border: 0; background: transparent; color: var(--muted);
+  padding: var(--space-2xs) var(--space-sm); border-radius: var(--radius-stock); cursor: pointer; font-size: var(--text-sm); font-weight: 500; white-space: nowrap;
+  transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out);
+}
+.ttabs button:hover { color: var(--text); }
+.ttabs button.active { background: var(--hover); color: var(--text); box-shadow: var(--edge-stock), var(--cast-stock); }
+@media (max-width: 520px) {
+  .page-topbar-info:has(.ttabs) .page-badge { display: none; }
+  .ttabs button { padding: var(--space-2xs) var(--space-xs); }
+}
+
 /* ===== Uhren (eigene Timer und Stoppuhren) ===== */
 .clock-add { display: flex; flex-wrap: wrap; gap: var(--space-xs); margin-bottom: var(--space-md); }
 .clock-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--space-sm); }
 .clock-list > li.empty { grid-column: 1 / -1; color: var(--muted); }
+.clock-add { justify-content: flex-start; }
 .clock-item { background: var(--inset); border: var(--rule-hair) solid var(--border); border-radius: var(--radius-stock); padding: var(--space-sm) var(--space-md) var(--space-md); }
 .clock-item.running { border-color: var(--accent); }
 .clock-item.done { border-color: var(--color-error); }

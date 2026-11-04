@@ -317,10 +317,30 @@ h2 .icon { margin-right: 8px; }
 
 .quote-list .q .orig { display: block; color: var(--muted); font-style: italic; margin-top: 3px; }
 
+/* ===== Umschalter Pomodoro / Timer / Stoppuhr ===== */
+/* Umschalter oben auf der Timer-Seite: nur die gewählte Ansicht zeigen */
+#timer .free-canvas.tview:not(.active) { display: none !important; }
+#timer.active .tview:not(#timerCanvas) { overflow-y: auto; }
+body:not(.tab-pomodoro) #zenToggleBtn { display: none; }
+.page-topbar-info:has(.ttabs) { align-items: center; }
+.ttabs { display: flex; gap: 3px; background: var(--inset); border: 1px solid var(--border); padding: 3px; border-radius: 11px; }
+.ttabs button {
+  border: 0; background: transparent; color: var(--muted);
+  padding: 5px 12px; border-radius: 8px; cursor: pointer; font-size: .82rem; font-weight: 600; white-space: nowrap;
+  transition: background .15s ease, color .15s ease;
+}
+.ttabs button:hover { color: var(--text); }
+.ttabs button.active { background: var(--card); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.35); }
+@media (max-width: 520px) {
+  .page-topbar-info:has(.ttabs) .page-badge { display: none; }
+  .ttabs button { padding: 5px 9px; }
+}
+
 /* ===== Uhren (eigene Timer und Stoppuhren) ===== */
 .clock-add { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
 .clock-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
 .clock-list > li.empty { grid-column: 1 / -1; color: var(--muted); }
+.clock-add { justify-content: flex-start; }
 .clock-item { background: var(--inset); border: 1px solid var(--border); border-radius: 14px; padding: 12px 16px 16px; }
 .clock-item.running { border-color: var(--accent); }
 .clock-item.done { border-color: #e5806f; }

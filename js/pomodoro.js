@@ -953,7 +953,7 @@ function clockCheckDone(silent) {
 
 function paintClocks() {
   clockCheckDone(false);
-  $("clockList").querySelectorAll("li[data-id]").forEach(li => {
+  document.querySelectorAll(".clock-list li[data-id]").forEach(li => {
     const c = clocks.find(x => x.id === +li.dataset.id);
     if (!c) return;
     const el = li.querySelector(".clock-time");
@@ -969,8 +969,19 @@ function clockEnsureTick() {
   if (!any && clockTick) { clearInterval(clockTick); clockTick = null; }
 }
 
+// Timer und Stoppuhren stehen in je einer eigenen Liste (Umschalter oben auf der Timer-Seite)
+const CLOCK_LISTS = { timer: ["clockTimerList", "clocks.emptyTimer"], watch: ["clockWatchList", "clocks.emptyWatch"] };
+
 function renderClocks() {
-  $("clockList").innerHTML = clocks.length ? clocks.map(c => {
+  for (const type in CLOCK_LISTS) renderClockList(type);
+  paintClocks();
+  clockEnsureTick();
+}
+
+function renderClockList(type) {
+  const [listId, emptyKey] = CLOCK_LISTS[type];
+  const list = clocks.filter(c => c.type === type);
+  $(listId).innerHTML = list.length ? list.map(c => {
     const timer = c.type === "timer";
     const idle = clockIdle(c);
     const h = Math.floor(c.dur / 3600), m = Math.floor(c.dur / 60) % 60, s = c.dur % 60;
@@ -995,9 +1006,9 @@ function renderClocks() {
         </div>
         ${laps.length ? `<ol class="clock-laps">${laps.map((ms, i) => `<li><span>${esc(t("clocks.lapN", { n: i + 1 }))}</span><span>${fmtClock(ms - (laps[i - 1] || 0), true)}</span><span>${fmtClock(ms, true)}</span></li>`).reverse().join("")}</ol>` : ""}
       </li>`;
-  }).join("") : `<li class="empty">${esc(t("clocks.empty"))}</li>`;
+  }).join("") : `<li class="empty">${esc(t(emptyKey))}</li>`;
 
-  $("clockList").querySelectorAll("li[data-id]").forEach(li => {
+  $(listId).querySelectorAll("li[data-id]").forEach(li => {
     const c = clocks.find(x => x.id === +li.dataset.id);
     const update = () => { saveClocks(); renderClocks(); };
     li.querySelector(".clock-name").onchange = e => { c.name = e.target.value.trim() || c.name; e.target.value = c.name; saveClocks(); };
@@ -1020,8 +1031,6 @@ function renderClocks() {
       };
     });
   });
-  paintClocks();
-  clockEnsureTick();
 }
 
 function addClock(type) {
@@ -1033,6 +1042,24 @@ function addClock(type) {
 }
 $("addClockTimer").onclick = () => addClock("timer");
 $("addClockWatch").onclick = () => addClock("watch");
+
+// Umschalter oben auf der Timer-Seite: Pomodoro, Timer, Stoppuhr (gemerkt pro Gerät)
+const TTAB_KEY = "fokus_timer_tab";
+function setTimerTab(id) {
+  if (!$(id)?.classList.contains("tview")) id = "timerCanvas";
+  document.querySelectorAll(".ttabs button").forEach(b => {
+    const on = b.dataset.ttab === id;
+    b.classList.toggle("active", on);
+    b.setAttribute("aria-selected", String(on));
+  });
+  document.querySelectorAll(".tview").forEach(v => v.classList.toggle("active", v.id === id));
+  document.body.classList.toggle("tab-pomodoro", id === "timerCanvas");
+  try { localStorage.setItem(TTAB_KEY, id); } catch {}
+}
+document.querySelectorAll(".ttabs button").forEach(b => b.onclick = () => setTimerTab(b.dataset.ttab));
+let savedTimerTab = null;
+try { savedTimerTab = localStorage.getItem(TTAB_KEY); } catch {}
+setTimerTab(savedTimerTab || "timerCanvas");
 
 /* ============================================================
    MENÜ ANPASSEN: sichtbare Menüpunkte und Reihenfolge
@@ -2833,6 +2860,7 @@ showTimerQuote();
    ============================================================ */
 function setZen(on) {
   if (on) setLayoutEdit(false);          // Felder-Bearbeitung passt nicht zur Vollbild-Ansicht
+  if (on) setTimerTab("timerCanvas");    // Vollbild zeigt immer den Pomodoro-Timer
   document.body.classList.toggle("zen", on);
 
   const btn = $("zenToggleBtn");

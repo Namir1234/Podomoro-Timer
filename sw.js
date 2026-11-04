@@ -1,4 +1,4 @@
-const CACHE_NAME = "fokus-cache-v26";
+const CACHE_NAME = "fokus-cache-v27";
 
 const ASSETS = [
   "./",
