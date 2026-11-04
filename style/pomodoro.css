@@ -35,14 +35,20 @@ body {
 body.pause { --accent: var(--break); }
 
 /* Seitenmenü links – schmal, wird beim Darüberfahren breiter */
+/* Die Leiste ist immer 232px breit; zugeklappt zeigt clip-path nur die ersten 76px.
+   Aufklappen animiert den Ausschnitt statt der Breite: kein Neu-Layout, und Klicks
+   gehen im zugeschnittenen Teil an den Inhalt dahinter. */
 .sidebar {
-  width: 76px; background: var(--inset); color: var(--text);
+  width: 232px; background: var(--inset); color: var(--text);
   border-right: var(--rule-hair) solid var(--border);
   position: fixed; left: 0; top: 0; height: 100vh; z-index: 100;
   padding: var(--space-lg) var(--space-sm); overflow: hidden; white-space: nowrap;
   display: flex; flex-direction: column;
+  clip-path: inset(0 156px 0 0);
+  transition: clip-path var(--dur-short) var(--ease-out);
 }
-.sidebar:hover, .sidebar.menu-open { width: 232px; }
+.sidebar:hover, .sidebar.menu-open, .sidebar:has(:focus-visible) { clip-path: inset(0 0 0 0); }
+.sidebar:has(:focus-visible) .label { opacity: 1; }
 
 /* Beschriftungen nur sichtbar, wenn die Leiste aufgeklappt ist */
 .sidebar .label { opacity: 0; transition: opacity var(--dur-micro) var(--ease-out); }
@@ -166,6 +172,7 @@ body.page-timer main {
   .sidebar, .sidebar:hover {
     width: min(260px, 82%); height: 100vh; position: fixed; left: 0; top: 0;
     padding: 72px var(--space-sm) var(--space-lg);
+    clip-path: none;
     transform: translateX(-100%);
     transition: transform var(--dur-short) var(--ease-out);
     overflow-y: auto; z-index: 300;

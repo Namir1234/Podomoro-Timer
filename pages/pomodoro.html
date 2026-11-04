@@ -8,9 +8,22 @@
 <link rel="manifest" href="../manifest.json">
 <meta name="theme-color" content="#181411">
 <link rel="apple-touch-icon" href="../img/icons/apple-touch-icon.png">
+<link rel="stylesheet" href="../style/fonts/inter.css">
 <link rel="stylesheet" href="../style/fonts/coral.css">
-<link rel="stylesheet" href="../style/pomodoro.css?v=20">
+<link rel="stylesheet" href="../style/pomodoro-original.css?v=1" id="themeOriginal">
+<link rel="stylesheet" href="../style/pomodoro.css?v=21" id="themeCoral">
 <link rel="stylesheet" href="../style/lang-menu.css?v=3">
+<script>
+  // Design (Original oder Coral) vor dem ersten Zeichnen wählen, damit nichts aufblitzt. Umschalten: setDesign() in pomodoro.js
+  (() => {
+    let d = "coral";
+    try { if (JSON.parse(localStorage.getItem("pomo_design")) === "original") d = "original"; } catch {}
+    document.documentElement.dataset.design = d;
+    document.getElementById("themeOriginal").disabled = d !== "original";
+    document.getElementById("themeCoral").disabled = d === "original";
+    if (d === "original") document.querySelector('meta[name="theme-color"]').content = "#1b2119";
+  })();
+</script>
 </head>
 <body>
 
@@ -37,6 +50,7 @@
     <button class="back" id="layoutEditBtn" type="button"><img class="icon" src="../img/layout.svg" alt=""><span class="label" data-i18n="side.layout">Felder anordnen</span></button>
     <button class="back" id="menuEditBtn" type="button"><img class="icon" src="../img/edit.svg" alt=""><span class="label" data-i18n="side.menu">Menü anpassen</span></button>
     <button class="back" id="langBtn" type="button" aria-haspopup="menu" aria-expanded="false" title="Sprache wechseln" data-i18n-title="lang.change"><img class="icon" src="../img/language.svg" alt=""><span class="label" data-i18n="lang.current">Sprache: Deutsch</span></button>
+    <button class="back" id="designBtn" type="button" title="Design wechseln" data-i18n-title="design.change"><img class="icon" src="../img/design.svg" alt=""><span class="label" id="designLabel">Design: Coral</span></button>
     <a class="back" href="index.html"><img class="icon" src="../img/back.svg" alt=""><span class="label" data-i18n="side.home">Zur Startseite</span></a>
   </div>
 </aside>
@@ -353,11 +367,11 @@
   </div>
 </div>
 
-<script src="../js/i18n.js?v=2"></script>
+<script src="../js/i18n.js?v=3"></script>
 <script src="../js/vendor/supabase.js"></script>
 <script src="../js/cloud-config.js"></script>
 <script src="../js/cloud.js"></script>
-<script src="../js/pomodoro.js?v=26"></script>
+<script src="../js/pomodoro.js?v=27"></script>
 <script>
   // Mobile Schublade: Hamburger-Menü öffnen/schliessen
   (() => {
@@ -383,7 +397,7 @@
     overlay.addEventListener("click", closeDrawer);
     sidebar.addEventListener("click", (e) => {
       // Die Sprachauswahl öffnet ein Menü – die Schublade bleibt dafür offen
-      if (e.target.closest("nav button, .back") && !e.target.closest("#langBtn")) closeDrawer();
+      if (e.target.closest("nav button, .back") && !e.target.closest("#langBtn, #designBtn")) closeDrawer();
     });
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") closeDrawer();

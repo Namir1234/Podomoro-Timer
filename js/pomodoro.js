@@ -174,24 +174,40 @@ function fmt(s) {
   return String(m).padStart(2, "0") + ":" + String(r).padStart(2, "0");
 }
 
-// Alle grünen Farbvariablen (Hintergrund, Karten, Linien, Akzent …) wandern gegen Ende ins Rote.
-// Jeweils [Grünwert, Rotwert] als RGB. Erste Hälfte voll grün, danach langsam immer röter.
-const WARM_VARS = {
+// Alle Farbvariablen (Hintergrund, Karten, Linien, Akzent …) wandern gegen Ende ins Rote.
+// Jeweils [Startwert, Rotwert] als RGB, pro Design. Erste Hälfte voll Startfarbe, danach langsam immer röter.
+const WARM_THEMES = {
+  // Original: Olivgrün → Rot
+  original: {
+    "--bg":        [[27, 33, 25],  [38, 24, 22]],
+    "--card":      [[36, 43, 32],  [54, 34, 31]],
+    "--inset":     [[31, 38, 28],  [46, 29, 27]],
+    "--border":    [[59, 71, 51],  [96, 60, 54]],
+    "--hover":     [[45, 53, 39],  [70, 44, 40]],
+    "--secondary": [[53, 63, 45],  [84, 52, 47]],
+    "--track":     [[59, 71, 51],  [96, 60, 54]],
+    "--accent":    [[95, 125, 71], [184, 72, 54]]
+  },
   // Coral dunkel: warmes Anthrazit → sanftes Rotbraun, Koralle → kräftiges Rot (Werte aus oklch in style/tokens.css)
-  "--bg":        [[24, 20, 17],    [31, 17, 14]],
-  "--card":      [[33, 28, 25],    [39, 25, 22]],
-  "--inset":     [[18, 14, 12],    [25, 11, 9]],
-  "--border":    [[52, 46, 42],    [58, 43, 40]],
-  "--hover":     [[42, 36, 32],    [48, 33, 30]],
-  "--secondary": [[42, 36, 32],    [48, 33, 30]],
-  "--track":     [[52, 46, 42],    [58, 43, 40]],
-  "--accent":    [[235, 137, 117], [236, 92, 82]]
+  coral: {
+    "--bg":        [[24, 20, 17],    [31, 17, 14]],
+    "--card":      [[33, 28, 25],    [39, 25, 22]],
+    "--inset":     [[18, 14, 12],    [25, 11, 9]],
+    "--border":    [[52, 46, 42],    [58, 43, 40]],
+    "--hover":     [[42, 36, 32],    [48, 33, 30]],
+    "--secondary": [[42, 36, 32],    [48, 33, 30]],
+    "--track":     [[52, 46, 42],    [58, 43, 40]],
+    "--accent":    [[235, 137, 117], [236, 92, 82]]
+  }
 };
+// Das Design wählt schon das Skript im <head> von pomodoro.html (vor dem ersten Zeichnen)
+let design = document.documentElement.dataset.design === "original" ? "original" : "coral";
 
 function applyWarmth(frac) {
-  const t = Math.max(0, Math.min(1, (0.5 - frac) / 0.5));   // 0 = grün (erste Hälfte) … 1 = rot (Ende)
-  for (const v in WARM_VARS) {
-    const [g, r] = WARM_VARS[v];
+  const t = Math.max(0, Math.min(1, (0.5 - frac) / 0.5));   // 0 = Startfarbe (erste Hälfte) … 1 = rot (Ende)
+  const vars = WARM_THEMES[design];
+  for (const v in vars) {
+    const [g, r] = vars[v];
     const c = g.map((x, i) => Math.round(x + (r[i] - x) * t));
     document.body.style.setProperty(v, `rgb(${c[0]},${c[1]},${c[2]})`);
   }
@@ -2611,6 +2627,32 @@ function freeHandleTitles() {
 }
 
 $("langBtn").onclick = () => openLangMenu($("langBtn"));
+
+/* ============================================================
+   DESIGN: Original oder Coral, pro Gerät gespeichert (pomo_design, siehe DEVICE_ONLY in cloud.js)
+   ============================================================ */
+const DESIGN_COLOR = { original: "#1b2119", coral: "#181411" };
+
+function designLabel() {
+  $("designLabel").textContent = t("design.label") + ": " + (design === "original" ? t("design.original") : "Coral");
+}
+
+function setDesign(next) {
+  design = next;
+  try { localStorage.setItem("pomo_design", JSON.stringify(design)); } catch {}
+  document.documentElement.dataset.design = design;
+  $("themeOriginal").disabled = design !== "original";
+  $("themeCoral").disabled = design === "original";
+  document.querySelector('meta[name="theme-color"]').content = DESIGN_COLOR[design];
+  designLabel();
+  drawRing();
+  // Schrift und Abstände ändern sich: Feldinhalte neu einpassen
+  requestAnimationFrame(() => { allCards().forEach(applyCardZoom); freeRenderAll(); });
+}
+
+$("designBtn").onclick = () => setDesign(design === "original" ? "coral" : "original");
+designLabel();
+document.addEventListener("langchange", designLabel);
 
 document.addEventListener("langchange", () => {
   draw();
