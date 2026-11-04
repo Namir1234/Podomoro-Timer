@@ -1,4 +1,4 @@
-const CACHE_NAME = "fokus-cache-v21";
+const CACHE_NAME = "fokus-cache-v22";
 
 const ASSETS = [
   "./",
@@ -15,14 +15,12 @@ const ASSETS = [
   "./js/vendor/supabase.js",
   "./style/tokens.css",
   "./style/base.css",
-  "./style/fonts/hedgerow.css",
-  "./style/fonts/prata-latin-400.woff2",
-  "./style/fonts/manrope-latin-400.woff2",
-  "./style/fonts/manrope-latin-500.woff2",
-  "./style/fonts/manrope-latin-700.woff2",
-  "./style/fonts/manrope-latin-ext-400.woff2",
-  "./style/fonts/manrope-latin-ext-500.woff2",
-  "./style/fonts/manrope-latin-ext-700.woff2",
+  "./style/fonts/coral.css",
+  "./style/fonts/general-sans-400.woff2",
+  "./style/fonts/general-sans-500.woff2",
+  "./style/fonts/general-sans-600.woff2",
+  "./style/fonts/geist-mono-latin-400.woff2",
+  "./style/fonts/geist-mono-latin-ext-400.woff2",
   "./style/fonts/inter.css",
   "./style/fonts/inter-1.woff2",
   "./style/fonts/inter-10.woff2",

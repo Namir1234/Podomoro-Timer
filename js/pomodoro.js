@@ -177,15 +177,15 @@ function fmt(s) {
 // Alle grünen Farbvariablen (Hintergrund, Karten, Linien, Akzent …) wandern gegen Ende ins Rote.
 // Jeweils [Grünwert, Rotwert] als RGB. Erste Hälfte voll grün, danach langsam immer röter.
 const WARM_VARS = {
-  // Hedgerow: Blattgrün → Ziegelrot bei gleicher Helligkeit (Werte aus oklch in style/tokens.css)
-  "--bg":        [[0, 27, 13],    [36, 13, 10]],
-  "--card":      [[3, 38, 21],    [50, 22, 18]],
-  "--inset":     [[0, 27, 13],    [36, 13, 10]],
-  "--border":    [[34, 66, 48],   [80, 49, 45]],
-  "--hover":     [[20, 52, 35],   [64, 36, 32]],
-  "--secondary": [[20, 52, 35],   [64, 36, 32]],
-  "--track":     [[34, 66, 48],   [80, 49, 45]],
-  "--accent":    [[202, 228, 48], [249, 134, 98]]
+  // Coral dunkel: warmes Anthrazit → sanftes Rotbraun, Koralle → kräftiges Rot (Werte aus oklch in style/tokens.css)
+  "--bg":        [[24, 20, 17],    [31, 17, 14]],
+  "--card":      [[33, 28, 25],    [39, 25, 22]],
+  "--inset":     [[18, 14, 12],    [25, 11, 9]],
+  "--border":    [[52, 46, 42],    [58, 43, 40]],
+  "--hover":     [[42, 36, 32],    [48, 33, 30]],
+  "--secondary": [[42, 36, 32],    [48, 33, 30]],
+  "--track":     [[52, 46, 42],    [58, 43, 40]],
+  "--accent":    [[235, 137, 117], [236, 92, 82]]
 };
 
 function applyWarmth(frac) {
