@@ -12,7 +12,7 @@ const cloud = (() => {
   const RELOAD_KEY = "fokus_sync_reload";   // Schutz gegen Neulade-Schleifen
   const SESSIONS = "pomo_sessions";
   // Anordnung und Menü passen je nach Bildschirm, darum bleiben sie pro Gerät.
-  const DEVICE_ONLY = new Set(["pomo_layout", "pomo_menu"]);
+  const DEVICE_ONLY = new Set(["pomo_layout", "pomo_menu", "pomo_design"]);
 
   const url = typeof SUPABASE_URL === "string" ? SUPABASE_URL.trim() : "";
   const anonKey = typeof SUPABASE_ANON_KEY === "string" ? SUPABASE_ANON_KEY.trim() : "";

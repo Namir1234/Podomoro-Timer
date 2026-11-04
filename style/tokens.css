@@ -1,0 +1,27 @@
+:root {
+  color-scheme: dark;
+  --space-3xs: 2px; --space-2xs: 4px; --space-xs: 8px; --space-sm: 12px; --space-md: 16px; --space-lg: 24px; --space-xl: 40px; --space-2xl: 64px; --space-3xl: 96px; --space-4xl: 144px;
+  --text-xs: 0.75rem; --text-sm: 0.875rem; --text-md: 1rem; --text-lg: 1.2rem; --text-xl: 1.44rem; --text-2xl: 1.728rem; --text-3xl: 2.074rem;
+  --text-display-s: 1.44rem; --text-display: 1.728rem; --text-section: 1.2rem; --text-title: 1rem; --text-lead: 1rem;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); --ease-in: cubic-bezier(0.7, 0, 0.84, 0); --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 120ms; --dur-short: 220ms; --dur-long: 420ms;
+  --color-error: oklch(72% 0.15 27); --color-success: oklch(76% 0.13 150);
+  --container: 1440px; --gutter: 64px; --gap-columns: 32px; --section-gap-s: 120px; --section-gap: 144px; --section-gap-l: 176px;
+  --z-base: 1; --z-raised: 10; --z-dropdown: 100; --z-sticky: 200; --z-sticky-nav: 300; --z-modal: 400; --z-toast: 500; --z-tooltip: 600;
+  /* Coral, dunkle Variante (eigene Farbstellung): warmes Anthrazit wie ein Schreibtisch am Abend, cremefarbene Schrift, Koralle als einziger Akzent */
+  --color-paper: oklch(19.5% 0.009 50); --color-paper-2: oklch(17% 0.008 50); --color-paper-3: oklch(26.5% 0.011 52);
+  --color-stock: oklch(23% 0.01 52);
+  --color-ink: oklch(93.5% 0.008 70); --color-ink-2: oklch(84% 0.01 65); --color-muted: oklch(70% 0.012 58);
+  --color-rule: oklch(30.5% 0.011 52); --color-rule-2: oklch(37% 0.012 52);
+  --color-accent: oklch(73% 0.125 32); --color-accent-2: oklch(79% 0.11 34); --color-accent-ink: oklch(19% 0.012 40); --color-focus: oklch(78% 0.12 33);
+  --color-warn: oklch(83% 0.11 80);
+  --shade: 5% 0.01 40; --lit: 100% 0.005 80;
+  --font-display: "General Sans", ui-sans-serif, system-ui, sans-serif; --font-body: var(--font-display);
+  --font-outlier: "Geist Mono", ui-monospace, monospace;
+  --radius-card: 8px; --radius-input: 6px; --radius-groove: 12px; --radius-pill: 999px; --radius-stock: 8px; --rule-hair: 1px;
+  --edge-stock: inset 0 1px 0 oklch(var(--lit) / 0.06), 0 0 0 0.5px oklch(var(--shade) / 0.7);
+  --cast-stock: 6px 5px 12px -6px oklch(var(--shade) / 0.65); --cast-stock-lift: 12px 10px 20px -8px oklch(var(--shade) / 0.7);
+  --press-groove: inset 1px 1.5px 3px oklch(var(--shade) / 0.6), inset -1px -1px 0 oklch(var(--lit) / 0.04);
+  --shadow-card: var(--edge-stock), var(--cast-stock);
+  --tracking-display: -0.02em; --display-weight: 600;
+}

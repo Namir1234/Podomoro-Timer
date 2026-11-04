@@ -38,6 +38,9 @@ const I18N = {
     "side.layout": "Felder anordnen",
     "side.menu": "Menü anpassen",
     "side.home": "Zur Startseite",
+    "design.label": "Design",
+    "design.original": "Original",
+    "design.change": "Design wechseln",
 
     // Timer
     "doc.title": "Fokus – Pomodoro",
@@ -283,6 +286,9 @@ const I18N = {
     "side.layout": "Arrange fields",
     "side.menu": "Customize menu",
     "side.home": "Back to home",
+    "design.label": "Design",
+    "design.original": "Original",
+    "design.change": "Change design",
 
     "doc.title": "Fokus – Pomodoro",
     "top.desc": "Pomodoro workspace",
@@ -518,6 +524,9 @@ const I18N = {
     "side.layout": "Disposer les champs",
     "side.menu": "Personnaliser le menu",
     "side.home": "Retour à l’accueil",
+    "design.label": "Design",
+    "design.original": "Original",
+    "design.change": "Changer de design",
 
     "doc.title": "Fokus – Pomodoro",
     "top.desc": "Espace de travail Pomodoro",
@@ -753,6 +762,9 @@ const I18N = {
     "side.layout": "Disponi i riquadri",
     "side.menu": "Personalizza il menu",
     "side.home": "Torna alla home",
+    "design.label": "Design",
+    "design.original": "Originale",
+    "design.change": "Cambia design",
 
     "doc.title": "Fokus – Pomodoro",
     "top.desc": "Area di lavoro Pomodoro",
@@ -988,6 +1000,9 @@ const I18N = {
     "side.layout": "Mezők elrendezése",
     "side.menu": "Menü testreszabása",
     "side.home": "Vissza a kezdőlapra",
+    "design.label": "Dizájn",
+    "design.original": "Eredeti",
+    "design.change": "Dizájn váltása",
 
     "doc.title": "Fokus – Pomodoro",
     "top.desc": "Pomodoro munkaterület",
