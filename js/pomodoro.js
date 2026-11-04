@@ -1682,7 +1682,7 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") setLayoutEdi
 applyLayout();
 
 /* ============================================================
-   FREIES LAYOUT (Timer-Seite): Felder ohne Spalten frei platzieren
+   FREIES LAYOUT (alle Seiten): Felder ohne Spalten frei platzieren
    - Felder liegen absolut positioniert im Container (.free-canvas)
    - Verschieben: Feld im Bearbeitungsmodus irgendwo anfassen und ziehen
    - Grösse: Griff unten rechts stufenlos ziehen, Doppelklick = Höhe automatisch
@@ -1748,7 +1748,8 @@ function freeMeasureDefaults(box) {
     Object.assign(cfg, freeGetInitialPositions());
     return;
   }
-  const legacy = layout[box.closest(".page")?.id || ""] || {};
+  // Übernimmt die alte Raster-Anordnung (gespeichert unter der Seite bzw. dem Zitate-Tab)
+  const legacy = layout[box.parentElement?.id || ""] || {};
   const order = Array.isArray(legacy.order) ? legacy.order : [];
   const sizes = legacy.size || {};
   const cards = freeCards(box);
@@ -2508,6 +2509,8 @@ function freeSchedule(box, full) {
     if (document.body.classList.contains("free-dragging") || document.body.classList.contains("free-resizing")) return;
     if (box._freeFull) { box._freeFull = false; freeRender(box); }
     else {
+      // Wächst ein Feld (z. B. neue Aufgaben), rutschen die Felder darunter mit
+      if (box.classList.contains("free-ready") && freeIsComplete(box)) freeResolveOverlaps(box);
       freeUpdateHeight(box);
       const cfg = freeCfg(box);
       freeCards(box).forEach(c => freeUpdateBadge(c, cfg[c.dataset.card]));
@@ -2551,7 +2554,9 @@ function cardWidthRatio(card) {
   if (!box) return 1;
   if (box.classList.contains("free-canvas")) {
     const p = freeCfg(box)[card.dataset.card];
-    const def = box.id === "timerCanvas" ? FREE_DEFAULTS[card.dataset.card]?.w : null;
+    // Andere Seiten: Standard ist das Raster – halbe Breite, ein einzelnes Feld ganze Breite
+    const def = box.id === "timerCanvas" ? FREE_DEFAULTS[card.dataset.card]?.w
+      : (freeCards(box).length === 1 ? 1 : 0.5 - FREE_GAP / 2 / (box.clientWidth || 1));
     return p && def ? p.w / def : 1;
   }
   const s = getCardSize(card);

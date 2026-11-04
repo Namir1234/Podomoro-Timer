@@ -13,7 +13,7 @@
 <link rel="stylesheet" href="../style/pomodoro-original.css?v=1" data-design="original">
 <link rel="stylesheet" href="../style/pomodoro.css?v=21" data-design="coral">
 <link rel="stylesheet" href="../style/lang-menu.css?v=3">
-<script src="../js/design-boot.js?v=1"></script>
+<script src="../js/design-boot.js?v=2"></script>
 </head>
 <body>
 
@@ -147,7 +147,8 @@
 
   <!-- ================= TO-DO ================= -->
   <section id="todo" class="page">
-    <div class="card">
+    <div class="free-canvas" id="todoCanvas">
+    <div class="card" data-card-id="todo-list" data-title-key="todo.title">
       <h2 data-i18n="todo.title">To-do</h2>
       <form id="todoForm" class="todo-add">
         <input id="todoInput" type="text" placeholder="Neue Aufgabe…" data-i18n-ph="todo.ph" maxlength="120" autocomplete="off">
@@ -157,11 +158,13 @@
       <ul class="todo-list" id="todoList"></ul>
       <button class="link-btn" id="clearDone" data-i18n="todo.clear">Erledigte entfernen</button>
     </div>
+    </div><!-- /.free-canvas -->
   </section>
 
   <!-- ================= NOTIZEN ================= -->
   <section id="notes" class="page">
-    <div class="card notes-card">
+    <div class="free-canvas" id="notesCanvas">
+    <div class="card notes-card" data-card-id="notes-main" data-title-key="nav.notes">
       <div class="notes-folders">
         <h2 data-i18n="notes.folders">Ordner</h2>
         <ul class="folder-list" id="folderList"></ul>
@@ -181,11 +184,13 @@
         <p class="hint" id="notesStatus" data-i18n="notes.saved">Automatisch gespeichert.</p>
       </div>
     </div>
+    </div><!-- /.free-canvas -->
   </section>
 
   <!-- ================= PROJEKTE ================= -->
   <section id="projects" class="page">
-    <div class="card proj-card">
+    <div class="free-canvas" id="projectsCanvas">
+    <div class="card proj-card" data-card-id="projects-main" data-title-key="nav.projects">
       <div class="proj-list-col">
         <h2 data-i18n="proj.title">Projekte</h2>
         <ul class="folder-list" id="projList"></ul>
@@ -215,10 +220,12 @@
         <input type="file" id="projImgInput" accept="image/*" hidden>
       </div>
     </div>
+    </div><!-- /.free-canvas -->
   </section>
 
   <!-- ================= STATISTIK ================= -->
   <section id="stats" class="page">
+    <div class="free-canvas" id="statsCanvas">
     <div class="card" data-card-id="stats-overview" data-title-key="stats.overview">
       <h2 data-i18n="stats.overview">Übersicht</h2>
       <div class="stat-grid">
@@ -244,6 +251,7 @@
       <ul class="history" id="history"></ul>
       <button class="link-btn" id="clearBtn" data-i18n="stats.clear">Alle Daten löschen</button>
     </div>
+    </div><!-- /.free-canvas -->
   </section>
 
   <!-- ================= ZITATE ================= -->
@@ -256,12 +264,13 @@
 
     <!-- Allgemein -->
     <div class="qview active" id="qview-general">
-      <div class="card quote-main">
+      <div class="free-canvas" id="quotesGeneralCanvas">
+      <div class="card quote-main" data-card-id="quotes-general-main" data-title-key="q.current">
         <blockquote id="qText"></blockquote>
         <cite id="qAuthor"></cite>
         <div class="controls"><button class="btn" id="nextQuote" data-i18n="q.next">Neues Zitat</button></div>
       </div>
-      <div class="card">
+      <div class="card" data-card-id="quotes-general-list" data-title-key="q.all">
         <h2 data-i18n="q.all">Alle Zitate</h2>
         <form id="quoteAddForm" class="quote-add">
           <input id="qNewText" type="text" placeholder="Eigenes Zitat…" data-i18n-ph="q.ownPh" maxlength="200" autocomplete="off">
@@ -275,32 +284,37 @@
         </div>
         <div class="quote-list" id="quoteList"></div>
       </div>
+      </div><!-- /.free-canvas -->
     </div>
 
     <!-- Mönche -->
     <div class="qview" id="qview-monks">
-      <div class="card quote-main">
+      <div class="free-canvas" id="quotesMonksCanvas">
+      <div class="card quote-main" data-card-id="quotes-monks-main" data-title-key="q.current">
         <blockquote id="mText"></blockquote>
         <cite id="mAuthor"></cite>
         <div class="controls"><button class="btn" id="nextMonk" data-i18n="q.next">Neues Zitat</button></div>
       </div>
-      <div class="card">
+      <div class="card" data-card-id="quotes-monks-list" data-title-key="q.allMonks">
         <h2 data-i18n="q.allMonks">Alle Mönchs-Zitate</h2>
         <div class="quote-list" id="monkList"></div>
       </div>
+      </div><!-- /.free-canvas -->
     </div>
 
     <!-- Revolutionäre -->
     <div class="qview" id="qview-revo">
-      <div class="card quote-main">
+      <div class="free-canvas" id="quotesRevoCanvas">
+      <div class="card quote-main" data-card-id="quotes-revo-main" data-title-key="q.current">
         <blockquote id="rText"></blockquote>
         <cite id="rAuthor"></cite>
         <div class="controls"><button class="btn" id="nextRevo" data-i18n="q.next">Neues Zitat</button></div>
       </div>
-      <div class="card">
+      <div class="card" data-card-id="quotes-revo-list" data-title-key="q.allRevo">
         <h2 data-i18n="q.allRevo">Alle Revolutions-Zitate</h2>
         <div class="quote-list" id="revoList"></div>
       </div>
+      </div><!-- /.free-canvas -->
     </div>
   </section>
 
@@ -361,7 +375,7 @@
 <script src="../js/vendor/supabase.js"></script>
 <script src="../js/cloud-config.js"></script>
 <script src="../js/cloud.js"></script>
-<script src="../js/pomodoro.js?v=28"></script>
+<script src="../js/pomodoro.js?v=29"></script>
 <script>
   // Mobile Schublade: Hamburger-Menü öffnen/schliessen
   (() => {

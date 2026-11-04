@@ -532,7 +532,8 @@ button.back { border: 0; background: transparent; width: 100%; font-family: inhe
 }
 
 /* ===== Felder anordnen: verschieben, Breite & Grösse ändern ===== */
-.page > .card:only-child { grid-column: span var(--span, 12); }
+.page > .card:only-child,
+.free-canvas:not(:has(> .card ~ .card)) > .card { grid-column: span var(--span, 12); }
 
 /* Scrollbar nur anzeigen, wenn der Inhalt nicht mehr ganz ins Feld passt */
 .card {
@@ -732,7 +733,7 @@ body.layout-edit .card > *:not(.card-edit-bar):not(.card-resize):not(.free-handl
   .layout-bar-actions { justify-content: center; }
 }
 
-/* ===== Freies Layout (Timer-Seite): Felder ohne Spalten frei platzieren ===== */
+/* ===== Freies Layout (alle Seiten): Felder ohne Spalten frei platzieren ===== */
 .free-canvas {
   grid-column: 1 / -1;
   position: relative;
