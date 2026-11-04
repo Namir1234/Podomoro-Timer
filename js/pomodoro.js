@@ -937,6 +937,15 @@ function clockStartLabel(c) {
   return clockIdle(c) || clockDone(c) ? t("btn.start") : t("btn.resume");
 }
 
+// Text unter den Ziffern (wie "Zeit zum Fokussieren" beim Pomodoro)
+function clockLabel(c) {
+  if (c.type === "timer") {
+    if (clockDone(c)) return t("clocks.done");
+    return clockIdle(c) ? t("clocks.setHint") : t("clocks.of", { t: fmtClock(c.dur * 1000) });
+  }
+  return (c.laps || []).length ? t("clocks.lapN", { n: c.laps.length + 1 }) : "";
+}
+
 // Abgelaufene Timer anhalten (beim Laden ohne Ton)
 function clockCheckDone(silent) {
   let hit = false;
@@ -956,16 +965,21 @@ function paintClocks() {
   document.querySelectorAll(".clock-list li[data-id]").forEach(li => {
     const c = clocks.find(x => x.id === +li.dataset.id);
     if (!c) return;
-    const el = li.querySelector(".clock-time");
-    if (el) el.textContent = c.type === "timer" ? fmtClock(clockLeft(c)) : fmtClock(clockElapsed(c), true);
-    const fill = li.querySelector(".clock-fill");
-    if (fill) fill.style.width = (c.dur ? 100 * clockLeft(c) / (c.dur * 1000) : 0) + "%";
+    const el = li.querySelector(".digits");
+    if (el) {
+      el.textContent = c.type === "timer" ? fmtClock(clockLeft(c)) : fmtClock(clockElapsed(c), true);
+      el.classList.toggle("long", el.textContent.length > 5);
+      el.classList.toggle("xlong", el.textContent.length > 7);
+    }
+    // Ring wie beim Pomodoro: Timer = Restzeit, Stoppuhr = läuft einmal pro Minute voll
+    const frac = c.type === "timer" ? (c.dur ? clockLeft(c) / (c.dur * 1000) : 0) : clockElapsed(c) % 60000 / 60000;
+    li.querySelector(".ring .fg").style.strokeDashoffset = CIRC * (1 - frac);
   });
 }
 
 function clockEnsureTick() {
   const any = clocks.some(c => c.start);
-  if (any && !clockTick) clockTick = setInterval(paintClocks, 100);
+  if (any && !clockTick) clockTick = setInterval(paintClocks, 50);
   if (!any && clockTick) { clearInterval(clockTick); clockTick = null; }
 }
 
@@ -990,15 +1004,21 @@ function renderClockList(type) {
     return `
       <li class="clock-item ${timer ? "is-timer" : "is-watch"} ${c.start ? "running" : ""} ${clockDone(c) ? "done" : ""}" data-id="${c.id}">
         <div class="clock-head">
-          <img class="icon" src="../img/${timer ? "timer" : "stopwatch"}.svg" alt="">
           <input class="clock-name" type="text" maxlength="40" value="${esc(c.name)}" aria-label="${esc(t("clocks.name"))}">
           <button class="todo-del clock-del" type="button" title="${esc(t("btn.delete"))}" aria-label="${esc(t("btn.delete"))}">✕</button>
         </div>
-        ${timer && idle
-          ? `<div class="clock-set">${field("h", h, "clocks.h")}<span class="colon">:</span>${field("m", m, "clocks.m")}<span class="colon">:</span>${field("s", s, "clocks.s")}</div>`
-          : `<div class="clock-time"></div>`}
-        ${timer ? `<div class="clock-bar"><div class="clock-fill"></div></div>` : ""}
-        ${clockDone(c) ? `<p class="clock-msg">${esc(t("clocks.done"))}</p>` : ""}
+        <div class="ring-wrap">
+          <svg class="ring" viewBox="0 0 260 260" aria-hidden="true">
+            <circle class="bg" cx="130" cy="130" r="114"/>
+            <circle class="fg" cx="130" cy="130" r="114" style="stroke-dasharray:${CIRC}"/>
+          </svg>
+          <div class="time">
+            ${timer && idle
+              ? `<div class="clock-set">${field("h", h, "clocks.h")}<span class="colon">:</span>${field("m", m, "clocks.m")}<span class="colon">:</span>${field("s", s, "clocks.s")}</div>`
+              : `<div class="digits"></div>`}
+            <div class="label">${esc(clockLabel(c))}</div>
+          </div>
+        </div>
         <div class="controls">
           <button class="btn clock-start" type="button" ${timer && !c.dur ? "disabled" : ""}>${esc(clockStartLabel(c))}</button>
           ${!timer && c.start ? `<button class="btn secondary clock-lap" type="button" ${laps.length >= CLOCK_MAX_LAPS ? "disabled" : ""}>${esc(t("clocks.lap"))}</button>` : ""}

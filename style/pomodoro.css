@@ -370,30 +370,31 @@ body:not(.tab-pomodoro) #zenToggleBtn { display: none; }
   .ttabs button { padding: var(--space-2xs) var(--space-xs); }
 }
 
-/* ===== Uhren (eigene Timer und Stoppuhren) ===== */
+/* ===== Uhren (eigene Timer und Stoppuhren) =====
+   Jede Uhr sieht aus wie die Pomodoro-Karte: eigene Karte, Ring, grosse Ziffern, Knöpfe darunter.
+   Das umschliessende Feld ist nur die Fläche dafür (unsichtbar). */
+.tview:not(#timerCanvas) > .card { background: transparent; box-shadow: none; padding: 0; overflow: visible; }
 .clock-add { display: flex; flex-wrap: wrap; gap: var(--space-xs); margin-bottom: var(--space-md); }
-.clock-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--space-sm); }
+.clock-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-md); align-items: start; }
 .clock-list > li.empty { grid-column: 1 / -1; color: var(--muted); }
-.clock-add { justify-content: flex-start; }
-.clock-item { background: var(--inset); border: var(--rule-hair) solid var(--border); border-radius: var(--radius-stock); padding: var(--space-sm) var(--space-md) var(--space-md); }
-.clock-item.running { border-color: var(--accent); }
-.clock-item.done { border-color: var(--color-error); }
-.clock-head { display: flex; align-items: center; gap: var(--space-xs); }
-.clock-head .icon { width: 16px; height: 16px; opacity: .6; flex-shrink: 0; }
-.clock-name { flex: 1; min-width: 0; background: transparent; border-color: transparent; font-weight: 500; padding-left: var(--space-2xs); }
-.clock-time, .clock-set { font-family: var(--font-outlier); font-size: 2.6rem; letter-spacing: -.03em; font-variant-numeric: tabular-nums; line-height: 1.15; text-align: center; margin: var(--space-sm) 0 var(--space-xs); }
-.clock-set { display: flex; align-items: center; justify-content: center; gap: var(--space-3xs); }
+.clock-item { position: relative; background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow-card); padding: var(--space-lg); }
+.clock-head { display: flex; justify-content: center; margin-bottom: var(--space-md); padding: 0 var(--space-xl); }
+.clock-name {
+  width: auto; max-width: 100%; field-sizing: content; min-width: 8ch; text-align: center;
+  background: var(--inset); box-shadow: var(--press-groove); border: 0; border-radius: var(--radius-groove);
+  padding: var(--space-xs) var(--space-md); font-size: var(--text-sm); font-weight: 500; color: var(--text);
+}
+.clock-del { position: absolute; top: var(--space-sm); right: var(--space-sm); }
+.clock-item .digits.xlong { font-size: 13cqi; }
+.clock-item.done .digits { color: var(--color-error); }
+.clock-item.done .label { color: var(--color-error); }
+.clock-set { display: flex; align-items: center; justify-content: center; gap: 1cqi; font-family: var(--font-outlier); font-size: 13cqi; line-height: 1; }
 .clock-set .colon { color: var(--muted); }
-.clock-set-val { width: 2.1em; padding: 0 var(--space-3xs); text-align: center; font: inherit; }
-.clock-bar { height: 4px; background: var(--track); border-radius: 2px; overflow: hidden; }
-.clock-fill { height: 100%; background: var(--accent); width: 100%; }
-.clock-item.done .clock-time, .clock-msg { color: var(--color-error); }
-.clock-msg { text-align: center; font-size: var(--text-sm); font-weight: 500; margin-top: var(--space-xs); }
+.clock-set-val { width: 1.6em; padding: .1em 0; text-align: center; font: inherit; letter-spacing: -.04em; }
 .clock-item .controls { flex-wrap: wrap; }
-.clock-item .btn { padding: 0 var(--space-md); }
 .clock-item .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
-.clock-laps { list-style: none; margin-top: var(--space-sm); max-height: 160px; overflow-y: auto; font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
-.clock-laps li { display: flex; justify-content: space-between; gap: var(--space-sm); padding: var(--space-3xs) 0; border-bottom: var(--rule-hair) solid var(--border); }
+.clock-laps { list-style: none; margin-top: var(--space-md); max-height: 160px; overflow-y: auto; font-size: var(--text-sm); font-variant-numeric: tabular-nums; border-top: var(--rule-hair) solid var(--color-rule-2); }
+.clock-laps li { display: flex; justify-content: space-between; gap: var(--space-sm); padding: var(--space-2xs) 0; border-bottom: var(--rule-hair) solid var(--border); }
 .clock-laps li span:first-child { color: var(--muted); }
 
 /* ===== To-do ===== */
