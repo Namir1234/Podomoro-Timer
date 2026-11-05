@@ -1,18 +1,17 @@
 # Projektdokumentation – Fokus Pomodoro-Timer
 
-Stand: 4. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Timer · Branch `main`
+Stand: 5. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Timer · Branch `main`
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (72 Commits,
-6. Oktober bis 4. November 2026) und wird bei jedem Commit und Push nachgeführt.
+Die Chronik weiter unten ist aus der Git-Historie erstellt (75 Commits,
+6. Oktober bis 5. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
 
 ## 1. Überblick
 
-**Fokus** ist ein Pomodoro-Timer mit Statistik, To-dos, Notizen, Projekten und
-Zitaten. Derselbe Web-Code läuft auf drei Arten:
+**Fokus** ist ein Pomodoro-Timer mit Statistik, To-dos und Zitaten. Derselbe Web-Code läuft auf drei Arten:
 
 | Plattform | Technik | Start |
 | --- | --- | --- |
@@ -26,24 +25,27 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
 ### Funktionen (aktueller Stand)
 
 - Pomodoro-Timer mit Fokus-, Kurz- und Langpause, Vorlagen, Plus/Minus-Steppern,
-  tippbaren Zeiten, optionalem Sekunden-Modus und Ton-Schalter
+  tippbaren Zeiten, optionalem Sekunden-Modus (dann auch Phasen unter einer
+  Minute) und Ton-Schalter
+- Popup „Zeit ist um!“ am Ende einer Pomodoro-Phase oder eines Timers, im
+  Hintergrund zusätzlich als System-Mitteilung (falls erlaubt)
 - Oberfläche färbt sich gegen Ende der Phase rot
 - Übersicht „Heute“: Fortschritt mit Tagesziel, Statistik, Zitat-Karte
 - Nur-Timer-Ansicht (Timer gross, alles andere ausgeblendet)
 - Umschalter oben auf der Timer-Seite: **Pomodoro**, **Timer**, **Stoppuhr** –
   beliebig viele eigene Timer und Stoppuhren (mit Runden), laufen auch nach
   dem Neuladen weiter
-- Felder auf allen Seiten (Timer, To-do, Notizen, Projekte, Statistik, Zitate)
+- Felder auf allen Seiten (Timer, To-do, Statistik, Zitate)
   frei verschieben und in der Grösse ändern, Inhalt skaliert mit
-- To-dos (mit optionaler Deadline), Notizen mit Ordnern und Editor mit Bildern,
-  Projekte mit eigenen To-dos und Notizen
+- To-dos (mit optionaler Deadline)
 - Zitate: grosser Pool, zufällige Auswahl, eigene Zitate mit Autor
 - Seitenmenü klappt beim Darüberfahren auf, Menüpunkte ein-/ausblenden und sortieren
 - Mobile Ansicht mit Hamburger-Menü
 - Sprache: Deutsch, Englisch, Französisch, Italienisch, Ungarisch
 - Design wählbar: **Original** (Olivgrün) oder **Coral**
 - Login und Cloud-Sync über Supabase – inklusive Feldgrössen und Design
-  (nur die Menü-Einstellung bleibt pro Gerät)
+  (nur die Menü-Einstellung bleibt pro Gerät); Bestätigungsmail lässt sich
+  erneut senden
 
 ### Projektstruktur
 
@@ -56,7 +58,7 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
 | `sw.js`, `manifest.json` | PWA (offlinefähig, installierbar) |
 | `electron/` | Windows-Hülle (`main.js`, `serve-dist.js`) |
 | `ios/` | Xcode-Projekt (von Capacitor erzeugt) |
-| `supabase/schema.sql` | Tabelle `user_data` mit Row-Level-Security |
+| `supabase/schema.sql`, `supabase/ERD.md` | Tabelle `user_data` mit Row-Level-Security, Datenmodell-Diagramm |
 | `tools/` | Build-Script, Icon-Renderer, Smoke-Test |
 | `dist/` | Build-Ausgabe, nicht von Hand bearbeiten |
 | `release/` | fertige Windows-Dateien |
@@ -280,7 +282,7 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | 11:40 | `cc221b4` | Dokumentation nachgefuehrt: Umschalter | main | 1, +21 / −7 |
 | 11:42 | `07301db` | Push vermerkt | main | 1, +6 / −3 |
 | 12:18 | `3ffd5a4` | Timer und Stoppuhr im gleichen Design wie der Pomodoro-Timer | main | 6, +85 / −54 |
-| 12:18 | (dieser Commit) | Dokumentation nachgefuehrt: Uhren-Design | main | Doku |
+| 12:18 | `80cd13a` | Dokumentation nachgefuehrt: Uhren-Design | main | 1, +15 / −4 |
 
 - **`1827153`** – Neue Seite **Uhren** (Menüpunkt mit Stoppuhr-Icon
   `img/stopwatch.svg`, im Menü ein-/ausblendbar). Dort lassen sich beliebig viele
@@ -316,15 +318,50 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
   Feld ist unsichtbar, die Uhren liegen direkt auf der Fläche. Neue Keys
   `clocks.setHint`, `clocks.of`; `CACHE_NAME` auf `fokus-cache-v28`.
 
+### Phase 11 – Aufräumen und Rückmeldungen (5. November 2026)
+
+| Zeit | Hash | Commit | Branch | Umfang |
+| --- | --- | --- | --- | --- |
+| 19:31 | `23d3140` | Datenmodell-Diagramm fuer Supabase | main | 1, +151 / −0 |
+| 19:31 | `af80f9b` | Notizen und Projekte entfernt, Popup bei Ablauf, Bestaetigungsmail erneut senden | main | 12, +233 / −618 |
+| 19:35 | (dieser Commit) | Dokumentation nachgefuehrt: Notizen und Projekte entfernt | main | Doku |
+
+- **`23d3140`** – `supabase/ERD.md`: Mermaid-Diagramm zu `schema.sql`. Zeigt die
+  eine eigene Tabelle `public.user_data` und ihre Beziehung zu `auth.users`,
+  die der Schema-Visualizer von Supabase nicht über die Schema-Grenze zeichnet.
+- **`af80f9b`** – Mehrere Änderungen, die zusammen im Arbeitsverzeichnis lagen:
+  - **Notizen und Projekte entfernt:** Menüpunkte, Seiten, Editor-Code
+    (rund 210 Zeilen in `pomodoro.js`), Styles in beiden Designs, Icons
+    `img/notes.svg`/`img/projects.svg` und alle zugehörigen
+    Übersetzungs-Keys (`nav.notes`, `nav.projects`, `notes.*`, `folder.*`,
+    `proj.*`, `ed.*`, `todo.emptyShort`). Beschreibungen in Manifest,
+    `package.json`, Startseite und Konto-Text angepasst. Gespeicherte Daten
+    (`pomo_notebooks`, `pomo_projects`) bleiben unangetastet, werden aber
+    nicht mehr angezeigt; alte Menü-Einstellungen bleiben gültig.
+  - **Popup „Zeit ist um!“** (`#timeUpModal`) nach jeder Pomodoro-Phase und
+    wenn Timer ablaufen (mehrere gleichzeitig in einer Liste). Läuft die App
+    im Hintergrund, kommt eine System-Mitteilung; die Erlaubnis wird beim
+    ersten Start gefragt. Keys `done.*`.
+  - **Sekunden-Modus:** heisst jetzt „Sekunden einstellen“, Phasen dürfen
+    dann auch unter einer Minute liegen (mindestens 1 Sekunde).
+  - **Uhren:** Timer mit Schnellwahl (10 s, 1, 5, 10 min) wie die Modus-Knöpfe,
+    Ziffern direkt im Ring tippen (ab einer Stunde h:mm:ss), Namensfeld unten
+    wie „Fach / Thema“.
+  - **Konto:** Knopf „Bestätigungsmail erneut senden“, erscheint nur, wenn
+    eine Bestätigung aussteht (`cloud.resendConfirmation`, Keys `acc.resend*`).
+  - `CACHE_NAME` auf `fokus-cache-v31`.
+- Doku-Commit: Chronik, Funktionsliste und Zahlen nachgeführt. Zusammen mit
+  `3ffd5a4`, `80cd13a`, `23d3140` und `af80f9b` gepusht nach `origin/main`.
+
 ---
 
 ## 4. Zahlen
 
 | | |
 | --- | --- |
-| Zeitraum | 6. Oktober – 4. November 2026 |
-| Commits | 72 (davon 1 Merge) |
-| Aktive Tage | 10 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4. Nov.) |
+| Zeitraum | 6. Oktober – 5. November 2026 |
+| Commits | 75 (davon 1 Merge) |
+| Aktive Tage | 11 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
 
