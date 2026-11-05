@@ -1,4 +1,4 @@
-const CACHE_NAME = "fokus-cache-v28";
+const CACHE_NAME = "fokus-cache-v31";
 
 const ASSETS = [
   "./",
@@ -35,8 +35,6 @@ const ASSETS = [
   "./img/expand.svg",
   "./img/language.svg",
   "./img/layout.svg",
-  "./img/notes.svg",
-  "./img/projects.svg",
   "./img/quote.svg",
   "./img/settings.svg",
   "./img/stats.svg",

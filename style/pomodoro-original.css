@@ -337,25 +337,29 @@ body:not(.tab-pomodoro) #zenToggleBtn { display: none; }
 }
 
 /* ===== Uhren (eigene Timer und Stoppuhren) =====
-   Jede Uhr sieht aus wie die Pomodoro-Karte: eigene Karte, Ring, grosse Ziffern, Knöpfe darunter.
+   Jede Uhr ist aufgebaut wie die Pomodoro-Karte: Auswahlleiste oben (Schnellwahl statt Modi),
+   Ring mit grossen Ziffern, Knöpfe darunter, Namensfeld unten wie "Fach / Thema".
    Das umschliessende Feld ist nur die Fläche dafür (unsichtbar). */
 .tview:not(#timerCanvas) > .card { background: transparent; border-color: transparent; box-shadow: none; padding: 0; overflow: visible; }
 .clock-add { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
-.clock-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; align-items: start; }
+.clock-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 16px; align-items: start; }
 .clock-list > li.empty { grid-column: 1 / -1; color: var(--muted); }
 .clock-item { position: relative; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: 0 1px 2px rgba(0,0,0,.25), 0 10px 30px rgba(0,0,0,.16); }
-.clock-head { display: flex; justify-content: center; margin-bottom: 12px; padding: 0 32px; }
-.clock-name {
-  width: auto; max-width: 100%; field-sizing: content; min-width: 8ch; text-align: center;
-  background: var(--inset); border: 1px solid var(--border); border-radius: 12px;
-  padding: 7px 14px; font-size: .84rem; font-weight: 600; color: var(--text);
-}
-.clock-del { position: absolute; top: 10px; right: 10px; }
-.clock-item .digits.xlong { font-size: 13cqi; }
+.clock-presets { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.clock-presets button { padding: 7px 11px; }
+.clock-item.is-watch .ring-wrap { margin-top: 6px; }
+.clock-item .digits.xlong { font-size: 15cqi; }
 .clock-item.done .digits, .clock-item.done .label { color: #e5806f; }
-.clock-set { display: flex; align-items: center; justify-content: center; gap: 1cqi; font-size: 13cqi; font-weight: 700; line-height: 1; }
-.clock-set .colon { color: var(--muted); }
-.clock-set-val { width: 1.6em; padding: .1em 0; text-align: center; font: inherit; }
+/* Einstellen direkt in den Ziffern – gleiche Schrift und Grösse wie die laufende Anzeige */
+.clock-set { display: flex; align-items: center; justify-content: center; font-size: 21cqi; font-weight: 700; letter-spacing: -.02em; line-height: 1; }
+.clock-set.with-h { font-size: 15cqi; }
+.clock-set-val {
+  width: 2ch; padding: .06em 0; text-align: center; font: inherit; font-variant-numeric: tabular-nums;
+  background: transparent; border: 0; border-radius: 8px; color: var(--text); cursor: text;
+}
+.clock-set-val:hover, .clock-set-val:focus { background: var(--inset); outline: none; }
+.clock-name-row .clock-name { flex: 1; min-width: 0; }
+.clock-name-row .clock-del { flex-shrink: 0; }
 .clock-item .controls { flex-wrap: wrap; }
 .clock-item .btn:disabled { opacity: .45; cursor: not-allowed; filter: none; transform: none; }
 .clock-laps { list-style: none; margin-top: 14px; max-height: 160px; overflow-y: auto; font-size: .85rem; font-variant-numeric: tabular-nums; }
@@ -377,48 +381,6 @@ body:not(.tab-pomodoro) #zenToggleBtn { display: none; }
 .todo-list li.empty { color: var(--muted); border: 0; padding-top: 4px; }
 .todo-del { background: none; border: 0; color: var(--muted); cursor: pointer; font-size: 1rem; padding: 4px 8px; line-height: 1; }
 .todo-del:hover { color: var(--accent); }
-
-/* ===== Notizen (Ordner + Editor) ===== */
-.notes-card { display: flex; gap: 20px; align-items: stretch; }
-.notes-folders { width: 190px; flex-shrink: 0; border-right: 1px solid var(--border); padding-right: 16px; }
-.notes-folders h2 { font-size: 1rem; margin-bottom: 12px; }
-.folder-list { list-style: none; margin-bottom: 10px; }
-.folder-list li { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 9px 10px; border-radius: 8px; cursor: pointer; }
-.folder-list li:hover { background: var(--hover); }
-.folder-list li.active { background: var(--accent); }
-.folder-list li.active .folder-name { color: #fff; }
-.folder-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .92rem; }
-.folder-del { background: none; border: 0; color: var(--muted); cursor: pointer; font-size: .85rem; padding: 2px 6px; opacity: 0; }
-.folder-list li:hover .folder-del { opacity: 1; }
-.folder-list li.active .folder-del { color: #fff; opacity: 1; }
-.notes-main { flex: 1; min-width: 0; }
-.editor-toolbar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-.editor-toolbar button { background: var(--inset); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 8px 12px; cursor: pointer; font-size: .9rem; min-width: 40px; }
-.editor-toolbar button:hover { border-color: var(--accent); color: var(--accent); }
-.editor { min-height: 320px; background: var(--inset); border: 1px solid var(--border); border-radius: 12px; padding: 16px; line-height: 1.6; overflow-wrap: anywhere; }
-.editor:focus { outline: none; border-color: var(--accent); }
-.editor img { max-width: 100%; border-radius: 8px; margin: 8px 0; }
-.editor h3 { margin: 10px 0 6px; font-size: 1.1rem; }
-.editor ul { padding-left: 22px; }
-@media (max-width: 720px) {
-  .notes-card { flex-direction: column; }
-  .notes-folders { width: auto; border-right: 0; border-bottom: 1px solid var(--border); padding-right: 0; padding-bottom: 12px; }
-}
-
-.editor-toolbar button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-
-/* ===== Projekte ===== */
-.proj-card { display: flex; gap: 20px; align-items: stretch; }
-.proj-list-col { width: 190px; flex-shrink: 0; border-right: 1px solid var(--border); padding-right: 16px; }
-.proj-list-col h2 { font-size: 1rem; margin-bottom: 12px; }
-.proj-main { flex: 1; min-width: 0; }
-.proj-title { font-size: 1.3rem; margin-bottom: 12px; }
-.proj-sub { font-size: 1rem; color: var(--muted); margin: 20px 0 10px; }
-#projEditor { min-height: 220px; }
-@media (max-width: 720px) {
-  .proj-card { flex-direction: column; }
-  .proj-list-col { width: auto; border-right: 0; border-bottom: 1px solid var(--border); padding-right: 0; padding-bottom: 12px; }
-}
 
 /* ===== Zitate: eine Seite, drei Arten ===== */
 #zitate.page.active { display: block; }
@@ -463,6 +425,14 @@ button.back { border: 0; background: transparent; width: 100%; font-family: inhe
 .modal { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; padding: 16px; }
 .modal[hidden] { display: none; }
 .modal-box { width: min(440px, 100%); max-height: 90vh; overflow: auto; }
+/* Popup "Zeit ist um" */
+.timeup-box { width: min(380px, 100%); text-align: center; }
+.timeup-box .timeup-icon { width: 44px; height: 44px; margin: 0 auto 12px; display: block; animation: timeup-ring .6s ease-out 2; }
+.timeup-box h2 { justify-content: center; font-size: 1.35rem; margin-bottom: 6px; }
+.timeup-list { list-style: none; color: var(--muted); line-height: 1.5; }
+.timeup-box .controls { margin-top: 16px; }
+@keyframes timeup-ring { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-14deg); } 75% { transform: rotate(14deg); } }
+@media (prefers-reduced-motion: reduce) { .timeup-box .timeup-icon { animation: none; } }
 .menu-edit-list { list-style: none; margin: 14px 0 4px; }
 .menu-edit-list li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
 .menu-edit-list label { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: .95rem; }
@@ -1035,7 +1005,7 @@ body.zen .subject-row { width: min(100%, 420px); }
 .account-msg { font-size: .85rem; line-height: 1.4; color: #e08a6d; margin-top: 4px; }
 .account-msg:empty { display: none; }
 .account-msg.ok { color: var(--muted); }
-.account-cancel { display: block; margin: 12px auto 0; }
+.account-cancel, .account-resend { display: block; margin: 12px auto 0; }
 .account-info p { line-height: 1.45; overflow-wrap: anywhere; }
 .account-info .account-msg { margin-top: 10px; }
 .modal button:disabled { opacity: .6; cursor: default; }

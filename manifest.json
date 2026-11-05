@@ -1,7 +1,7 @@
 {
   "name": "Fokus – Pomodoro Timer",
   "short_name": "Fokus",
-  "description": "Pomodoro-Timer mit Statistik, To-dos, Notizen und Projekten.",
+  "description": "Pomodoro-Timer mit Statistik und To-dos.",
   "start_url": "./pages/pomodoro.html",
   "scope": "./",
   "display": "standalone",

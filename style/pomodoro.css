@@ -371,26 +371,32 @@ body:not(.tab-pomodoro) #zenToggleBtn { display: none; }
 }
 
 /* ===== Uhren (eigene Timer und Stoppuhren) =====
-   Jede Uhr sieht aus wie die Pomodoro-Karte: eigene Karte, Ring, grosse Ziffern, Knöpfe darunter.
+   Jede Uhr ist aufgebaut wie die Pomodoro-Karte: Auswahlleiste oben (Schnellwahl statt Modi),
+   Ring mit grossen Ziffern, Knöpfe darunter, Namensfeld unten wie "Fach / Thema".
    Das umschliessende Feld ist nur die Fläche dafür (unsichtbar). */
 .tview:not(#timerCanvas) > .card { background: transparent; box-shadow: none; padding: 0; overflow: visible; }
 .clock-add { display: flex; flex-wrap: wrap; gap: var(--space-xs); margin-bottom: var(--space-md); }
-.clock-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-md); align-items: start; }
+.clock-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: var(--space-md); align-items: start; }
 .clock-list > li.empty { grid-column: 1 / -1; color: var(--muted); }
 .clock-item { position: relative; background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow-card); padding: var(--space-lg); }
-.clock-head { display: flex; justify-content: center; margin-bottom: var(--space-md); padding: 0 var(--space-xl); }
-.clock-name {
-  width: auto; max-width: 100%; field-sizing: content; min-width: 8ch; text-align: center;
-  background: var(--inset); box-shadow: var(--press-groove); border: 0; border-radius: var(--radius-groove);
-  padding: var(--space-xs) var(--space-md); font-size: var(--text-sm); font-weight: 500; color: var(--text);
-}
-.clock-del { position: absolute; top: var(--space-sm); right: var(--space-sm); }
-.clock-item .digits.xlong { font-size: 13cqi; }
+.clock-presets { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.clock-presets button { padding: var(--space-xs) var(--space-sm); }
+.clock-item.is-watch .ring-wrap { margin-top: var(--space-xs); }
+.clock-item .digits.xlong { font-size: 15cqi; }
 .clock-item.done .digits { color: var(--color-error); }
 .clock-item.done .label { color: var(--color-error); }
-.clock-set { display: flex; align-items: center; justify-content: center; gap: 1cqi; font-family: var(--font-outlier); font-size: 13cqi; line-height: 1; }
-.clock-set .colon { color: var(--muted); }
-.clock-set-val { width: 1.6em; padding: .1em 0; text-align: center; font: inherit; letter-spacing: -.04em; }
+/* Einstellen direkt in den Ziffern – gleiche Schrift und Grösse wie die laufende Anzeige */
+.clock-set { display: flex; align-items: center; justify-content: center; font-family: var(--font-outlier); font-size: 21cqi; line-height: 1; }
+.clock-set.with-h { font-size: 15cqi; }
+.clock-set .colon { padding: 0 .04em; }
+.clock-set-val {
+  width: 2ch; padding: .06em 0; text-align: center; font: inherit; font-variant-numeric: tabular-nums; letter-spacing: -.04em;
+  background: transparent; border: 0; border-radius: var(--radius-input); color: var(--text); cursor: text;
+}
+.clock-set-val:hover { background: var(--inset); }
+.clock-set-val:focus { background: var(--inset); box-shadow: var(--press-groove); outline: none; }
+.clock-name-row .clock-name { flex: 1; min-width: 0; }
+.clock-name-row .clock-del { flex-shrink: 0; }
 .clock-item .controls { flex-wrap: wrap; }
 .clock-item .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
 .clock-laps { list-style: none; margin-top: var(--space-md); max-height: 160px; overflow-y: auto; font-size: var(--text-sm); font-variant-numeric: tabular-nums; border-top: var(--rule-hair) solid var(--color-rule-2); }
@@ -412,49 +418,6 @@ body:not(.tab-pomodoro) #zenToggleBtn { display: none; }
 .todo-list li.empty { color: var(--muted); border: 0; padding-top: var(--space-2xs); }
 .todo-del { background: none; border: 0; color: var(--muted); cursor: pointer; font-size: 1rem; padding: var(--space-2xs) var(--space-xs); line-height: 1; transition: color var(--dur-micro) var(--ease-out); }
 .todo-del:hover { color: var(--color-error); }
-
-/* ===== Notizen (Ordner + Editor) ===== */
-.notes-card { display: flex; gap: 20px; align-items: stretch; }
-.notes-folders { width: 192px; flex-shrink: 0; border-right: var(--rule-hair) solid var(--border); padding-right: var(--space-md); }
-.notes-folders h2 { margin-bottom: var(--space-sm); }
-.folder-list { list-style: none; margin-bottom: var(--space-sm); }
-.folder-list li { display: flex; align-items: center; justify-content: space-between; gap: var(--space-xs); padding: var(--space-xs) var(--space-sm); border-radius: var(--radius-stock); cursor: pointer; transition: background-color var(--dur-micro) var(--ease-out); }
-.folder-list li:hover { background: var(--hover); }
-.folder-list li.active { background: var(--hover); box-shadow: var(--edge-stock), var(--cast-stock); }
-.folder-list li.active .folder-name { color: var(--text); font-weight: 500; }
-.folder-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--text-sm); }
-.folder-del { background: none; border: 0; color: var(--muted); cursor: pointer; font-size: var(--text-sm); padding: var(--space-3xs) var(--space-xs); opacity: 0; }
-.folder-list li:hover .folder-del, .folder-del:focus-visible { opacity: 1; }
-.folder-list li.active .folder-del { color: var(--muted); opacity: 1; }
-.notes-main { flex: 1; min-width: 0; }
-.editor-toolbar { display: flex; flex-wrap: wrap; gap: var(--space-2xs); margin-bottom: var(--space-sm); }
-.editor-toolbar button { background: transparent; border: var(--rule-hair) solid var(--border); color: var(--text); border-radius: 0; padding: var(--space-xs) var(--space-sm); cursor: pointer; font-size: var(--text-sm); min-width: 40px; transition: border-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
-.editor-toolbar button:hover { border-color: var(--accent); color: var(--accent); }
-.editor-toolbar button:active { background: var(--hover); }
-.editor { min-height: 320px; background: var(--inset); border: var(--rule-hair) solid var(--border); padding: var(--space-md); line-height: 1.6; overflow-wrap: anywhere; color: var(--color-ink-2); }
-.editor:focus { border-color: var(--accent); }
-.editor img { max-width: 100%; margin: var(--space-xs) 0; }
-.editor h3 { margin: var(--space-sm) 0 var(--space-xs); font-size: var(--text-xl); color: var(--text); }
-.editor ul { padding-left: var(--space-lg); }
-@media (max-width: 720px) {
-  .notes-card { flex-direction: column; }
-  .notes-folders { width: auto; border-right: 0; border-bottom: var(--rule-hair) solid var(--border); padding-right: 0; padding-bottom: var(--space-sm); }
-}
-
-.editor-toolbar button.active { background: var(--hover); border-color: var(--color-rule-2); color: var(--text); }
-
-/* ===== Projekte ===== */
-.proj-card { display: flex; gap: 20px; align-items: stretch; }
-.proj-list-col { width: 192px; flex-shrink: 0; border-right: var(--rule-hair) solid var(--border); padding-right: var(--space-md); }
-.proj-list-col h2 { margin-bottom: var(--space-sm); }
-.proj-main { flex: 1; min-width: 0; }
-.proj-title { font-size: var(--text-3xl); margin-bottom: var(--space-sm); }
-.proj-sub { font-family: var(--font-body); font-size: var(--text-sm); font-weight: 500; letter-spacing: 0; color: var(--muted); margin: 20px 0 var(--space-xs); }
-#projEditor { min-height: 220px; }
-@media (max-width: 720px) {
-  .proj-card { flex-direction: column; }
-  .proj-list-col { width: auto; border-right: 0; border-bottom: var(--rule-hair) solid var(--border); padding-right: 0; padding-bottom: var(--space-sm); }
-}
 
 /* ===== Zitate: eine Seite, drei Arten ===== */
 #zitate.page.active { display: block; }
@@ -503,6 +466,14 @@ button.back { border: 0; background: transparent; width: 100%; font-family: inhe
 .modal { position: fixed; inset: 0; z-index: 200; background: var(--scrim); display: flex; align-items: center; justify-content: center; padding: var(--space-md); }
 .modal[hidden] { display: none; }
 .modal-box { width: min(440px, 100%); max-height: 90vh; overflow: auto; box-shadow: var(--edge-stock), var(--cast-stock-lift); }
+/* Popup "Zeit ist um" */
+.timeup-box { width: min(380px, 100%); text-align: center; }
+.timeup-box .timeup-icon { width: 44px; height: 44px; margin: 0 auto var(--space-sm); display: block; animation: timeup-ring .6s var(--ease-out) 2; }
+.timeup-box h2 { justify-content: center; font-size: var(--text-xl); margin-bottom: var(--space-xs); }
+.timeup-list { list-style: none; color: var(--muted); line-height: 1.5; }
+.timeup-box .controls { margin-top: var(--space-md); }
+@keyframes timeup-ring { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-14deg); } 75% { transform: rotate(14deg); } }
+@media (prefers-reduced-motion: reduce) { .timeup-box .timeup-icon { animation: none; } }
 .menu-edit-list { list-style: none; margin: var(--space-md) 0 var(--space-2xs); }
 .menu-edit-list li { display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm); padding: var(--space-xs) 0; border-bottom: var(--rule-hair) solid var(--border); }
 .menu-edit-list label { display: flex; align-items: center; gap: var(--space-sm); cursor: pointer; font-size: var(--text-md); }
@@ -1056,7 +1027,7 @@ body.zen .subject-row { width: min(100%, 420px); }
 .account-msg { font-size: var(--text-sm); line-height: 1.4; color: var(--color-error); margin-top: var(--space-2xs); }
 .account-msg:empty { display: none; }
 .account-msg.ok { color: var(--muted); }
-.account-cancel { display: block; margin: var(--space-sm) auto 0; }
+.account-cancel, .account-resend { display: block; margin: var(--space-sm) auto 0; }
 .account-info p { line-height: 1.5; overflow-wrap: anywhere; }
 .account-info .account-msg { margin-top: var(--space-sm); }
 .modal button:disabled { background: var(--inset); border-color: var(--border); color: var(--muted); cursor: not-allowed; }

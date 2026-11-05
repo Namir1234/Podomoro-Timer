@@ -234,7 +234,7 @@ function draw() {
   drawRing();
   document.body.classList.toggle("pause", mode !== "focus");
   document.title = (running ? fmt(remaining) + " · " : "") + t("doc.title");
-  document.querySelectorAll(".modes button").forEach(b => b.classList.toggle("active", b.dataset.mode === mode));
+  document.querySelectorAll(".modes button[data-mode]").forEach(b => b.classList.toggle("active", b.dataset.mode === mode));
   $("startBtn").textContent = t(running ? "btn.pause" : (remaining < totalSec ? "btn.resume" : "btn.start"));
   $("dots").innerHTML = Array.from({ length: settings.rounds }, (_, i) => `<div class="dot ${i < focusDone ? "done" : ""}"></div>`).join("");
   $("cycleHint").textContent = t("cycle", { r: settings.rounds, f: fmtDur("focus"), s: fmtDur("short"), l: fmtDur("long") });
@@ -276,6 +276,7 @@ function start() {
 function finish() {
   stop();
   beep();
+  showTimeUp([t(mode === "focus" ? "done.focus" : "done.break")]);
   if (mode === "focus") {
     const now = new Date();
     sessions.push({ date: dayKey(now), ts: now.getTime(), min: round1(phaseSec("focus") / 60), subject: $("subject").value.trim() || NO_SUBJECT });
@@ -302,14 +303,39 @@ function beep() {
   } catch {}
 }
 
-$("startBtn").onclick = () => running ? (stop(), draw()) : start();
+// Popup "Zeit ist um" – für Pomodoro, Timer und mehrere gleichzeitig abgelaufene Timer.
+// Läuft die App im Hintergrund, kommt zusätzlich eine System-Mitteilung (falls erlaubt).
+function showTimeUp(lines) {
+  const list = $("timeUpList");
+  for (const line of lines) {
+    const li = document.createElement("li");
+    li.textContent = line;
+    list.append(li);
+  }
+  $("timeUpModal").hidden = false;
+  $("timeUpOk").focus();
+  if (document.hidden && "Notification" in window && Notification.permission === "granted") {
+    try { new Notification(t("done.title"), { body: lines.join("\n"), icon: "../img/icons/icon-192.png" }); } catch {}
+  }
+}
+const closeTimeUp = () => { $("timeUpModal").hidden = true; $("timeUpList").replaceChildren(); };
+$("timeUpOk").onclick = closeTimeUp;
+$("timeUpModal").onclick = e => { if (e.target === $("timeUpModal")) closeTimeUp(); };
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("timeUpModal").hidden) closeTimeUp(); });
+
+// Beim Starten (Klick = Erlaubnis darf gefragt werden) einmalig um System-Mitteilungen bitten
+function askNotify() {
+  if ("Notification" in window && Notification.permission === "default") Notification.requestPermission().catch(() => {});
+}
+
+$("startBtn").onclick = () => running ? (stop(), draw()) : (askNotify(), start());
 $("resetBtn").onclick = () => setMode(mode);
 $("skipBtn").onclick = () => {
   stop();
   if (mode === "focus") afterFocus();
   else setMode("focus");
 };
-document.querySelectorAll(".modes button").forEach(b => b.onclick = () => setMode(b.dataset.mode));
+document.querySelectorAll(".modes button[data-mode]").forEach(b => b.onclick = () => setMode(b.dataset.mode));
 
 // Zeiteinstellung: Vorlagen, Plus/Minus, tippbare Felder und optionale Sekunden
 const STEP_LIMITS = { focus: [1, 180], short: [1, 120], long: [1, 180], rounds: [1, 12] };
@@ -318,7 +344,9 @@ function clampVal(key, field, raw) {
   const n = Math.round(+raw) || 0;
   if (field === "sec") return Math.min(Math.max(n, 0), 59);
   const [min, max] = STEP_LIMITS[key];
-  return Math.min(Math.max(n, min), max);
+  // Mit Sekunden darf eine Phase auch unter einer Minute liegen (z.B. 0:10)
+  const low = key !== "rounds" && settings.useSeconds ? 0 : min;
+  return Math.min(Math.max(n, low), max);
 }
 
 function showSteppers() {
@@ -347,6 +375,8 @@ function setValue(key, field, raw) {
   } else {
     settings[key] = clampVal(key, "min", raw);
   }
+  // Eine Phase dauert immer mindestens 1 Sekunde
+  if (key !== "rounds" && !phaseSec(key)) settings[key + "Sec"] = 1;
   commitKey(key);
 }
 
@@ -372,7 +402,10 @@ $("setSeconds").checked = !!settings.useSeconds;
 $("steppers").classList.toggle("with-seconds", !!settings.useSeconds);
 $("setSeconds").onchange = e => {
   settings.useSeconds = e.target.checked;
-  if (!settings.useSeconds) Object.assign(settings, { focusSec: 0, shortSec: 0, longSec: 0 });
+  if (!settings.useSeconds) {
+    Object.assign(settings, { focusSec: 0, shortSec: 0, longSec: 0 });
+    for (const k of ["focus", "short", "long"]) settings[k] = Math.max(settings[k], 1);
+  }
   $("steppers").classList.toggle("with-seconds", settings.useSeconds);
   save("pomo_settings", settings);
   if (!running) setMode(mode); else draw();
@@ -662,222 +695,6 @@ $("todoForm").onsubmit = e => {
 $("clearDone").onclick = () => { todos = todos.filter(t => !t.done); saveTodos(); renderTodos(); };
 
 /* ============================================================
-   NOTIZEN (Ordner + Word-ähnlicher Editor, im Browser gespeichert)
-   ============================================================ */
-let notebooks = load("pomo_notebooks", null);
-if (!Array.isArray(notebooks) || !notebooks.length) notebooks = [{ id: Date.now(), name: t("notes.defaultName"), html: "" }];
-let currentNb = load("pomo_current_nb", notebooks[0].id);
-if (!notebooks.some(n => n.id === currentNb)) currentNb = notebooks[0].id;
-
-const curNotebook = () => notebooks.find(n => n.id === currentNb) || notebooks[0];
-const stashEditor = () => { const nb = curNotebook(); if (nb) nb.html = $("notesEditor").innerHTML; };
-
-function persistNotes() {
-  stashEditor();
-  cloud.push("pomo_notebooks", notebooks);
-  cloud.push("pomo_current_nb", currentNb);
-  try {
-    localStorage.setItem("pomo_notebooks", JSON.stringify(notebooks));
-    localStorage.setItem("pomo_current_nb", JSON.stringify(currentNb));
-    $("notesStatus").textContent = t("notes.saved");
-  } catch {
-    $("notesStatus").textContent = t("notes.saveErr");
-  }
-}
-
-function renderFolders() {
-  $("folderList").innerHTML = notebooks.map(n => `
-    <li class="${n.id === currentNb ? "active" : ""}" data-id="${n.id}">
-      <span class="folder-name">${esc(n.name)}</span>
-      <button class="folder-del" title="${esc(t("folder.delete"))}" aria-label="${esc(t("btn.delete"))}">✕</button>
-    </li>`).join("");
-  $("folderList").querySelectorAll("li").forEach(li => {
-    const id = +li.dataset.id;
-    li.querySelector(".folder-name").onclick = () => switchNotebook(id);
-    li.querySelector(".folder-del").onclick = e => { e.stopPropagation(); deleteNotebook(id); };
-  });
-}
-
-function loadEditor() { $("notesEditor").innerHTML = curNotebook().html || ""; }
-
-function switchNotebook(id) {
-  stashEditor();
-  currentNb = id;
-  persistNotes();
-  renderFolders();
-  loadEditor();
-}
-
-function deleteNotebook(id) {
-  if (notebooks.length <= 1) { alert(t("folder.min")); return; }
-  const nb = notebooks.find(n => n.id === id);
-  if (!confirm(t("folder.confirm", { name: nb ? nb.name : "" }))) return;
-  notebooks = notebooks.filter(n => n.id !== id);
-  if (currentNb === id) currentNb = notebooks[0].id;
-  persistNotes();
-  renderFolders();
-  loadEditor();
-}
-
-$("addFolder").onclick = () => {
-  const name = prompt(t("folder.prompt"));
-  if (!name || !name.trim()) return;
-  stashEditor();
-  const nb = { id: Date.now(), name: name.trim(), html: "" };
-  notebooks.push(nb);
-  currentNb = nb.id;
-  persistNotes();
-  renderFolders();
-  loadEditor();
-};
-
-// Zeigt an den Knöpfen, welche Formatierung an der Cursor-Stelle gerade aktiv ist
-function updateToolbar() {
-  document.querySelectorAll(".editor-toolbar button[data-cmd]").forEach(b => {
-    let active = false;
-    try {
-      if (b.dataset.cmd === "formatBlock") {
-        active = (document.queryCommandValue("formatBlock") || "").toLowerCase() === (b.dataset.val || "").toLowerCase();
-      } else {
-        active = document.queryCommandState(b.dataset.cmd);
-      }
-    } catch {}
-    b.classList.toggle("active", active);
-  });
-}
-
-$("notesEditor").addEventListener("input", persistNotes);
-["keyup", "mouseup", "focus"].forEach(ev => $("notesEditor").addEventListener(ev, updateToolbar));
-$("notesEditor").addEventListener("blur", () => document.querySelectorAll(".editor-toolbar button[data-cmd]").forEach(b => b.classList.remove("active")));
-document.addEventListener("selectionchange", () => { if (document.activeElement === $("notesEditor")) updateToolbar(); });
-document.querySelectorAll(".editor-toolbar button[data-cmd]").forEach(b => {
-  b.onmousedown = e => e.preventDefault();   // Auswahl im Editor nicht verlieren
-  b.onclick = () => { $("notesEditor").focus(); document.execCommand(b.dataset.cmd, false, b.dataset.val || null); persistNotes(); updateToolbar(); };
-});
-$("insertImg").onmousedown = e => e.preventDefault();
-$("insertImg").onclick = () => $("notesImgInput").click();
-$("notesImgInput").onchange = e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => { $("notesEditor").focus(); document.execCommand("insertImage", false, reader.result); persistNotes(); };
-  reader.readAsDataURL(file);
-  e.target.value = "";
-};
-
-/* ============================================================
-   PROJEKTE (jedes Projekt hat eigene To-dos und Notizen)
-   ============================================================ */
-let projects = load("pomo_projects", null);
-if (!Array.isArray(projects) || !projects.length) projects = [{ id: Date.now(), name: t("proj.defaultName"), todos: [], notesHtml: "" }];
-let currentProj = load("pomo_current_project", projects[0].id);
-if (!projects.some(p => p.id === currentProj)) currentProj = projects[0].id;
-
-const curProject = () => projects.find(p => p.id === currentProj) || projects[0];
-const stashProjEditor = () => { const p = curProject(); if (p) p.notesHtml = $("projEditor").innerHTML; };
-
-function persistProjects() {
-  stashProjEditor();
-  cloud.push("pomo_projects", projects);
-  cloud.push("pomo_current_project", currentProj);
-  try {
-    localStorage.setItem("pomo_projects", JSON.stringify(projects));
-    localStorage.setItem("pomo_current_project", JSON.stringify(currentProj));
-  } catch {}
-}
-
-function renderProjectList() {
-  $("projList").innerHTML = projects.map(p => `
-    <li class="${p.id === currentProj ? "active" : ""}" data-id="${p.id}">
-      <span class="folder-name">${esc(p.name)}</span>
-      <button class="folder-del" title="${esc(t("proj.delete"))}" aria-label="${esc(t("btn.delete"))}">✕</button>
-    </li>`).join("");
-  $("projList").querySelectorAll("li").forEach(li => {
-    const id = +li.dataset.id;
-    li.querySelector(".folder-name").onclick = () => switchProject(id);
-    li.querySelector(".folder-del").onclick = e => { e.stopPropagation(); deleteProject(id); };
-  });
-}
-
-function renderProject() {
-  const p = curProject();
-  $("projTitle").textContent = p.name;
-  $("projTodoList").innerHTML = p.todos.length
-    ? p.todos.map(td => `
-      <li class="${td.done ? "done" : ""}" data-id="${td.id}">
-        <label><input type="checkbox" ${td.done ? "checked" : ""}><span>${esc(td.text)}</span></label>
-        ${dueBadge(td)}
-        <button class="todo-del" title="${esc(t("btn.delete"))}" aria-label="${esc(t("btn.delete"))}">✕</button>
-      </li>`).join("")
-    : `<li class="empty">${esc(t("todo.emptyShort"))}</li>`;
-  $("projTodoList").querySelectorAll("li[data-id]").forEach(li => {
-    const id = +li.dataset.id;
-    li.querySelector("input").onchange = e => { const t = p.todos.find(x => x.id === id); if (t) { t.done = e.target.checked; persistProjects(); renderProject(); } };
-    li.querySelector(".todo-del").onclick = () => { p.todos = p.todos.filter(x => x.id !== id); persistProjects(); renderProject(); };
-  });
-  $("projEditor").innerHTML = p.notesHtml || "";
-}
-
-function switchProject(id) { stashProjEditor(); currentProj = id; persistProjects(); renderProjectList(); renderProject(); }
-
-function deleteProject(id) {
-  if (projects.length <= 1) { alert(t("proj.min")); return; }
-  const p = projects.find(x => x.id === id);
-  if (!confirm(t("proj.confirm", { name: p ? p.name : "" }))) return;
-  projects = projects.filter(x => x.id !== id);
-  if (currentProj === id) currentProj = projects[0].id;
-  persistProjects(); renderProjectList(); renderProject();
-}
-
-$("addProject").onclick = () => {
-  const name = prompt(t("proj.prompt"));
-  if (!name || !name.trim()) return;
-  stashProjEditor();
-  const p = { id: Date.now(), name: name.trim(), todos: [], notesHtml: "" };
-  projects.push(p); currentProj = p.id;
-  persistProjects(); renderProjectList(); renderProject();
-};
-
-$("projTodoForm").onsubmit = e => {
-  e.preventDefault();
-  const text = $("projTodoInput").value.trim();
-  if (!text) return;
-  curProject().todos.push({ id: Date.now(), text, done: false, due: validDate($("projTodoDate").value) });
-  $("projTodoInput").value = ""; $("projTodoDate").value = "";
-  persistProjects(); renderProject();
-};
-
-function updateProjToolbar() {
-  document.querySelectorAll('.proj-main .editor-toolbar button[data-pcmd]').forEach(b => {
-    let active = false;
-    try {
-      active = b.dataset.pcmd === "formatBlock"
-        ? (document.queryCommandValue("formatBlock") || "").toLowerCase() === (b.dataset.val || "").toLowerCase()
-        : document.queryCommandState(b.dataset.pcmd);
-    } catch {}
-    b.classList.toggle("active", active);
-  });
-}
-$("projEditor").addEventListener("input", persistProjects);
-["keyup", "mouseup", "focus"].forEach(ev => $("projEditor").addEventListener(ev, updateProjToolbar));
-$("projEditor").addEventListener("blur", () => document.querySelectorAll('.proj-main .editor-toolbar button[data-pcmd]').forEach(b => b.classList.remove("active")));
-document.addEventListener("selectionchange", () => { if (document.activeElement === $("projEditor")) updateProjToolbar(); });
-document.querySelectorAll('.proj-main .editor-toolbar button[data-pcmd]').forEach(b => {
-  b.onmousedown = e => e.preventDefault();
-  b.onclick = () => { $("projEditor").focus(); document.execCommand(b.dataset.pcmd, false, b.dataset.val || null); persistProjects(); updateProjToolbar(); };
-});
-$("projInsertImg").onmousedown = e => e.preventDefault();
-$("projInsertImg").onclick = () => $("projImgInput").click();
-$("projImgInput").onchange = e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => { $("projEditor").focus(); document.execCommand("insertImage", false, reader.result); persistProjects(); };
-  reader.readAsDataURL(file);
-  e.target.value = "";
-};
-
-/* ============================================================
    TIMER-ÜBERSICHT: Heute-Werte, Tagesziel, Zitat
    ============================================================ */
 function renderToday() {
@@ -914,6 +731,7 @@ function showTimerQuote() {
    ============================================================ */
 const CLOCK_MAX_SEC = 100 * 3600 - 1;
 const CLOCK_MAX_LAPS = 99;
+const CLOCK_PRESETS = [10, 60, 300, 600];   // Schnellwahl in Sekunden
 let clocks = load("pomo_clocks", []);
 if (!Array.isArray(clocks)) clocks = [];
 let clockTick = null;
@@ -946,16 +764,19 @@ function clockLabel(c) {
   return (c.laps || []).length ? t("clocks.lapN", { n: c.laps.length + 1 }) : "";
 }
 
-// Abgelaufene Timer anhalten (beim Laden ohne Ton)
+// Abgelaufene Timer anhalten (beim Laden ohne Ton und ohne Popup)
 function clockCheckDone(silent) {
-  let hit = false;
+  const hit = [];
   clocks.forEach(c => {
     if (c.type === "timer" && c.start && clockLeft(c) <= 0) {
-      c.acc = c.dur * 1000; c.start = null; hit = true;
+      c.acc = c.dur * 1000; c.start = null; hit.push(c);
     }
   });
-  if (!hit) return;
-  if (!silent) beep();
+  if (!hit.length) return;
+  if (!silent) {
+    beep();
+    showTimeUp(hit.map(c => t("done.timer", { name: c.name })));
+  }
   saveClocks();
   renderClocks();
 }
@@ -999,14 +820,14 @@ function renderClockList(type) {
     const timer = c.type === "timer";
     const idle = clockIdle(c);
     const h = Math.floor(c.dur / 3600), m = Math.floor(c.dur / 60) % 60, s = c.dur % 60;
-    const field = (f, v, label) => `<input class="clock-set-val" data-f="${f}" type="text" inputmode="numeric" maxlength="2" value="${String(v).padStart(2, "0")}" aria-label="${esc(t(label))}">`;
+    // Eingabe direkt in den Ziffern: mm:ss, ab einer Stunde h:mm:ss (Minuten dürfen auch 90 o.ä. sein)
+    const field = (f, v, label, max) => `<input class="clock-set-val" data-f="${f}" type="text" inputmode="numeric" maxlength="${max}" value="${String(v).padStart(2, "0")}" aria-label="${esc(t(label))}">`;
+    const setFields = [h ? field("h", h, "clocks.h", 2) : "", field("m", m, "clocks.m", h ? 2 : 3), field("s", s, "clocks.s", 2)]
+      .filter(Boolean).join(`<span class="colon">:</span>`);
     const laps = c.laps || [];
     return `
       <li class="clock-item ${timer ? "is-timer" : "is-watch"} ${c.start ? "running" : ""} ${clockDone(c) ? "done" : ""}" data-id="${c.id}">
-        <div class="clock-head">
-          <input class="clock-name" type="text" maxlength="40" value="${esc(c.name)}" aria-label="${esc(t("clocks.name"))}">
-          <button class="todo-del clock-del" type="button" title="${esc(t("btn.delete"))}" aria-label="${esc(t("btn.delete"))}">✕</button>
-        </div>
+        ${timer ? `<div class="modes clock-presets">${CLOCK_PRESETS.map(sec => `<button type="button" data-sec="${sec}" class="${c.dur === sec ? "active" : ""}">${esc(sec < 60 ? t("dur.sec", { n: sec }) : t("dur.min", { n: sec / 60 }))}</button>`).join("")}</div>` : ""}
         <div class="ring-wrap">
           <svg class="ring" viewBox="0 0 260 260" aria-hidden="true">
             <circle class="bg" cx="130" cy="130" r="114"/>
@@ -1014,7 +835,7 @@ function renderClockList(type) {
           </svg>
           <div class="time">
             ${timer && idle
-              ? `<div class="clock-set">${field("h", h, "clocks.h")}<span class="colon">:</span>${field("m", m, "clocks.m")}<span class="colon">:</span>${field("s", s, "clocks.s")}</div>`
+              ? `<div class="clock-set ${h ? "with-h" : ""}">${setFields}</div>`
               : `<div class="digits"></div>`}
             <div class="label">${esc(clockLabel(c))}</div>
           </div>
@@ -1025,6 +846,11 @@ function renderClockList(type) {
           <button class="btn secondary clock-reset" type="button" ${idle ? "disabled" : ""}>${esc(t("btn.reset"))}</button>
         </div>
         ${laps.length ? `<ol class="clock-laps">${laps.map((ms, i) => `<li><span>${esc(t("clocks.lapN", { n: i + 1 }))}</span><span>${fmtClock(ms - (laps[i - 1] || 0), true)}</span><span>${fmtClock(ms, true)}</span></li>`).reverse().join("")}</ol>` : ""}
+        <div class="subject-row clock-name-row">
+          <label for="clockName${c.id}">${esc(t("clocks.name"))}</label>
+          <input class="clock-name" id="clockName${c.id}" type="text" maxlength="40" value="${esc(c.name)}">
+          <button class="todo-del clock-del" type="button" title="${esc(t("btn.delete"))}" aria-label="${esc(t("btn.delete"))}">✕</button>
+        </div>
       </li>`;
   }).join("") : `<li class="empty">${esc(t(emptyKey))}</li>`;
 
@@ -1035,18 +861,25 @@ function renderClockList(type) {
     li.querySelector(".clock-del").onclick = () => { clocks = clocks.filter(x => x !== c); update(); };
     li.querySelector(".clock-start").onclick = () => {
       if (c.start) { c.acc = clockElapsed(c); c.start = null; }
-      else { if (clockDone(c)) c.acc = 0; c.start = Date.now(); }
+      else { if (clockDone(c)) c.acc = 0; c.start = Date.now(); if (c.type === "timer") askNotify(); }
       update();
     };
+    // Schnellwahl wie die Modus-Knöpfe beim Pomodoro: setzt die Zeit und hält den Timer an
+    li.querySelectorAll(".clock-presets button").forEach(b => b.onclick = () => {
+      c.dur = +b.dataset.sec; c.acc = 0; c.start = null; update();
+    });
     li.querySelector(".clock-reset").onclick = () => { c.acc = 0; c.start = null; c.laps = []; update(); };
     const lap = li.querySelector(".clock-lap");
     if (lap) lap.onclick = () => { (c.laps = c.laps || []).push(clockElapsed(c)); update(); };
     li.querySelectorAll(".clock-set-val").forEach(inp => {
       inp.onfocus = () => inp.select();
       inp.onkeydown = e => { if (e.key === "Enter") inp.blur(); };
+      // Feld wächst mit, wenn dreistellige Minuten getippt werden
+      inp.oninput = () => { inp.style.width = Math.max(2, inp.value.length) + "ch"; };
       inp.onchange = () => {
-        const v = f => +li.querySelector(`[data-f="${f}"]`).value.replace(/\D/g, "") || 0;
-        c.dur = Math.min(CLOCK_MAX_SEC, v("h") * 3600 + Math.min(v("m"), 59) * 60 + Math.min(v("s"), 59));
+        const v = f => +(li.querySelector(`[data-f="${f}"]`)?.value.replace(/\D/g, "")) || 0;
+        const hasH = !!li.querySelector('[data-f="h"]');
+        c.dur = Math.min(CLOCK_MAX_SEC, v("h") * 3600 + (hasH ? Math.min(v("m"), 59) : v("m")) * 60 + Math.min(v("s"), 59));
         update();
       };
     });
@@ -2839,10 +2672,6 @@ document.addEventListener("langchange", () => {
   renderRevoList();
   renderTodos();
   renderClocks();
-  renderFolders();
-  stashProjEditor();
-  renderProject();
-  renderProjectList();
   renderToday();
   renderStats();
   if (!$("menuModal").hidden) renderMenuEdit();
@@ -2866,10 +2695,6 @@ renderRevoList();
 renderTodos();
 clockCheckDone(true);
 renderClocks();
-renderFolders();
-loadEditor();
-renderProjectList();
-renderProject();
 renderToday();
 showTimerQuote();
 

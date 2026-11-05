@@ -1,7 +1,7 @@
 {
   "name": "fokus-pomodoro",
   "version": "1.0.0",
-  "description": "Fokus – Pomodoro-Timer mit Statistik, To-dos, Notizen und Projekten.",
+  "description": "Fokus – Pomodoro-Timer mit Statistik und To-dos.",
   "author": "Namir Al Gorani",
   "private": true,
   "main": "electron/main.js",

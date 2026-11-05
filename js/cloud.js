@@ -190,6 +190,12 @@ const cloud = (() => {
     return false;
   }
 
+  // Bestätigungsmail nochmals schicken, falls die erste nicht ankam.
+  async function resendConfirmation(email) {
+    const { error } = await client.auth.resend({ type: "signup", email });
+    if (error) throw error;
+  }
+
   // Lokale Daten bleiben auf dem Gerät, sie werden nur nicht mehr abgeglichen.
   async function signOut() {
     await flush();
@@ -247,18 +253,25 @@ const cloud = (() => {
     for (const b of document.querySelectorAll("#accountModal button")) b.disabled = busy;
   }
 
+  // Der Knopf zum Nochmals-Senden erscheint nur, wenn eine Bestätigung wirklich aussteht.
+  const showResend = on => { el("accountResend").hidden = !on; };
+
   async function run(action) {
     setMsg("");
+    showResend(false);
     setBusy(true);
     try { await action(); }
-    catch (e) { setMsg(errorText(e)); }
+    catch (e) {
+      setMsg(errorText(e));
+      if (e?.code === "email_not_confirmed") showResend(true);
+    }
     finally { setBusy(false); renderAccount(); }
   }
 
   function initUi() {
     const modal = el("accountModal");
     if (!modal) return;
-    const open = () => { setMsg(""); renderAccount(); modal.hidden = false; (user ? el("accountClose") : el("accountEmail")).focus(); };
+    const open = () => { setMsg(""); showResend(false); renderAccount(); modal.hidden = false; (user ? el("accountClose") : el("accountEmail")).focus(); };
     const close = () => { modal.hidden = true; };
     const creds = () => [el("accountEmail").value.trim(), el("accountPassword").value];
 
@@ -280,7 +293,17 @@ const cloud = (() => {
       if (!el("accountForm").reportValidity()) return;
       run(async () => {
         setMsg(t("acc.creating"), true);
-        if (await signUp(...creds())) setMsg(t("acc.almost"), true);
+        if (await signUp(...creds())) { setMsg(t("acc.almost"), true); showResend(true); }
+      });
+    };
+    el("accountResend").onclick = () => {
+      // Nur die Adresse muss stimmen, das Passwort braucht es dafür nicht.
+      if (!el("accountEmail").reportValidity()) return;
+      run(async () => {
+        setMsg(t("acc.resending"), true);
+        await resendConfirmation(creds()[0]);
+        setMsg(t("acc.resent"), true);
+        showResend(true);
       });
     };
     el("accountSignOut").onclick = () => run(async () => {
@@ -306,5 +329,5 @@ const cloud = (() => {
     document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flushNow(); });
   }
 
-  return { enabled, push, flush, signIn, signUp, signOut, pullAll, get user() { return user; } };
+  return { enabled, push, flush, signIn, signUp, signOut, resendConfirmation, pullAll, get user() { return user; } };
 })();

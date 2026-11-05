@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fokus: Pomodoro-Timer</title>
-<meta name="description" content="Pomodoro-Timer mit Statistik, To-dos, Notizen und Projekten.">
+<meta name="description" content="Pomodoro-Timer mit Statistik und To-dos.">
 <link rel="manifest" href="../manifest.json">
 <meta name="theme-color" content="#181411">
 <link rel="apple-touch-icon" href="../img/icons/apple-touch-icon.png">
 <link rel="stylesheet" href="../style/fonts/inter.css">
 <link rel="stylesheet" href="../style/fonts/coral.css">
-<link rel="stylesheet" href="../style/pomodoro-original.css?v=4" data-design="original">
-<link rel="stylesheet" href="../style/pomodoro.css?v=24" data-design="coral">
+<link rel="stylesheet" href="../style/pomodoro-original.css?v=5" data-design="original">
+<link rel="stylesheet" href="../style/pomodoro.css?v=25" data-design="coral">
 <link rel="stylesheet" href="../style/lang-menu.css?v=3">
 <script src="../js/design-boot.js?v=2"></script>
 </head>
@@ -31,8 +31,6 @@
   <nav>
     <button data-page="timer" class="active"><img class="icon" src="../img/timer.svg" alt=""><span class="label" data-i18n="nav.timer">Timer</span></button>
     <button data-page="todo"><img class="icon" src="../img/todo.svg" alt=""><span class="label" data-i18n="nav.todo">To-do</span></button>
-    <button data-page="notes"><img class="icon" src="../img/notes.svg" alt=""><span class="label" data-i18n="nav.notes">Notizen</span></button>
-    <button data-page="projects"><img class="icon" src="../img/projects.svg" alt=""><span class="label" data-i18n="nav.projects">Projekte</span></button>
     <button data-page="stats"><img class="icon" src="../img/stats.svg" alt=""><span class="label" data-i18n="nav.stats">Statistik</span></button>
     <button data-page="zitate"><img class="icon" src="../img/quote.svg" alt=""><span class="label" data-i18n="nav.quotes">Zitate</span></button>
   </nav>
@@ -123,7 +121,7 @@
         <div class="step-row" data-key="long"><span data-i18n="mode.long">Lange Pause</span><button type="button" data-d="-1" aria-label="weniger" data-i18n-aria="step.less">−</button><input class="step-val" data-field="min" type="text" inputmode="numeric" aria-label="Minuten" data-i18n-aria="step.min"><span class="sec-part"><span class="colon">:</span><input class="step-val sec" data-field="sec" type="text" inputmode="numeric" aria-label="Sekunden" data-i18n-aria="step.sec"></span><button type="button" data-d="1" aria-label="mehr" data-i18n-aria="step.more">+</button></div>
         <div class="step-row" data-key="rounds"><span data-i18n="step.rounds">Runden bis zur langen Pause</span><button type="button" data-d="-1" aria-label="weniger" data-i18n-aria="step.less">−</button><input class="step-val" data-field="min" type="text" inputmode="numeric" aria-label="Runden" data-i18n-aria="step.rounds"><button type="button" data-d="1" aria-label="mehr" data-i18n-aria="step.more">+</button></div>
       </div>
-      <label class="toggle"><input type="checkbox" id="setSeconds"><span class="switch"></span><span data-i18n="toggle.seconds">Sekunden anzeigen</span></label>
+      <label class="toggle"><input type="checkbox" id="setSeconds"><span class="switch"></span><span data-i18n="toggle.seconds">Sekunden einstellen</span></label>
       <label class="toggle"><input type="checkbox" id="setSound"><span class="switch"></span><span data-i18n="toggle.sound">Ton am Ende</span></label>
       <p class="hint" id="cycleHint"></p>
     </div>
@@ -178,68 +176,6 @@
       </form>
       <ul class="todo-list" id="todoList"></ul>
       <button class="link-btn" id="clearDone" data-i18n="todo.clear">Erledigte entfernen</button>
-    </div>
-    </div><!-- /.free-canvas -->
-  </section>
-
-  <!-- ================= NOTIZEN ================= -->
-  <section id="notes" class="page">
-    <div class="free-canvas" id="notesCanvas">
-    <div class="card notes-card" data-card-id="notes-main" data-title-key="nav.notes">
-      <div class="notes-folders">
-        <h2 data-i18n="notes.folders">Ordner</h2>
-        <ul class="folder-list" id="folderList"></ul>
-        <button class="link-btn" id="addFolder" data-i18n="notes.addFolder">+ Neuer Ordner</button>
-      </div>
-      <div class="notes-main">
-        <div class="editor-toolbar">
-          <button type="button" data-cmd="bold" title="Fett" data-i18n-title="ed.bold"><b data-i18n="ed.boldKey">F</b></button>
-          <button type="button" data-cmd="italic" title="Kursiv" data-i18n-title="ed.italic"><i data-i18n="ed.italicKey">K</i></button>
-          <button type="button" data-cmd="underline" title="Unterstrichen" data-i18n-title="ed.underline"><u>U</u></button>
-          <button type="button" data-cmd="formatBlock" data-val="h3" title="Überschrift" data-i18n-title="ed.heading">H</button>
-          <button type="button" data-cmd="insertUnorderedList" title="Aufzählung" data-i18n-title="ed.list" data-i18n="ed.listText">Liste</button>
-          <button type="button" id="insertImg" title="Bild einfügen" data-i18n-title="ed.image" data-i18n="ed.imageText">Bild</button>
-        </div>
-        <div class="editor" id="notesEditor" contenteditable="true"></div>
-        <input type="file" id="notesImgInput" accept="image/*" hidden>
-        <p class="hint" id="notesStatus" data-i18n="notes.saved">Automatisch gespeichert.</p>
-      </div>
-    </div>
-    </div><!-- /.free-canvas -->
-  </section>
-
-  <!-- ================= PROJEKTE ================= -->
-  <section id="projects" class="page">
-    <div class="free-canvas" id="projectsCanvas">
-    <div class="card proj-card" data-card-id="projects-main" data-title-key="nav.projects">
-      <div class="proj-list-col">
-        <h2 data-i18n="proj.title">Projekte</h2>
-        <ul class="folder-list" id="projList"></ul>
-        <button class="link-btn" id="addProject" data-i18n="proj.add">+ Neues Projekt</button>
-      </div>
-      <div class="proj-main">
-        <h2 class="proj-title" id="projTitle"></h2>
-
-        <h3 class="proj-sub" data-i18n="proj.todo">To-do</h3>
-        <form id="projTodoForm" class="todo-add">
-          <input id="projTodoInput" type="text" placeholder="Neue Aufgabe…" data-i18n-ph="todo.ph" maxlength="120" autocomplete="off">
-          <input id="projTodoDate" type="date" title="Fällig am (optional)" aria-label="Fällig am (optional)" data-i18n-title="todo.due" data-i18n-aria="todo.due">
-          <button class="btn" type="submit" data-i18n="btn.add">Hinzufügen</button>
-        </form>
-        <ul class="todo-list" id="projTodoList"></ul>
-
-        <h3 class="proj-sub" data-i18n="proj.notes">Notizen</h3>
-        <div class="editor-toolbar">
-          <button type="button" data-pcmd="bold" title="Fett" data-i18n-title="ed.bold"><b data-i18n="ed.boldKey">F</b></button>
-          <button type="button" data-pcmd="italic" title="Kursiv" data-i18n-title="ed.italic"><i data-i18n="ed.italicKey">K</i></button>
-          <button type="button" data-pcmd="underline" title="Unterstrichen" data-i18n-title="ed.underline"><u>U</u></button>
-          <button type="button" data-pcmd="formatBlock" data-val="h3" title="Überschrift" data-i18n-title="ed.heading">H</button>
-          <button type="button" data-pcmd="insertUnorderedList" title="Aufzählung" data-i18n-title="ed.list" data-i18n="ed.listText">Liste</button>
-          <button type="button" id="projInsertImg" title="Bild einfügen" data-i18n-title="ed.image" data-i18n="ed.imageText">Bild</button>
-        </div>
-        <div class="editor" id="projEditor" contenteditable="true"></div>
-        <input type="file" id="projImgInput" accept="image/*" hidden>
-      </div>
     </div>
     </div><!-- /.free-canvas -->
   </section>
@@ -354,6 +290,18 @@
   </div>
 </div>
 
+<!-- Zeit ist um (Pomodoro, Timer) -->
+<div class="modal" id="timeUpModal" hidden>
+  <div class="card modal-box timeup-box" role="alertdialog" aria-modal="true" aria-labelledby="timeUpTitle" aria-describedby="timeUpList">
+    <img class="timeup-icon" src="../img/timer.svg" alt="">
+    <h2 id="timeUpTitle" data-i18n="done.title">Zeit ist um!</h2>
+    <ul class="timeup-list" id="timeUpList"></ul>
+    <div class="controls">
+      <button class="btn" type="button" id="timeUpOk" data-i18n="done.ok">OK</button>
+    </div>
+  </div>
+</div>
+
 <!-- Felder anordnen -->
 <div class="layout-bar" id="layoutBar" hidden>
   <div class="layout-bar-text">
@@ -370,10 +318,11 @@
   <div class="card modal-box" role="dialog" aria-modal="true" aria-labelledby="accountModalTitle">
     <h2 id="accountModalTitle" data-i18n="acc.title">Konto</h2>
     <form class="account-form" id="accountForm">
-      <p class="hint" data-i18n="acc.intro">Mit einem Konto werden Einstellungen, Notizen, To-dos, Projekte und Statistik gespeichert und zwischen deinen Geräten abgeglichen.</p>
+      <p class="hint" data-i18n="acc.intro">Mit einem Konto werden Einstellungen, To-dos und Statistik gespeichert und zwischen deinen Geräten abgeglichen.</p>
       <label><span data-i18n="acc.email">E-Mail</span> <input type="email" id="accountEmail" autocomplete="email" required></label>
       <label><span data-i18n="acc.password">Passwort</span> <input type="password" id="accountPassword" autocomplete="current-password" minlength="6" required></label>
       <p class="account-msg" id="accountMsg" role="status"></p>
+      <button class="link-btn account-resend" type="button" id="accountResend" data-i18n="acc.resend" hidden>Bestätigungsmail erneut senden</button>
       <div class="controls">
         <button class="btn secondary" type="button" id="accountSignUp" data-i18n="acc.signUp">Registrieren</button>
         <button class="btn" type="submit" data-i18n="acc.signIn">Anmelden</button>
@@ -392,11 +341,11 @@
   </div>
 </div>
 
-<script src="../js/i18n.js?v=6"></script>
+<script src="../js/i18n.js?v=8"></script>
 <script src="../js/vendor/supabase.js"></script>
 <script src="../js/cloud-config.js"></script>
 <script src="../js/cloud.js"></script>
-<script src="../js/pomodoro.js?v=32"></script>
+<script src="../js/pomodoro.js?v=33"></script>
 <script>
   // Mobile Schublade: Hamburger-Menü öffnen/schliessen
   (() => {
