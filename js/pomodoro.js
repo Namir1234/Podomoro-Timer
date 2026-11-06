@@ -1973,6 +1973,7 @@ function freeUpdateHeight(box) {
   freeCards(box).forEach(c => { bottom = Math.max(bottom, c.offsetTop + c.offsetHeight); });
   const extra = document.body.classList.contains("layout-edit") ? FREE_EDIT_EXTRA : 0;
   box.style.height = (bottom + extra) + "px";
+  freeScreenLine(box);
 }
 
 // Timer- und Statistik-Seite: alles auf einem Bildschirm. Felder mit fester Höhe enden höchstens am
@@ -1980,6 +1981,18 @@ function freeUpdateHeight(box) {
 // eigene Höhe). Reicht das nicht, wird das ganze Raster verkleinert (CSS zoom) – bei mehr Platz wieder grösser.
 const FREE_FIT_BOXES = new Set(["timerCanvas", "statsCanvas"]);
 const FREE_FIT_MIN = 0.45;
+
+// Platz vom Raster bis zum unteren Bildschirmrand in Bildschirm-Pixeln – so wie ohne Bearbeiten
+// und ohne Scrollen (beim Bearbeiten sind Nicht-Timer-Seiten auf 0,8 verkleinert, das wird herausgerechnet)
+function freeScreenRoom(box) {
+  const main = box.closest("main"), page = box.closest(".page"), cs = getComputedStyle(main);
+  const top = main.getBoundingClientRect().top + window.scrollY + main.scrollTop + parseFloat(cs.paddingTop)
+    + (box.getBoundingClientRect().top - page.getBoundingClientRect().top) / zoomOf(page);
+  return window.innerHeight - parseFloat(cs.paddingBottom) - top;
+}
+// Eigene Verkleinerung des Rasters (ohne die der Seite beim Bearbeiten)
+const freeOwnZoom = box => zoomOf(box) / zoomOf(box.closest(".page"));
+
 function freeFitToScreen(box) {
   if (!FREE_FIT_BOXES.has(box.id)) return;
   // Nicht während des Ziehens – sonst ändert sich der Massstab unter dem Zeiger
@@ -1987,15 +2000,13 @@ function freeFitToScreen(box) {
   box.style.removeProperty("zoom");
   if (freeStackedMQ.matches || document.body.classList.contains("zen") || !box.clientWidth) return;
 
-  const main = box.closest("main");
-  const avail = () => main.getBoundingClientRect().bottom - parseFloat(getComputedStyle(main).paddingBottom) - box.getBoundingClientRect().top;
   const bottom = () => Math.max(0, ...freeCards(box).map(c => c.offsetTop + c.offsetHeight));
 
   freeCapHeights(box);
 
   // Grösster Massstab, bei dem alles hineinpasst. Ein breiteres Raster bricht Text anders um,
   // darum wird gesucht statt gerechnet – so endet das unterste Feld genau am unteren Rand.
-  const fits = () => bottom() * zoomOf(box) <= avail() + 1;   // in Bildschirm-Pixeln
+  const fits = () => bottom() * freeOwnZoom(box) <= freeScreenRoom(box) + 1;   // in Bildschirm-Pixeln
   let own = 1;
   if (!fits()) {
     let lo = FREE_FIT_MIN, hi = 1;
@@ -2016,9 +2027,7 @@ window.addEventListener("resize", () => freeBoxes.forEach(freeFitToScreen));
 // nichts mehr liegt, bis zum unteren Rand verlängern (nur Anzeige)
 function freeCapHeights(box) {
   if (!FREE_FIT_BOXES.has(box.id) || freeStackedMQ.matches || document.body.classList.contains("zen")) return;
-  const main = box.closest("main");
-  const room = (main.getBoundingClientRect().bottom - parseFloat(getComputedStyle(main).paddingBottom)
-    - box.getBoundingClientRect().top) / zoomOf(box);          // Platz in Seiten-Pixeln
+  const room = freeScreenRoom(box) / freeOwnZoom(box);       // Platz in Seiten-Pixeln
   const cfg = freeCfg(box);
   const rects = freeCards(box).map(c => ({ c, l: c.offsetLeft, r: c.offsetLeft + c.offsetWidth, t: c.offsetTop }));
   rects.forEach(me => {
@@ -2177,7 +2186,29 @@ freeBoxes.forEach(box => {
     g.className = "free-guide " + dir;
     box.appendChild(g);
   });
+  const screen = document.createElement("div");
+  screen.className = "free-screen";
+  screen.innerHTML = `<span></span>`;
+  box.appendChild(screen);
 });
+
+// Beim Bearbeiten: gestrichelte Linie dort, wo ein Bildschirm ohne Bearbeiten endet.
+// Felder oberhalb sieht man ohne Scrollen (Timer/Statistik: ohne Verkleinern).
+// Position in Feld-Pixeln (wie p.y), unabhängig von der Verkleinerung beim Bearbeiten.
+function freeScreenLine(box) {
+  const line = box.querySelector(".free-screen");
+  box._screenY = null;
+  if (!line) return;
+  line.classList.remove("show");
+  if (!document.body.classList.contains("layout-edit") || freeStackedMQ.matches || !box.clientWidth) return;
+  const y = Math.round(freeScreenRoom(box));
+  if (y <= 0) return;
+  box._screenY = y;
+  line.style.top = y + "px";
+  line.classList.add("show");
+  line.firstChild.textContent = t(FREE_FIT_BOXES.has(box.id) ? "layout.screenFit" : "layout.screenScroll");
+}
+window.addEventListener("resize", () => freeBoxes.forEach(freeScreenLine));
 
 // Sucht die nächstgelegene Hilfslinie. pairs: [{ edge: aktuelle Kante, targets: [mögliche Linien] }]
 function freeBestSnap(pairs) {
@@ -2344,7 +2375,7 @@ document.addEventListener("pointerdown", e => {
         ]);
         sy = freeBestSnap([
           { edge: T, targets: [0, ...snapEdges.flatMap(o => [o.t, o.b, o.b + FREE_GAP])] },
-          { edge: T + a0.h, targets: snapEdges.flatMap(o => [o.b, o.t, o.t - FREE_GAP]) }
+          { edge: T + a0.h, targets: [...snapEdges.flatMap(o => [o.b, o.t, o.t - FREE_GAP]), ...(box._screenY ? [box._screenY] : [])] }
         ]);
         if (sx) L = Math.min(Math.max(0, L + sx.d), Math.max(0, W - a0.w));
         if (sy) T = Math.max(0, T + sy.d);
@@ -2459,7 +2490,7 @@ document.addEventListener("pointerdown", e => {
         touchH = hadH || Math.abs(dy) > 4;
         let targetH = Math.max(FREE_MIN_H, a0.h + dy);
         if (!alt && touchH) {
-          sy = freeBestSnap([{ edge: a0.t + targetH, targets: snapEdges.flatMap(o => [o.b, o.t, o.t - FREE_GAP]) }]);
+          sy = freeBestSnap([{ edge: a0.t + targetH, targets: [...snapEdges.flatMap(o => [o.b, o.t, o.t - FREE_GAP]), ...(box._screenY ? [box._screenY] : [])] }]);
           if (sy) targetH = Math.max(FREE_MIN_H, targetH + sy.d);
         }
 

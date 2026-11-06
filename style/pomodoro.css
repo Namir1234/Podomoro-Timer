@@ -882,6 +882,31 @@ body.layout-edit .free-canvas .free-handle {
 .free-guide.h { left: 0; right: 0; height: 1px; }
 .free-guide.show { display: block; }
 
+/* Felder anordnen: gestrichelte Linie am Bildschirmende (Position setzt pomodoro.js) */
+.free-screen {
+  display: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  border-top: 2px dashed var(--accent);
+  z-index: 94;
+  pointer-events: none;
+}
+body.layout-edit .free-screen.show { display: block; }
+.free-screen span {
+  position: absolute;
+  right: 0;
+  bottom: 6px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--accent);
+  font-size: var(--text-xs, .75rem);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 /* Schmale Bildschirme: Felder einfach untereinander */
 @media (max-width: 720px) {
   .free-canvas,
