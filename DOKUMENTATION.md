@@ -4,7 +4,7 @@ Stand: 6. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Tim
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (84 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (86 Commits,
 6. Oktober bis 6. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
@@ -44,7 +44,8 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
   frei verschieben und in der Grösse ändern, Inhalt skaliert mit; Timer- und
   Statistik-Seite passen immer auf einen Bildschirm, die untersten Felder
   reichen bis zum unteren Rand; beim Anordnen zeigt eine gestrichelte Linie,
-  wo der Bildschirm endet (untere Feldkanten rasten dort ein)
+  wo der Bildschirm endet (untere Feldkanten rasten dort ein); die Leiste
+  „Layout bearbeiten“ lässt sich verschieben
 - To-dos (mit optionaler Deadline)
 - Zitate: grosser Pool, zufällige Auswahl, eigene Zitate mit Autor
 - Seitenmenü klappt beim Darüberfahren auf, Menüpunkte ein-/ausblenden und sortieren
@@ -374,7 +375,9 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | 13:15 | `8cedd2c` | Cache-Version hochgezaehlt (Statistik-Layout) | main | 1, +1 / −1 |
 | 13:20 | `50e6eff` | Dokumentation nachgefuehrt: Statistik-Layout | main | 1, +26 / −4 |
 | 13:23 | `2a2250b` | Felder anordnen: Linie zeigt das Bildschirmende | main | 6, +104 / −13 |
-| 13:25 | (dieser Commit) | Dokumentation nachgefuehrt: Linie am Bildschirmende | main | Doku |
+| 13:25 | `1da7c8e` | Dokumentation nachgefuehrt: Linie am Bildschirmende | main | 1, +24 / −4 |
+| 13:27 | `d47d125` | Leiste Layout bearbeiten verschiebbar | main | 6, +72 / −6 |
+| 13:30 | (dieser Commit) | Dokumentation nachgefuehrt: verschiebbare Leiste | main | Doku |
 
 - **`cb938ba`** – Wunsch: Mitteilung, wenn die App nicht offen ist, und sehen,
   wie viel man nach Ablauf länger gearbeitet bzw. Pause gemacht hat.
@@ -454,6 +457,17 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
   - `CACHE_NAME` auf `fokus-cache-v35`.
 - Doku-Commit: Chronik, Funktionsliste und Zahlen nachgeführt. Zusammen mit
   `2a2250b` gepusht nach `origin/main`.
+- **`d47d125`** – Wunsch: Die Leiste „Layout bearbeiten“ (unten in der Mitte)
+  verdeckt Felder und soll sich verschieben lassen.
+  - Leiste irgendwo anfassen (nicht auf den Knöpfen) und ziehen; Griff-Symbol
+    `⋮⋮` links. Der Platz wird pro Gerät gemerkt (`fokus_layoutbar_pos`, Anteil
+    des freien Platzes, wird nicht synchronisiert) und passt sich der
+    Fenstergrösse an. Doppelklick = zurück an den Standardplatz. Key `layout.barMove`.
+  - Geprüft in Electron mit echten Maus-Events: Ziehen, Neuladen (Platz bleibt),
+    „Fertig“ klickbar, Doppelklick setzt zurück; `npm test` ok.
+  - `CACHE_NAME` auf `fokus-cache-v36`.
+- Doku-Commit: Chronik, Funktionsliste und Zahlen nachgeführt. Zusammen mit
+  `d47d125` gepusht nach `origin/main`.
 
 ---
 
@@ -462,7 +476,7 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 6. November 2026 |
-| Commits | 84 (davon 1 Merge) |
+| Commits | 86 (davon 1 Merge) |
 | Aktive Tage | 12 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
