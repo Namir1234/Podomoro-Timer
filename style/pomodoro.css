@@ -119,6 +119,15 @@ body.page-timer main {
   position: relative;
 }
 
+/* Statistik: wie die Timer-Seite immer genau einen Bildschirm hoch – im Fenster und maximiert gleich.
+   Die untersten Felder reichen bis zum unteren Rand (Höhen setzt pomodoro.js). */
+@media (min-width: 721px) {
+  body.page-stats { height: 100vh; overflow: hidden !important; }
+  body.page-stats main { height: 100vh; overflow: hidden !important; padding: var(--space-md) var(--space-lg); display: flex; flex-direction: column; }
+  #stats.active { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+  #stats.active .free-canvas { width: 100%; flex: 1; min-height: 0; }
+}
+
 /* App-Ansicht (schmale Bildschirme): normale Grösse, Inhalt wird gescrollt statt gequetscht */
 @media (max-width: 720px) {
   body:has(#timer.active),

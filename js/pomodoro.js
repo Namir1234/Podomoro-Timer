@@ -139,6 +139,7 @@ const subjectName = s => s === NO_SUBJECT ? t("subject.none") : s;
 function updatePageTimerState() {
   const isTimer = $("timer")?.classList.contains("active");
   document.body.classList.toggle("page-timer", !!isTimer);
+  document.body.classList.toggle("page-stats", !!$("stats")?.classList.contains("active"));
 }
 
 document.querySelectorAll("nav button").forEach(btn => {
@@ -588,6 +589,9 @@ function renderStats() {
     const d = new Date(s.ts);
     return `<li><span>${esc(subjectName(s.subject))} · ${s.min} min${s.over ? ` <span class="over">+${s.over}</span>` : ""}</span><span>${d.toLocaleDateString(locale())} ${d.toLocaleTimeString(locale(), { hour: "2-digit", minute: "2-digit" })}</span></li>`;
   }).join("") || `<li><span style="color:var(--muted)">${esc(t("stats.nothing"))}</span></li>`;
+
+  // Neuer Inhalt in Feldern fester Höhe: Massstab neu bestimmen, damit nichts übersteht
+  if ($("stats").classList.contains("active")) requestAnimationFrame(() => freeCards($("statsCanvas")).forEach(applyCardZoom));
 }
 
 $("clearBtn").onclick = () => {
@@ -1971,12 +1975,13 @@ function freeUpdateHeight(box) {
   box.style.height = (bottom + extra) + "px";
 }
 
-// Timer-Seite: alles auf einem Bildschirm. Felder mit fester Höhe enden höchstens am unteren Rand
-// (nur Anzeige, gespeichert bleibt die eigene Höhe). Reicht das nicht, wird das ganze Raster
-// verkleinert (CSS zoom) – bei mehr Platz wieder grösser.
+// Timer- und Statistik-Seite: alles auf einem Bildschirm. Felder mit fester Höhe enden höchstens am
+// unteren Rand, die untersten Felder reichen immer bis dorthin (nur Anzeige, gespeichert bleibt die
+// eigene Höhe). Reicht das nicht, wird das ganze Raster verkleinert (CSS zoom) – bei mehr Platz wieder grösser.
+const FREE_FIT_BOXES = new Set(["timerCanvas", "statsCanvas"]);
 const FREE_FIT_MIN = 0.45;
 function freeFitToScreen(box) {
-  if (box.id !== "timerCanvas") return;
+  if (!FREE_FIT_BOXES.has(box.id)) return;
   // Nicht während des Ziehens – sonst ändert sich der Massstab unter dem Zeiger
   if (document.body.classList.contains("free-dragging") || document.body.classList.contains("free-resizing")) return;
   box.style.removeProperty("zoom");
@@ -2007,9 +2012,10 @@ function freeFitToScreen(box) {
 }
 window.addEventListener("resize", () => freeBoxes.forEach(freeFitToScreen));
 
-// Feste Höhen, die über den unteren Bildschirmrand reichen, auf den Platz kürzen (nur Anzeige)
+// Feste Höhen, die über den unteren Bildschirmrand reichen, auf den Platz kürzen; Felder, unter denen
+// nichts mehr liegt, bis zum unteren Rand verlängern (nur Anzeige)
 function freeCapHeights(box) {
-  if (box.id !== "timerCanvas" || freeStackedMQ.matches || document.body.classList.contains("zen")) return;
+  if (!FREE_FIT_BOXES.has(box.id) || freeStackedMQ.matches || document.body.classList.contains("zen")) return;
   const main = box.closest("main");
   const room = (main.getBoundingClientRect().bottom - parseFloat(getComputedStyle(main).paddingBottom)
     - box.getBoundingClientRect().top) / zoomOf(box);          // Platz in Seiten-Pixeln
@@ -2017,13 +2023,25 @@ function freeCapHeights(box) {
   const rects = freeCards(box).map(c => ({ c, l: c.offsetLeft, r: c.offsetLeft + c.offsetWidth, t: c.offsetTop }));
   rects.forEach(me => {
     const p = cfg[me.c.dataset.card];
-    if (!p?.h) return;
     // Höchstens bis zum unteren Rand und nie in ein Feld darunter hinein
-    let limit = room;
+    let limit = room, below = false;
     rects.forEach(o => {
-      if (o !== me && o.t > me.t && o.l < me.r - 1 && me.l < o.r - 1) limit = Math.min(limit, o.t - FREE_GAP);
+      if (o !== me && o.t > me.t && o.l < me.r - 1 && me.l < o.r - 1) { limit = Math.min(limit, o.t - FREE_GAP); below = true; }
     });
-    const h = Math.max(FREE_MIN_H, Math.min(p.h, Math.floor(limit - me.t)));
+    const space = Math.floor(limit - me.t);
+    let h;
+    if (!below) {
+      // Unterstes Feld: immer bis zum unteren Rand. Ist ein Feld mit Auto-Höhe dafür zu hoch,
+      // bleibt es so – dann verkleinert freeFitToScreen das ganze Raster.
+      if (!p?.h) {
+        me.c.style.removeProperty("height");
+        if (me.c.offsetHeight > space) return;
+      }
+      h = Math.max(FREE_MIN_H, space);
+    } else {
+      if (!p?.h) return;
+      h = Math.max(FREE_MIN_H, Math.min(p.h, space));
+    }
     if (me.c.offsetHeight !== h) me.c.style.height = h + "px";
   });
 }
@@ -2728,6 +2746,16 @@ function applyCardZoom(card) {
     for (let i = 0; i < 3 && z > 1 && card.classList.contains("sized") && !cardFits(card); i++) {
       z = Math.max(1, z * card.clientHeight / card.scrollHeight);
       setCardZoom(card, z);
+    }
+    // Statistik: Das Feld behält seine Grösse, der Inhalt wird so weit verkleinert, dass er ganz hineinpasst
+    if (FREE_FIT_BOXES.has(card.parentElement?.id) && card.style.height && !cardFits(card)) {
+      let lo = CARD_ZOOM_MIN, hi = z;
+      for (let i = 0; i < 8; i++) {
+        const mid = (lo + hi) / 2;
+        setCardZoom(card, mid);
+        if (cardFits(card)) lo = mid; else hi = mid;
+      }
+      z = lo;
     }
   }
   setCardZoom(card, z);
