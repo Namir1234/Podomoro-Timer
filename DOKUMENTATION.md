@@ -4,7 +4,7 @@ Stand: 6. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Tim
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (86 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (88 Commits,
 6. Oktober bis 6. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
@@ -377,7 +377,9 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | 13:23 | `2a2250b` | Felder anordnen: Linie zeigt das Bildschirmende | main | 6, +104 / −13 |
 | 13:25 | `1da7c8e` | Dokumentation nachgefuehrt: Linie am Bildschirmende | main | 1, +24 / −4 |
 | 13:27 | `d47d125` | Leiste Layout bearbeiten verschiebbar | main | 6, +72 / −6 |
-| 13:30 | (dieser Commit) | Dokumentation nachgefuehrt: verschiebbare Leiste | main | Doku |
+| 13:30 | `c55eafd` | Dokumentation nachgefuehrt: verschiebbare Leiste | main | 1, +18 / −4 |
+| 13:30 | `f76fa77` | Statistik: Felder nie kleiner als ihr Inhalt, ganze Seite gleichmaessig verkleinert | main | 3, +11 / −15 |
+| 13:35 | (dieser Commit) | Dokumentation nachgefuehrt: Statistik-Felder | main | Doku |
 
 - **`cb938ba`** – Wunsch: Mitteilung, wenn die App nicht offen ist, und sehen,
   wie viel man nach Ablauf länger gearbeitet bzw. Pause gemacht hat.
@@ -468,6 +470,24 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
   - `CACHE_NAME` auf `fokus-cache-v36`.
 - Doku-Commit: Chronik, Funktionsliste und Zahlen nachgeführt. Zusammen mit
   `d47d125` gepusht nach `origin/main`.
+- **`f76fa77`** – Rückmeldung: Die Statistik-Felder sahen „komisch“ aus –
+  „Nach Fach“ und „Pausen & Überzeit“ mit winziger Schrift und Scrollbalken,
+  „Übersicht“ halb leer.
+  - Ursache: In der gespeicherten Anordnung überlappten sich „Nach Fach“
+    (y 455, Höhe 277) und „Pausen“ (y 458); „Pausen“ wurde darum nach unten
+    geschoben. Die Regel aus `2ac9618`, den Inhalt einzeln ins Feld
+    einzupassen, hat diese Felder dann bis auf 50 % zusammengedrückt.
+  - Neu: Auf der Statistik ist die eigene Feldhöhe eine Mindesthöhe – ein Feld
+    wird nie kleiner als sein Inhalt, das unterste reicht bis zum Rand. Passt
+    es insgesamt nicht, verkleinert `freeFitToScreen` das ganze Raster
+    gleichmässig (wie auf der Timer-Seite). Die Einzel-Verkleinerung in
+    `applyCardZoom` ist wieder entfernt; nach `renderStats` wird die Anordnung
+    neu berechnet. Timer-Seite unverändert.
+  - Geprüft mit der gespeicherten Anordnung bei 1180×760 und 1600×1000:
+    einheitliche Schrift, keine Scrollbalken, kein Seiten-Scrollen; `npm test` ok.
+  - `CACHE_NAME` auf `fokus-cache-v37`.
+- Doku-Commit: Chronik und Zahlen nachgeführt. Zusammen mit `f76fa77`
+  gepusht nach `origin/main`.
 
 ---
 
@@ -476,7 +496,7 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 6. November 2026 |
-| Commits | 86 (davon 1 Merge) |
+| Commits | 88 (davon 1 Merge) |
 | Aktive Tage | 12 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
