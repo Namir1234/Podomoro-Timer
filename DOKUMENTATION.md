@@ -4,7 +4,7 @@ Stand: 6. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Tim
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (79 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (82 Commits,
 6. Oktober bis 6. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
@@ -41,7 +41,9 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
   beliebig viele eigene Timer und Stoppuhren (mit Runden), laufen auch nach
   dem Neuladen weiter
 - Felder auf allen Seiten (Timer, To-do, Statistik, Zitate)
-  frei verschieben und in der Grösse ändern, Inhalt skaliert mit
+  frei verschieben und in der Grösse ändern, Inhalt skaliert mit; Timer- und
+  Statistik-Seite passen immer auf einen Bildschirm, die untersten Felder
+  reichen bis zum unteren Rand
 - To-dos (mit optionaler Deadline)
 - Zitate: grosser Pool, zufällige Auswahl, eigene Zitate mit Autor
 - Seitenmenü klappt beim Darüberfahren auf, Menüpunkte ein-/ausblenden und sortieren
@@ -366,7 +368,10 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | 08:35 | `cb938ba` | Ueberzeit nach Ablauf, Pausen-Statistik, zuverlaessigere Mitteilung | main | 9, +279 / −46 |
 | 08:36 | `032b957` | Dokumentation nachgefuehrt: Ueberzeit und Pausen-Statistik | main | Doku |
 | 11:05 | `10a7121` | App-Icon wechselt mit dem Design (Coral-Icon fuer Web, Windows und iOS) | main | 17, +162 / −20 |
-| 11:10 | (dieser Commit) | Dokumentation nachgefuehrt: App-Icon pro Design | main | Doku |
+| 11:05 | `64c0822` | Dokumentation nachgefuehrt: App-Icon pro Design | main | 1, +30 / −5 |
+| 13:15 | `2ac9618` | Statistik passt auf einen Bildschirm, unterste Felder bis zum Rand | main | 4, +59 / −13 |
+| 13:15 | `8cedd2c` | Cache-Version hochgezaehlt (Statistik-Layout) | main | 1, +1 / −1 |
+| 13:20 | (dieser Commit) | Dokumentation nachgefuehrt: Statistik-Layout | main | Doku |
 
 - **`cb938ba`** – Wunsch: Mitteilung, wenn die App nicht offen ist, und sehen,
   wie viel man nach Ablauf länger gearbeitet bzw. Pause gemacht hat.
@@ -412,6 +417,23 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
   - `CACHE_NAME` auf `fokus-cache-v33`, Coral-Icons im Service-Worker-Cache.
 - Doku-Commit: Chronik, Funktionsliste, Zahlen und offene Punkte nachgeführt.
   Zusammen mit `10a7121` gepusht nach `origin/main`.
+- **`2ac9618`** – Rückmeldung: Die Statistik sah im Fenster anders aus als
+  maximiert (im Fenster Seiten-Scrollen, maximiert leerer Platz unten), und in
+  der Karte „Pausen & Überzeit“ (feste Höhe 255 px) war der Titel weggescrollt.
+  - Die Statistik-Seite ist wie die Timer-Seite genau einen Bildschirm hoch
+    (`body.page-stats`, CSS in beiden Designs); `freeFitToScreen` und
+    `freeCapHeights` gelten für `FREE_FIT_BOXES` (Timer und Statistik).
+  - Felder, unter denen nichts liegt, reichen immer bis zum unteren Rand –
+    auf beiden Seiten (nur Anzeige, gespeichert bleibt die eigene Höhe).
+  - Feste Feldhöhe auf diesen Seiten: Das Feld behält seine Grösse, der Inhalt
+    wird so weit verkleinert, bis er ganz hineinpasst (kein innerer Scrollbalken).
+    Nach `renderStats` wird der Massstab neu bestimmt.
+  - Geprüft in Electron mit der eigenen Anordnung bei 1180×760 und 1600×1000:
+    kein Seiten-Scrollen, beide Spalten enden am Rand; `npm test` ok.
+- **`8cedd2c`** – `CACHE_NAME` auf `fokus-cache-v34` (im Commit davor fehlte
+  der Schritt, weil `10a7121` schon v33 gesetzt hatte).
+- Doku-Commit: Chronik, Funktionsliste und Zahlen nachgeführt. Zusammen mit
+  `2ac9618` und `8cedd2c` gepusht nach `origin/main`.
 
 ---
 
@@ -420,7 +442,7 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 6. November 2026 |
-| Commits | 79 (davon 1 Merge) |
+| Commits | 82 (davon 1 Merge) |
 | Aktive Tage | 12 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
