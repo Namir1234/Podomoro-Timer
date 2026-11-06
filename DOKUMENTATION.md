@@ -1,11 +1,11 @@
 # Projektdokumentation – Fokus Pomodoro-Timer
 
-Stand: 5. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Timer · Branch `main`
+Stand: 6. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Timer · Branch `main`
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (75 Commits,
-6. Oktober bis 5. November 2026) und wird bei jedem Commit und Push nachgeführt.
+Die Chronik weiter unten ist aus der Git-Historie erstellt (77 Commits,
+6. Oktober bis 6. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
 
@@ -27,10 +27,15 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
 - Pomodoro-Timer mit Fokus-, Kurz- und Langpause, Vorlagen, Plus/Minus-Steppern,
   tippbaren Zeiten, optionalem Sekunden-Modus (dann auch Phasen unter einer
   Minute) und Ton-Schalter
-- Popup „Zeit ist um!“ am Ende einer Pomodoro-Phase oder eines Timers, im
-  Hintergrund zusätzlich als System-Mitteilung (falls erlaubt)
+- Popup „Zeit ist um!“ am Ende einer Pomodoro-Phase oder eines Timers; ist die
+  App nicht im Vordergrund (minimiert, anderes Programm), zusätzlich als
+  System-Mitteilung – abschaltbar unter „Mitteilung im Hintergrund“
+- Überzeit: Nach Ablauf zählt der Pomodoro-Timer mit „+“ weiter (max. 60 min),
+  bis man die nächste Phase startet – „Mehr gearbeitet“ bzw. „Pause überzogen“
 - Oberfläche färbt sich gegen Ende der Phase rot
 - Übersicht „Heute“: Fortschritt mit Tagesziel, Statistik, Zitat-Karte
+- Statistik „Pausen & Überzeit“: Pausenminuten (heute/Woche), überzogene Pause
+  und mehr gearbeitete Zeit (Woche) sowie Gesamtwerte
 - Nur-Timer-Ansicht (Timer gross, alles andere ausgeblendet)
 - Umschalter oben auf der Timer-Seite: **Pomodoro**, **Timer**, **Stoppuhr** –
   beliebig viele eigene Timer und Stoppuhren (mit Runden), laufen auch nach
@@ -324,7 +329,7 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | --- | --- | --- | --- | --- |
 | 19:31 | `23d3140` | Datenmodell-Diagramm fuer Supabase | main | 1, +151 / −0 |
 | 19:31 | `af80f9b` | Notizen und Projekte entfernt, Popup bei Ablauf, Bestaetigungsmail erneut senden | main | 12, +233 / −618 |
-| 19:35 | (dieser Commit) | Dokumentation nachgefuehrt: Notizen und Projekte entfernt | main | Doku |
+| 19:35 | `5e05bc0` | Dokumentation nachgefuehrt: Notizen und Projekte entfernt | main | 1, +52 / −15 |
 
 - **`23d3140`** – `supabase/ERD.md`: Mermaid-Diagramm zu `schema.sql`. Zeigt die
   eine eigene Tabelle `public.user_data` und ihre Beziehung zu `auth.users`,
@@ -353,15 +358,48 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 - Doku-Commit: Chronik, Funktionsliste und Zahlen nachgeführt. Zusammen mit
   `3ffd5a4`, `80cd13a`, `23d3140` und `af80f9b` gepusht nach `origin/main`.
 
+### Phase 12 – Überzeit und Pausen-Statistik (6. November 2026)
+
+| Zeit | Hash | Commit | Branch | Umfang |
+| --- | --- | --- | --- | --- |
+| 08:35 | `cb938ba` | Ueberzeit nach Ablauf, Pausen-Statistik, zuverlaessigere Mitteilung | main | 9, +279 / −46 |
+| 08:40 | (dieser Commit) | Dokumentation nachgefuehrt: Ueberzeit und Pausen-Statistik | main | Doku |
+
+- **`cb938ba`** – Wunsch: Mitteilung, wenn die App nicht offen ist, und sehen,
+  wie viel man nach Ablauf länger gearbeitet bzw. Pause gemacht hat.
+  - **Überzeit:** Nach Ablauf einer Phase wechselt der Pomodoro nicht mehr
+    sofort, sondern zeigt `+mm:ss` (rot) mit „Mehr gearbeitet“ bzw. „Pause
+    überzogen“. „Pause starten“/„Fokus starten“ beendet die Überzeit und startet
+    gleich die nächste Phase, Reset/Skip wechseln nur. Gezählt werden höchstens
+    60 min (`OVER_MAX_MIN`); beim Schliessen/Verstecken wird der Stand gespeichert.
+  - **Daten:** Fokus-Sessions bekommen das Feld `over` (Minuten). Pausen werden
+    neu in `pomo_breaks` gespeichert (`date`, `ts`, `min`, `kind`, `over`).
+    Cloud-Sync führt beide Listen über `ts` zusammen; bei doppelten Einträgen
+    gewinnt der mit mehr Überzeit. „Alle Daten löschen“ leert beide.
+  - **Statistik:** neue Karte „Pausen & Überzeit“, in „Letzte Sessions“ steht
+    die Überzeit als `+x`.
+  - **Mitteilung:** kommt jetzt auch, wenn das Fenster offen, aber nicht im
+    Vordergrund ist; genauer Timeout aufs Ende (auch für eigene Timer), damit
+    sie im Hintergrund nicht bis zu einer Minute zu spät kommt; bleibt stehen,
+    bis man sie wegklickt; Klick holt die App nach vorne (auch über den
+    Service Worker). Neuer Schalter „Mitteilung im Hintergrund“ mit Hinweis,
+    wenn blockiert. Electron: eigene App-ID für Windows-Mitteilungen und
+    `backgroundThrottling: false`.
+  - Neue Keys `done.over`, `over.*`, `btn.toBreak`, `btn.toFocus`,
+    `toggle.notify`, `notify.*`, `stats.break*`, `stats.workOver`,
+    `stats.overTotal`; `CACHE_NAME` auf `fokus-cache-v32`.
+- Doku-Commit: Chronik, Funktionsliste und Zahlen nachgeführt. Zusammen mit
+  `cb938ba` gepusht nach `origin/main`.
+
 ---
 
 ## 4. Zahlen
 
 | | |
 | --- | --- |
-| Zeitraum | 6. Oktober – 5. November 2026 |
-| Commits | 75 (davon 1 Merge) |
-| Aktive Tage | 11 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5. Nov.) |
+| Zeitraum | 6. Oktober – 6. November 2026 |
+| Commits | 77 (davon 1 Merge) |
+| Aktive Tage | 12 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
 
@@ -370,6 +408,8 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 - Nach Änderungen an Web-Dateien `CACHE_NAME` in `sw.js` hochzählen, sonst
   sehen Browser-Nutzer die alte Version.
 - Für die Apps nach Änderungen `npm run build` (Windows) bzw. `npm run ios:sync` (iOS).
+- iOS: Die Web-Mitteilungen gibt es in der Capacitor-App nicht; dafür bräuchte es
+  das Plugin `@capacitor/local-notifications` (einrichten auf dem Mac).
 - Die Windows-`.exe` ist nicht signiert (SmartScreen-Warnung beim ersten Start).
 - Die Nebenbranches (`agy-test`, `agy--test`, `app-windows-ios`, `feature/login`,
   `hallmark-test`, `worktree-agent-…`) sind vollständig in `main` und können
