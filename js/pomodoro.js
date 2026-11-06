@@ -590,8 +590,8 @@ function renderStats() {
     return `<li><span>${esc(subjectName(s.subject))} · ${s.min} min${s.over ? ` <span class="over">+${s.over}</span>` : ""}</span><span>${d.toLocaleDateString(locale())} ${d.toLocaleTimeString(locale(), { hour: "2-digit", minute: "2-digit" })}</span></li>`;
   }).join("") || `<li><span style="color:var(--muted)">${esc(t("stats.nothing"))}</span></li>`;
 
-  // Neuer Inhalt in Feldern fester Höhe: Massstab neu bestimmen, damit nichts übersteht
-  if ($("stats").classList.contains("active")) requestAnimationFrame(() => freeCards($("statsCanvas")).forEach(applyCardZoom));
+  // Neuer Inhalt kann Felder fester Höhe vergrössern: Anordnung neu berechnen
+  if ($("stats").classList.contains("active")) freeSchedule($("statsCanvas"), true);
 }
 
 $("clearBtn").onclick = () => {
@@ -2087,7 +2087,13 @@ function freeCapHeights(box) {
     });
     const space = Math.floor(limit - me.t);
     let h;
-    if (!below) {
+    if (box.id !== "timerCanvas") {
+      // Statistik: Ein Feld wird nie kleiner als sein Inhalt (sonst winzige Schrift und Scrollbalken).
+      // Die eigene Höhe gilt als Mindesthöhe, das unterste Feld reicht bis zum Rand. Passt es insgesamt
+      // nicht, verkleinert freeFitToScreen das ganze Raster gleichmässig.
+      me.c.style.removeProperty("height");
+      h = Math.max(me.c.offsetHeight, p?.h || 0, below ? 0 : space);
+    } else if (!below) {
       // Unterstes Feld: immer bis zum unteren Rand. Ist ein Feld mit Auto-Höhe dafür zu hoch,
       // bleibt es so – dann verkleinert freeFitToScreen das ganze Raster.
       if (!p?.h) {
@@ -2825,16 +2831,6 @@ function applyCardZoom(card) {
     for (let i = 0; i < 3 && z > 1 && card.classList.contains("sized") && !cardFits(card); i++) {
       z = Math.max(1, z * card.clientHeight / card.scrollHeight);
       setCardZoom(card, z);
-    }
-    // Statistik: Das Feld behält seine Grösse, der Inhalt wird so weit verkleinert, dass er ganz hineinpasst
-    if (FREE_FIT_BOXES.has(card.parentElement?.id) && card.style.height && !cardFits(card)) {
-      let lo = CARD_ZOOM_MIN, hi = z;
-      for (let i = 0; i < 8; i++) {
-        const mid = (lo + hi) / 2;
-        setCardZoom(card, mid);
-        if (cardFits(card)) lo = mid; else hi = mid;
-      }
-      z = lo;
     }
   }
   setCardZoom(card, z);
