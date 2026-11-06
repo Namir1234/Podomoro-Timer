@@ -880,6 +880,16 @@ let clockTick = null;
 let clockEndTimer = null;
 const saveClocks = () => save("pomo_clocks", clocks);
 
+// Windows-App: melden, ob Pomodoro oder ein Timer läuft – dann beendet das Schliessen
+// des Fensters die App nicht, sie läuft im Infobereich weiter und meldet den Ablauf.
+if (window.fokusApp?.setBusy) {
+  let lastBusy = null;
+  setInterval(() => {
+    const busy = running || clocks.some(c => c.type === "timer" && c.start);
+    if (busy !== lastBusy) window.fokusApp.setBusy(lastBusy = busy);
+  }, 500);
+}
+
 const clockElapsed = c => c.acc + (c.start ? Date.now() - c.start : 0);
 const clockLeft = c => Math.max(0, c.dur * 1000 - clockElapsed(c));
 const clockIdle = c => !c.start && !c.acc;
