@@ -1,4 +1,4 @@
-const CACHE_NAME = "fokus-cache-v32";
+const CACHE_NAME = "fokus-cache-v33";
 
 const ASSETS = [
   "./",
@@ -28,6 +28,7 @@ const ASSETS = [
   "./style/fonts/inter-1.woff2",
   "./style/fonts/inter-10.woff2",
   "./img/icons/apple-touch-icon.png",
+  "./img/icons/apple-touch-icon-coral.png",
   "./img/logo.svg",
   "./img/back.svg",
   "./img/design.svg",
@@ -45,6 +46,8 @@ const ASSETS = [
   "./img/user.svg",
   "./img/icons/icon-192.png",
   "./img/icons/icon-512.png",
+  "./img/icons/icon-coral-192.png",
+  "./img/icons/icon-coral-512.png",
 ];
 
 self.addEventListener("install", (event) => {

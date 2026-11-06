@@ -4,6 +4,11 @@
    Stylesheets eines Designs tragen data-design="original" bzw. data-design="coral". */
 
 const DESIGN_COLOR = { original: "#1b2119", coral: "#181411" };
+// Icons pro Design (Pfade relativ zu pages/), erzeugt mit "npm run icons"
+const DESIGN_ICON = {
+  original: { icon: "../img/icons/icon-192.png", touch: "../img/icons/apple-touch-icon.png" },
+  coral: { icon: "../img/icons/icon-coral-192.png", touch: "../img/icons/apple-touch-icon-coral.png" },
+};
 
 function readDesign() {
   try { return JSON.parse(localStorage.getItem("pomo_design")) === "original" ? "original" : "coral"; }
@@ -16,7 +21,22 @@ function applyDesign(d) {
   document.querySelectorAll("link[data-design]").forEach(l => { l.disabled = l.dataset.design !== d; });
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.content = DESIGN_COLOR[d];
+  applyAppIcon(d);
   document.dispatchEvent(new CustomEvent("designchange", { detail: d }));
+}
+
+// App-Icon zum Design: Browser-Tab und Homescreen-Verknüpfung, in der Windows-App das
+// Fenster-/Taskleisten-Icon (electron/preload.js), in der iOS-App das Homescreen-Icon (AppDelegate.swift)
+function applyAppIcon(d) {
+  const icon = document.querySelector('link[rel="icon"]');
+  if (icon) icon.href = DESIGN_ICON[d].icon;
+  const touch = document.querySelector('link[rel="apple-touch-icon"]');
+  if (touch) touch.href = DESIGN_ICON[d].touch;
+  if (window.fokusApp) window.fokusApp.setDesign(d);
+  const cap = window.Capacitor;
+  if (cap && typeof cap.nativePromise === "function") {
+    cap.nativePromise("FokusIcon", "setIcon", { design: d }).catch(() => {});
+  }
 }
 
 function saveDesign(d) {

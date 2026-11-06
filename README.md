@@ -101,6 +101,18 @@ Nach jeder Aenderung am Web-Code `npm run ios:sync` ausfuehren.
 
 ## App-Icon
 
-`img/icons/icon-source.svg` ist die Quelle. `npm run icons` rendert daraus
-das 1024er Icon fuer iOS. Die PNGs in `img/icons/` gehoeren zur Web-Version
-und bleiben davon unberuehrt.
+Es gibt ein Icon pro Design: `img/icons/icon-source.svg` (Original, gruen) und
+`img/icons/icon-coral-source.svg` (Coral). `npm run icons` rendert daraus die
+1024er Icons fuer iOS (`AppIcon` und `AppIconCoral`) sowie die Coral-PNGs in
+`img/icons/`. Die Original-PNGs dort (`icon-192.png`, `icon-512.png`,
+`apple-touch-icon.png`) bleiben davon unberuehrt.
+
+Wechselt man das Design, wechselt das Icon mit (`js/design-boot.js`):
+
+- **Browser:** Tab-Icon und Icon fuer „Zum Home-Bildschirm“.
+- **Windows:** Fenster- und Taskleisten-Icon (ueber `electron/preload.js`).
+  Die `.exe` und die Verknuepfung behalten das Original-Icon, das laesst
+  Windows nicht zur Laufzeit aendern.
+- **iOS:** Homescreen-Icon als alternatives App-Icon (Plugin `FokusIcon` in
+  `AppDelegate.swift`). iOS zeigt dabei jedes Mal kurz den Hinweis, dass das
+  Icon geaendert wurde.

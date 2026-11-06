@@ -2,12 +2,15 @@
 // app://-Protokoll ausgeliefert statt ueber file://, damit localStorage
 // an einen festen Origin gebunden ist und die Daten erhalten bleiben.
 
-const { app, BrowserWindow, Menu, protocol, shell } = require("electron");
+const { app, BrowserWindow, Menu, ipcMain, protocol, shell } = require("electron");
 const { erstelleHandler } = require("./serve-dist");
 const path = require("node:path");
 
 const DIST = path.join(__dirname, "..", "dist");
 const STARTSEITE = "app://fokus/pages/pomodoro.html";
+const ICONS = path.join(__dirname, "..", "img", "icons");
+// Fenster- und Taskleisten-Icon pro Design (Verknuepfung und .exe behalten icon-512.png)
+const DESIGN_ICON = { original: "icon-512.png", coral: "icon-coral-512.png" };
 
 protocol.registerSchemesAsPrivileged([
   { scheme: "app", privileges: { standard: true, secure: true, supportFetchAPI: true } },
@@ -21,10 +24,15 @@ function createWindow() {
     minHeight: 520,
     backgroundColor: "#1b2119",
     title: "Fokus",
-    icon: path.join(__dirname, "..", "img", "icons", "icon-512.png"),
+    icon: path.join(ICONS, DESIGN_ICON.original),
     autoHideMenuBar: true,
     // Timer sollen auch minimiert genau ablaufen (sonst drosselt Chromium die Intervalle)
-    webPreferences: { contextIsolation: true, nodeIntegration: false, backgroundThrottling: false },
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: false,
+      backgroundThrottling: false,
+      preload: path.join(__dirname, "preload.js"),
+    },
   });
 
   win.loadURL(STARTSEITE);
@@ -87,6 +95,13 @@ if (!app.requestSingleInstanceLock()) {
   app.whenReady().then(() => {
     protocol.handle("app", erstelleHandler(DIST));
     Menu.setApplicationMenu(buildMenu());
+
+    // Die Seite meldet ihr Design beim Laden und bei jedem Wechsel (electron/preload.js).
+    ipcMain.on("fokus-design", (e, design) => {
+      const win = BrowserWindow.fromWebContents(e.sender);
+      if (win && Object.hasOwn(DESIGN_ICON, design)) win.setIcon(path.join(ICONS, DESIGN_ICON[design]));
+    });
+
     hauptfenster = createWindow();
 
     app.on("activate", () => {

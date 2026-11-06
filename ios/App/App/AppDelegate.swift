@@ -47,3 +47,41 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
 }
+
+// Startet die Web-App und meldet das eigene Plugin an (in Main.storyboard eingetragen).
+class FokusViewController: CAPBridgeViewController {
+    override func capacitorDidLoad() {
+        bridge?.registerPluginInstance(FokusIconPlugin())
+    }
+}
+
+// App-Icon passend zum Design (Aufruf aus js/design-boot.js). Original ist das
+// Haupt-Icon "AppIcon", Coral das alternative "AppIconCoral" (Assets.xcassets,
+// Build-Einstellung ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES).
+@objc(FokusIconPlugin)
+public class FokusIconPlugin: CAPPlugin, CAPBridgedPlugin {
+    public let identifier = "FokusIconPlugin"
+    public let jsName = "FokusIcon"
+    public let pluginMethods: [CAPPluginMethod] = [
+        CAPPluginMethod(name: "setIcon", returnType: CAPPluginReturnPromise)
+    ]
+
+    @objc func setIcon(_ call: CAPPluginCall) {
+        let name: String? = call.getString("design") == "coral" ? "AppIconCoral" : nil
+        DispatchQueue.main.async {
+            let app = UIApplication.shared
+            // Nur wechseln, wenn noetig: iOS zeigt bei jedem Wechsel einen Hinweis an.
+            guard app.supportsAlternateIcons, app.alternateIconName != name else {
+                call.resolve()
+                return
+            }
+            app.setAlternateIconName(name) { error in
+                if let error = error {
+                    call.reject(error.localizedDescription)
+                } else {
+                    call.resolve()
+                }
+            }
+        }
+    }
+}
