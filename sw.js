@@ -1,4 +1,4 @@
-const CACHE_NAME = "fokus-cache-v31";
+const CACHE_NAME = "fokus-cache-v32";
 
 const ASSETS = [
   "./",
@@ -98,6 +98,17 @@ self.addEventListener("fetch", (event) => {
         })
         .catch(() => cached);
       return cached || fetchPromise;
+    })
+  );
+});
+
+// Klick auf die Mitteilung "Zeit ist um": offenes App-Fenster nach vorne holen, sonst die App öffnen.
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
+      const win = list.find((c) => c.url.includes("pomodoro.html")) || list[0];
+      return win ? win.focus() : self.clients.openWindow(new URL("./pages/pomodoro.html", self.registration.scope).toString());
     })
   );
 });

@@ -112,13 +112,14 @@ function authorText(q) {
 const monkAuthor = q => `${q.a} (${[q.r, ...noteText(q.n)].join(", ")})`;
 const wrapQuote = s => t("q.wrap", { t: s });
 
-const DEFAULTS = { focus: 25, focusSec: 0, short: 5, shortSec: 0, long: 15, longSec: 0, rounds: 4, sound: 1, useSeconds: false, goal: 4 };
+const DEFAULTS = { focus: 25, focusSec: 0, short: 5, shortSec: 0, long: 15, longSec: 0, rounds: 4, sound: 1, notify: 1, useSeconds: false, goal: 4 };
 const load = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
 // cloud.push lädt die Änderung hoch, wenn jemand angemeldet ist (sonst passiert nichts).
 const save = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} cloud.push(key, value); };
 
 let settings = { ...DEFAULTS, ...load("pomo_settings", {}) };
-let sessions = load("pomo_sessions", []);       // [{date:"2026-10-06", ts:..., min:25, subject:"..."}]
+let sessions = load("pomo_sessions", []);       // [{date:"2026-10-06", ts:..., min:25, subject:"...", over: Minuten länger gearbeitet}]
+let breaks = load("pomo_breaks", []);           // [{date, ts, min, kind:"short"|"long", over: Minuten Pause überzogen}]
 let favs = load("pomo_favs", []).map(f => typeof f === "number" ? "b" + f : f);   // Favoriten als IDs
 let customQuotes = load("pomo_custom_quotes", []);   // eigene Zitate [{ id, t, a }]
 
@@ -167,7 +168,15 @@ let running = false;
 let endTime = 0;
 let tick = null;
 let ringFrame = null;
+let endTimer = null;                // genauer Timeout aufs Ende (Intervalle laufen im Hintergrund gedrosselt)
 let focusDone = 0;                  // Fokus-Sessions im aktuellen Zyklus (0 bis settings.rounds)
+
+// Überzeit: Ist eine Phase abgelaufen, zählt die Uhr weiter, bis man weitermacht.
+// over = { since: Ende der Phase (ms) = ts des Eintrags in sessions/breaks, mode }
+const OVER_MAX_MIN = 60;            // länger wird nicht mitgezählt (z.B. App offen vergessen)
+let over = null;
+let overTick = null;
+const overSec = () => over ? Math.min(OVER_MAX_MIN * 60, Math.floor((Date.now() - over.since) / 1000)) : 0;
 
 function fmt(s) {
   const m = Math.floor(s / 60), r = s % 60;
@@ -216,7 +225,7 @@ function applyWarmth(frac) {
 // Ring wird mit der genauen Restzeit (inkl. Millisekunden) gezeichnet → läuft gleichmässig statt im Sekundentakt
 function drawRing() {
   const left = running ? Math.max(0, (endTime - Date.now()) / 1000) : remaining;
-  const frac = totalSec ? left / totalSec : 0;
+  const frac = totalSec && !over ? left / totalSec : 0;
   $("ringFg").style.strokeDashoffset = CIRC * (1 - frac);
   applyWarmth(frac);
 }
@@ -228,15 +237,20 @@ function animateRing() {
 }
 
 function draw() {
-  $("digits").textContent = fmt(remaining);
-  $("digits").classList.toggle("long", remaining >= 6000);   // ab 100 Minuten dreistellig
-  $("modeLabel").textContent = t(MODE_TEXT[mode]);
+  const digits = over ? "+" + fmt(overSec()) : fmt(remaining);
+  $("digits").textContent = digits;
+  $("digits").classList.toggle("long", digits.length > 5);   // ab 100 Minuten bzw. mit "+" breiter
+  $("modeLabel").textContent = t(over ? (mode === "focus" ? "over.focus" : "over.break") : MODE_TEXT[mode]);
   drawRing();
   document.body.classList.toggle("pause", mode !== "focus");
-  document.title = (running ? fmt(remaining) + " · " : "") + t("doc.title");
+  document.body.classList.toggle("overtime", !!over);
+  document.title = (running || over ? digits + " · " : "") + t("doc.title");
   document.querySelectorAll(".modes button[data-mode]").forEach(b => b.classList.toggle("active", b.dataset.mode === mode));
-  $("startBtn").textContent = t(running ? "btn.pause" : (remaining < totalSec ? "btn.resume" : "btn.start"));
-  $("dots").innerHTML = Array.from({ length: settings.rounds }, (_, i) => `<div class="dot ${i < focusDone ? "done" : ""}"></div>`).join("");
+  $("startBtn").textContent = t(over ? (mode === "focus" ? "btn.toBreak" : "btn.toFocus")
+    : running ? "btn.pause" : (remaining < totalSec ? "btn.resume" : "btn.start"));
+  // Während der Überzeit nach dem Fokus ist die Runde schon geschafft
+  const doneDots = focusDone + (over && mode === "focus" ? 1 : 0);
+  $("dots").innerHTML = Array.from({ length: settings.rounds }, (_, i) => `<div class="dot ${i < doneDots ? "done" : ""}"></div>`).join("");
   $("cycleHint").textContent = t("cycle", { r: settings.rounds, f: fmtDur("focus"), s: fmtDur("short"), l: fmtDur("long") });
 }
 
@@ -249,6 +263,7 @@ function afterFocus() {
 
 function setMode(m) {
   stop();
+  recordOver();
   mode = m;
   totalSec = phaseSec(m);
   remaining = totalSec;
@@ -258,7 +273,20 @@ function setMode(m) {
 function stop() {
   running = false;
   clearInterval(tick);
+  clearTimeout(endTimer);
   cancelAnimationFrame(ringFrame);
+}
+
+// Ein einzelner Timeout genau aufs Ende: Im Hintergrund drosselt der Browser setInterval
+// (bis auf einmal pro Minute), Popup und Mitteilung kämen sonst zu spät.
+function scheduleEnd() {
+  clearTimeout(endTimer);
+  endTimer = setTimeout(() => {
+    if (!running) return;
+    if (Date.now() < endTime) return scheduleEnd();
+    remaining = 0;
+    finish();
+  }, Math.max(0, endTime - Date.now()));
 }
 
 function start() {
@@ -269,26 +297,63 @@ function start() {
     draw();
     if (remaining <= 0) finish();
   }, 250);
+  scheduleEnd();
   ringFrame = requestAnimationFrame(animateRing);
   draw();
 }
 
+// Phase abgelaufen: speichern, Popup zeigen und die Überzeit mitzählen
 function finish() {
   stop();
   beep();
-  showTimeUp([t(mode === "focus" ? "done.focus" : "done.break")]);
+  showTimeUp([t(mode === "focus" ? "done.focus" : "done.break"), t("done.over")]);
+  const since = endTime;
+  const entry = { date: dayKey(since), ts: since, min: round1(phaseSec(mode) / 60) };
   if (mode === "focus") {
-    const now = new Date();
-    sessions.push({ date: dayKey(now), ts: now.getTime(), min: round1(phaseSec("focus") / 60), subject: $("subject").value.trim() || NO_SUBJECT });
+    sessions.push({ ...entry, subject: $("subject").value.trim() || NO_SUBJECT });
     save("pomo_subject", $("subject").value.trim());
     save("pomo_sessions", sessions);
     updateSubjectList();
     renderToday();
-    afterFocus();
   } else {
-    setMode("focus");
+    breaks.push({ ...entry, kind: mode });
+    save("pomo_breaks", breaks);
   }
+  over = { since, mode };
+  overTick = setInterval(() => overSec() >= OVER_MAX_MIN * 60 ? endOver(false) : draw(), 250);
+  draw();
 }
+
+// Überzeit in den Eintrag schreiben (Minuten, eine Nachkommastelle)
+function saveOver() {
+  if (!over) return;
+  const [key, list] = over.mode === "focus" ? ["pomo_sessions", sessions] : ["pomo_breaks", breaks];
+  const e = list.find(x => x.ts === over.since);
+  const min = round1(overSec() / 60);
+  if (!e || !min || e.over === min) return;
+  e.over = min;
+  save(key, list);
+}
+
+// Überzeit beenden, ohne die Phase zu wechseln
+function recordOver() {
+  if (!over) return;
+  saveOver();
+  over = null;
+  clearInterval(overTick);
+}
+
+// Weiter zur nächsten Phase (auf Wunsch gleich starten)
+function endOver(startNext) {
+  const m = over.mode;
+  recordOver();
+  if (m === "focus") afterFocus(); else setMode("focus");
+  if (startNext) { askNotify(); start(); }
+}
+
+// Wird die App geschlossen oder versteckt, ist die Überzeit bis dahin gespeichert
+window.addEventListener("pagehide", saveOver);
+document.addEventListener("visibilitychange", () => { if (document.hidden) saveOver(); });
 
 function beep() {
   if (!+settings.sound) return;
@@ -304,7 +369,8 @@ function beep() {
 }
 
 // Popup "Zeit ist um" – für Pomodoro, Timer und mehrere gleichzeitig abgelaufene Timer.
-// Läuft die App im Hintergrund, kommt zusätzlich eine System-Mitteilung (falls erlaubt).
+// Ist die App nicht im Vordergrund (minimiert, anderer Tab, anderes Programm),
+// kommt zusätzlich eine System-Mitteilung (falls erlaubt).
 function showTimeUp(lines) {
   const list = $("timeUpList");
   for (const line of lines) {
@@ -314,8 +380,25 @@ function showTimeUp(lines) {
   }
   $("timeUpModal").hidden = false;
   $("timeUpOk").focus();
-  if (document.hidden && "Notification" in window && Notification.permission === "granted") {
-    try { new Notification(t("done.title"), { body: lines.join("\n"), icon: "../img/icons/icon-192.png" }); } catch {}
+  if (document.hidden || !document.hasFocus()) systemNotify(lines);
+}
+
+const canNotify = () => "Notification" in window;
+function systemNotify(lines) {
+  if (!+settings.notify || !canNotify() || Notification.permission !== "granted") return;
+  const opts = {
+    body: lines.join("\n"),
+    icon: new URL("../img/icons/icon-192.png", location.href).href,
+    tag: "fokus-timeup",        // eine neue Meldung ersetzt die alte, statt sich zu stapeln
+    renotify: true,
+    requireInteraction: true    // bleibt stehen, bis man sie wegklickt
+  };
+  try {
+    const n = new Notification(t("done.title"), opts);
+    n.onclick = () => { window.focus(); n.close(); };
+  } catch {
+    // Android-Chrome erlaubt Mitteilungen nur über den Service Worker
+    navigator.serviceWorker?.ready.then(reg => reg.showNotification(t("done.title"), opts)).catch(() => {});
   }
 }
 const closeTimeUp = () => { $("timeUpModal").hidden = true; $("timeUpList").replaceChildren(); };
@@ -325,12 +408,32 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("timeUp
 
 // Beim Starten (Klick = Erlaubnis darf gefragt werden) einmalig um System-Mitteilungen bitten
 function askNotify() {
-  if ("Notification" in window && Notification.permission === "default") Notification.requestPermission().catch(() => {});
+  if (+settings.notify && canNotify() && Notification.permission === "default") Notification.requestPermission().then(showNotifySetting).catch(() => {});
 }
 
-$("startBtn").onclick = () => running ? (stop(), draw()) : (askNotify(), start());
-$("resetBtn").onclick = () => setMode(mode);
+// Schalter "Mitteilung im Hintergrund": an = gewünscht und nicht blockiert
+function showNotifySetting() {
+  const perm = canNotify() ? Notification.permission : "unsupported";
+  $("setNotify").checked = !!+settings.notify && perm !== "denied" && perm !== "unsupported";
+  $("setNotify").disabled = perm === "unsupported";
+  const hint = perm === "unsupported" ? "notify.unsupported" : perm === "denied" ? "notify.blocked" : "";
+  $("notifyHint").hidden = !hint;
+  $("notifyHint").textContent = hint ? t(hint) : "";
+}
+$("setNotify").onchange = e => {
+  settings.notify = e.target.checked ? 1 : 0;
+  save("pomo_settings", settings);
+  askNotify();
+  showNotifySetting();
+};
+showNotifySetting();
+document.addEventListener("langchange", showNotifySetting);
+
+// Während der Überzeit: Start = nächste Phase gleich starten, Reset/Skip = nur dorthin wechseln
+$("startBtn").onclick = () => over ? endOver(true) : running ? (stop(), draw()) : (askNotify(), start());
+$("resetBtn").onclick = () => over ? endOver(false) : setMode(mode);
 $("skipBtn").onclick = () => {
+  if (over) return endOver(false);
   stop();
   if (mode === "focus") afterFocus();
   else setMode("focus");
@@ -362,7 +465,7 @@ function showSteppers() {
 
 function commitKey(key) {
   save("pomo_settings", settings);
-  if (key !== "rounds" && !running && mode === key) setMode(mode); else draw();
+  if (key !== "rounds" && !running && !over && mode === key) setMode(mode); else draw();
   showSteppers();
 }
 
@@ -393,7 +496,7 @@ document.querySelectorAll(".presets button").forEach(b => b.onclick = () => {
   const [f, s, l] = b.dataset.preset.split(",").map(Number);
   Object.assign(settings, { focus: f, focusSec: 0, short: s, shortSec: 0, long: l, longSec: 0 });
   save("pomo_settings", settings);
-  if (!running) setMode(mode); else draw();
+  if (!running && !over) setMode(mode); else draw();
   showSteppers();
 });
 
@@ -408,7 +511,7 @@ $("setSeconds").onchange = e => {
   }
   $("steppers").classList.toggle("with-seconds", settings.useSeconds);
   save("pomo_settings", settings);
-  if (!running) setMode(mode); else draw();
+  if (!running && !over) setMode(mode); else draw();
   showSteppers();
 };
 
@@ -448,6 +551,18 @@ function renderStats() {
       <div class="bar-day">${d.label}</div>
     </div>`).join("");
 
+  // Pausen und Überzeit (Pause = geplante Zeit + überzogen)
+  const weekKeys = new Set(days.map(d => d.key));
+  const sum = (list, f) => round1(list.reduce((a, x) => a + f(x), 0));
+  const pause = b => b.min + (b.over || 0);
+  const overOf = x => x.over || 0;
+  const weekBreaks = breaks.filter(b => weekKeys.has(b.date));
+  $("stBreakToday").textContent = sum(breaks.filter(b => b.date === today), pause);
+  $("stBreakWeek").textContent = sum(weekBreaks, pause);
+  $("stBreakOver").textContent = sum(weekBreaks, overOf);
+  $("stWorkOver").textContent = sum(sessions.filter(s => weekKeys.has(s.date)), overOf);
+  $("stOverTotal").textContent = t("stats.overTotal", { b: sum(breaks, pause), o: sum(breaks, overOf), w: sum(sessions, overOf) });
+
   $("stToday").textContent = round1(sumFor(today));
   $("stWeek").textContent = round1(days.reduce((a, d) => a + d.min, 0));
   $("stTotal").textContent = sessions.length;
@@ -471,13 +586,15 @@ function renderStats() {
   // Verlauf
   $("history").innerHTML = sessions.slice(-8).reverse().map(s => {
     const d = new Date(s.ts);
-    return `<li><span>${esc(subjectName(s.subject))} · ${s.min} min</span><span>${d.toLocaleDateString(locale())} ${d.toLocaleTimeString(locale(), { hour: "2-digit", minute: "2-digit" })}</span></li>`;
+    return `<li><span>${esc(subjectName(s.subject))} · ${s.min} min${s.over ? ` <span class="over">+${s.over}</span>` : ""}</span><span>${d.toLocaleDateString(locale())} ${d.toLocaleTimeString(locale(), { hour: "2-digit", minute: "2-digit" })}</span></li>`;
   }).join("") || `<li><span style="color:var(--muted)">${esc(t("stats.nothing"))}</span></li>`;
 }
 
 $("clearBtn").onclick = () => {
   if (confirm(t("stats.confirm"))) {
-    sessions = []; save("pomo_sessions", sessions); updateSubjectList(); renderStats();
+    sessions = []; save("pomo_sessions", sessions);
+    breaks = []; save("pomo_breaks", breaks);
+    updateSubjectList(); renderStats();
   }
 };
 
@@ -735,6 +852,7 @@ const CLOCK_PRESETS = [10, 60, 300, 600];   // Schnellwahl in Sekunden
 let clocks = load("pomo_clocks", []);
 if (!Array.isArray(clocks)) clocks = [];
 let clockTick = null;
+let clockEndTimer = null;
 const saveClocks = () => save("pomo_clocks", clocks);
 
 const clockElapsed = c => c.acc + (c.start ? Date.now() - c.start : 0);
@@ -802,6 +920,10 @@ function clockEnsureTick() {
   const any = clocks.some(c => c.start);
   if (any && !clockTick) clockTick = setInterval(paintClocks, 50);
   if (!any && clockTick) { clearInterval(clockTick); clockTick = null; }
+  // Wie beim Pomodoro: genauer Timeout auf das nächste Timer-Ende, auch im Hintergrund
+  clearTimeout(clockEndTimer);
+  const left = clocks.filter(c => c.type === "timer" && c.start).map(clockLeft);
+  if (left.length) clockEndTimer = setTimeout(paintClocks, Math.min(...left) + 20);
 }
 
 // Timer und Stoppuhren stehen in je einer eigenen Liste (Umschalter oben auf der Timer-Seite)

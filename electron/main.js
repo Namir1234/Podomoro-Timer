@@ -23,7 +23,8 @@ function createWindow() {
     title: "Fokus",
     icon: path.join(__dirname, "..", "img", "icons", "icon-512.png"),
     autoHideMenuBar: true,
-    webPreferences: { contextIsolation: true, nodeIntegration: false },
+    // Timer sollen auch minimiert genau ablaufen (sonst drosselt Chromium die Intervalle)
+    webPreferences: { contextIsolation: true, nodeIntegration: false, backgroundThrottling: false },
   });
 
   win.loadURL(STARTSEITE);
@@ -79,6 +80,9 @@ if (!app.requestSingleInstanceLock()) {
     if (hauptfenster.isMinimized()) hauptfenster.restore();
     hauptfenster.focus();
   });
+
+  // Ohne eigene App-ID zeigt Windows die Mitteilungen ("Zeit ist um!") nicht oder als "Electron" an.
+  if (process.platform === "win32") app.setAppUserModelId("com.namiralgorani.fokus");
 
   app.whenReady().then(() => {
     protocol.handle("app", erstelleHandler(DIST));

@@ -10,8 +10,8 @@
 <link rel="apple-touch-icon" href="../img/icons/apple-touch-icon.png">
 <link rel="stylesheet" href="../style/fonts/inter.css">
 <link rel="stylesheet" href="../style/fonts/coral.css">
-<link rel="stylesheet" href="../style/pomodoro-original.css?v=5" data-design="original">
-<link rel="stylesheet" href="../style/pomodoro.css?v=25" data-design="coral">
+<link rel="stylesheet" href="../style/pomodoro-original.css?v=6" data-design="original">
+<link rel="stylesheet" href="../style/pomodoro.css?v=26" data-design="coral">
 <link rel="stylesheet" href="../style/lang-menu.css?v=3">
 <script src="../js/design-boot.js?v=2"></script>
 </head>
@@ -123,6 +123,8 @@
       </div>
       <label class="toggle"><input type="checkbox" id="setSeconds"><span class="switch"></span><span data-i18n="toggle.seconds">Sekunden einstellen</span></label>
       <label class="toggle"><input type="checkbox" id="setSound"><span class="switch"></span><span data-i18n="toggle.sound">Ton am Ende</span></label>
+      <label class="toggle"><input type="checkbox" id="setNotify"><span class="switch"></span><span data-i18n="toggle.notify">Mitteilung im Hintergrund</span></label>
+      <p class="hint" id="notifyHint" hidden></p>
       <p class="hint" id="cycleHint"></p>
     </div>
 
@@ -191,6 +193,17 @@
         <div class="stat"><div class="num" id="stStreak">0</div><div class="desc"><img class="icon" src="../img/streak.svg" alt=""><span data-i18n="stats.streak">Tage Streak</span></div></div>
         <div class="stat"><div class="num" id="stTotal">0</div><div class="desc" data-i18n="stats.total">Fokus-Sessions total</div></div>
       </div>
+    </div>
+
+    <div class="card" data-card-id="stats-breaks" data-title-key="stats.breaks">
+      <h2 data-i18n="stats.breaks">Pausen & Überzeit</h2>
+      <div class="stat-grid">
+        <div class="stat"><div class="num" id="stBreakToday">0</div><div class="desc" data-i18n="stats.breakToday">Minuten Pause heute</div></div>
+        <div class="stat"><div class="num" id="stBreakWeek">0</div><div class="desc" data-i18n="stats.breakWeek">Minuten Pause diese Woche</div></div>
+        <div class="stat"><div class="num" id="stBreakOver">0</div><div class="desc" data-i18n="stats.breakOver">Minuten Pause überzogen (Woche)</div></div>
+        <div class="stat"><div class="num" id="stWorkOver">0</div><div class="desc" data-i18n="stats.workOver">Minuten mehr gearbeitet (Woche)</div></div>
+      </div>
+      <p class="hint" id="stOverTotal"></p>
     </div>
 
     <div class="card" data-card-id="stats-chart" data-title-key="stats.chart">
@@ -341,11 +354,11 @@
   </div>
 </div>
 
-<script src="../js/i18n.js?v=8"></script>
+<script src="../js/i18n.js?v=9"></script>
 <script src="../js/vendor/supabase.js"></script>
 <script src="../js/cloud-config.js"></script>
 <script src="../js/cloud.js"></script>
-<script src="../js/pomodoro.js?v=33"></script>
+<script src="../js/pomodoro.js?v=34"></script>
 <script>
   // Mobile Schublade: Hamburger-Menü öffnen/schliessen
   (() => {

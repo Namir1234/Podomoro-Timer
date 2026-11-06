@@ -79,8 +79,9 @@ flowchart LR
 
 Zwei Sonderfälle, die das Diagramm nicht hergibt:
 
-- `pomo_sessions` wird beim Hochladen über `ts` **vereinigt**, nicht überschrieben, damit
-  die Lernstatistik eines anderen Geräts nie verloren geht. Eine leere Liste gilt
+- `pomo_sessions` und `pomo_breaks` werden beim Hochladen über `ts` **vereinigt**, nicht
+  überschrieben, damit die Statistik eines anderen Geräts nie verloren geht. Bei doppelten
+  Einträgen gewinnt der mit mehr Überzeit (`over`). Eine leere Liste gilt
   trotzdem — sie kommt nur vom Zurücksetzen der Statistik.
 - Die App liest ihre Daten nur beim Laden. Bringt der Abgleich einen neueren Stand, lädt
   die Seite neu.
@@ -93,7 +94,8 @@ Synchronisiert wird, was mit `pomo_` beginnt, nicht mit `pomo__`, und nicht in
 | Key | Inhalt |
 | --- | --- |
 | `pomo_settings` | Einstellungen |
-| `pomo_sessions` | Statistik |
+| `pomo_sessions` | Statistik (Fokus-Sessions, mit Überzeit `over`) |
+| `pomo_breaks` | Statistik (Pausen, mit Überzeit `over`) |
 | `pomo_todos` | To-dos |
 | `pomo_notebooks` | Notizbücher |
 | `pomo_projects` | Projekte |

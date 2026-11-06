@@ -10,7 +10,8 @@ const cloud = (() => {
   const DIRTY_KEY = "pomo__dirty";          // Keys, deren Upload noch aussteht (intern, wird nie synchronisiert)
   const AUTH_KEY = "fokus-auth";            // hier legt supabase-js die Anmeldung ab
   const RELOAD_KEY = "fokus_sync_reload";   // Schutz gegen Neulade-Schleifen
-  const SESSIONS = "pomo_sessions";
+  // Listen, die über ts zusammengeführt statt überschrieben werden (Lern-Sessions und Pausen)
+  const MERGED = new Set(["pomo_sessions", "pomo_breaks"]);
   // Das Menü passt je nach Bildschirm, darum bleibt es pro Gerät. Feldanordnung und Design
   // werden mit dem Konto abgeglichen.
   const DEVICE_ONLY = new Set(["pomo_menu"]);
@@ -44,10 +45,12 @@ const cloud = (() => {
       : x);
 
   // Lernstatistik geht nie verloren: Vereinigung beider Listen über ts.
+  // Gibt es einen Eintrag doppelt, gewinnt der mit mehr Überzeit (wird erst nachträglich gesetzt).
   function mergeSessions(a, b) {
     const all = new Map();
     for (const s of [...(Array.isArray(a) ? a : []), ...(Array.isArray(b) ? b : [])]) {
-      all.set(s?.ts ?? JSON.stringify(s), s);
+      const k = s?.ts ?? JSON.stringify(s), prev = all.get(k);
+      if (!prev || (s?.over || 0) >= (prev?.over || 0)) all.set(k, s);
     }
     return [...all.values()].sort((x, y) => (x?.ts ?? 0) - (y?.ts ?? 0));
   }
@@ -84,14 +87,14 @@ const cloud = (() => {
     pending.clear();
     markDirty(keys);
     try {
-      // Sessions anderer Geräte nicht überschreiben, sondern dazunehmen.
+      // Sessions und Pausen anderer Geräte nicht überschreiben, sondern dazunehmen.
       // Eine leere Liste kommt nur vom Zurücksetzen der Statistik und gilt so.
-      const ses = rows.find(r => r.key === SESSIONS);
-      if (ses && Array.isArray(ses.value) && ses.value.length) {
-        const { data, error } = await client.from(TABLE).select("value").eq("user_id", user.id).eq("key", SESSIONS).maybeSingle();
+      for (const ses of rows.filter(r => MERGED.has(r.key))) {
+        if (!Array.isArray(ses.value) || !ses.value.length) continue;
+        const { data, error } = await client.from(TABLE).select("value").eq("user_id", user.id).eq("key", ses.key).maybeSingle();
         if (error) throw error;
         ses.value = mergeSessions(ses.value, data?.value);
-        writeLocal(SESSIONS, ses.value);
+        writeLocal(ses.key, ses.value);
       }
       const { error } = await client.from(TABLE).upsert(rows);
       if (error) throw error;
@@ -126,10 +129,10 @@ const cloud = (() => {
     const inCloud = new Set(rows.map(r => r.key));
     const toPush = localKeys().filter(k => !inCloud.has(k));
     for (const r of rows) {
-      if (r.key === SESSIONS) {
-        const merged = mergeSessions(readLocal(SESSIONS), r.value);
-        writeLocal(SESSIONS, merged);
-        if (merged.length !== (Array.isArray(r.value) ? r.value.length : 0)) toPush.push(SESSIONS);
+      if (MERGED.has(r.key)) {
+        const merged = mergeSessions(readLocal(r.key), r.value);
+        writeLocal(r.key, merged);
+        if (canon(merged) !== canon(r.value)) toPush.push(r.key);
       } else {
         writeLocal(r.key, r.value);
       }
@@ -159,7 +162,7 @@ const cloud = (() => {
     for (const r of rows) {
       if (open.has(r.key)) continue;
       const local = readLocal(r.key);
-      const value = r.key === SESSIONS && local?.length ? mergeSessions(local, r.value) : r.value;
+      const value = MERGED.has(r.key) && local?.length ? mergeSessions(local, r.value) : r.value;
       if (canon(value) === canon(local)) continue;
       writeLocal(r.key, value);
       changed = true;
