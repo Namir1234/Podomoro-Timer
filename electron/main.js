@@ -2,7 +2,7 @@
 // app://-Protokoll ausgeliefert statt ueber file://, damit localStorage
 // an einen festen Origin gebunden ist und die Daten erhalten bleiben.
 
-const { app, BrowserWindow, Menu, protocol, shell } = require("electron");
+const { app, BrowserWindow, Menu, ipcMain, protocol, shell } = require("electron");
 const { erstelleHandler } = require("./serve-dist");
 const path = require("node:path");
 
@@ -24,7 +24,18 @@ function createWindow() {
     icon: path.join(__dirname, "..", "img", "icons", "icon-512.png"),
     autoHideMenuBar: true,
     // Timer sollen auch minimiert genau ablaufen (sonst drosselt Chromium die Intervalle)
-    webPreferences: { contextIsolation: true, nodeIntegration: false, backgroundThrottling: false },
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: false,
+      backgroundThrottling: false,
+      preload: path.join(__dirname, "preload.js"),
+    },
+  });
+
+  // Nach einem Ablauf: sobald man das Fenster anklickt, wieder normal verhalten
+  win.on("focus", () => {
+    win.setAlwaysOnTop(false);
+    win.flashFrame(false);
   });
 
   win.loadURL(STARTSEITE);
@@ -37,6 +48,21 @@ function createWindow() {
 
   return win;
 }
+
+// Zeit ist um: Fenster aus der Taskleiste holen und vor alle anderen legen,
+// damit man das Popup sieht. Windows verweigert focus() aus dem Hintergrund
+// oft, darum zusaetzlich "immer oben" und ein blinkendes Taskleisten-Symbol,
+// bis man das Fenster anklickt.
+ipcMain.on("fokus-time-up", (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (!win || win.isDestroyed()) return;
+  if (win.isMinimized()) win.restore();
+  win.show();
+  win.setAlwaysOnTop(true);
+  win.focus();
+  if (win.isFocused()) win.setAlwaysOnTop(false);
+  else win.flashFrame(true);
+});
 
 function buildMenu() {
   return Menu.buildFromTemplate([
