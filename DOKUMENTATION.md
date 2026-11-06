@@ -4,7 +4,7 @@ Stand: 6. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Tim
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (79 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (81 Commits,
 6. Oktober bis 6. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
@@ -31,7 +31,8 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
   App nicht im Vordergrund (minimiert, anderes Programm), zusätzlich als
   System-Mitteilung – abschaltbar unter „Mitteilung im Hintergrund“. Die
   Windows-App holt ihr Fenster dann selbst nach vorne, im Browser blinkt der
-  Tab-Titel, auf dem Handy vibriert es
+  Tab-Titel, auf dem Handy vibriert es. Schliesst man die Windows-App, während
+  ein Timer läuft, bleibt sie im Infobereich der Taskleiste und meldet den Ablauf
 - Überzeit: Nach Ablauf zählt der Pomodoro-Timer mit „+“ weiter (max. 60 min),
   bis man die nächste Phase startet – „Mehr gearbeitet“ bzw. „Pause überzogen“
 - Oberfläche färbt sich gegen Ende der Phase rot
@@ -398,7 +399,9 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | Zeit | Hash | Commit | Branch | Umfang |
 | --- | --- | --- | --- | --- |
 | 11:05 | `2a38279` | Popup bei Ablauf nicht mehr verpassen: Fenster nach vorne, Titel blinkt | worktree-popup-ablauf | 5, +66 / −7 |
-| 11:10 | (dieser Commit) | Dokumentation nachgefuehrt: Popup bei Ablauf | worktree-popup-ablauf | Doku |
+| 11:10 | `e9693ac` | Dokumentation nachgefuehrt: Popup bei Ablauf | worktree-popup-ablauf | Doku |
+| 11:14 | `cc74893` | Windows-App laeuft beim Schliessen im Infobereich weiter, solange ein Timer laeuft | worktree-popup-ablauf | 5, +64 / −8 |
+| 11:16 | (dieser Commit) | Dokumentation nachgefuehrt: Infobereich | worktree-popup-ablauf | Doku |
 
 - **`2a38279`** – Wunsch: Ein Popup soll kommen, wenn die Zeit abgelaufen ist,
   damit man weiss, dass es fertig ist. Das Popup „Zeit ist um!“ gab es schon,
@@ -411,8 +414,20 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
     oder OK drückt; auf dem Handy vibriert es zusätzlich (`navigator.vibrate`).
   - Gilt für Pomodoro und eigene Timer (beide laufen über `showTimeUp`).
     `pomodoro.js?v=35`, `CACHE_NAME` auf `fokus-cache-v33`.
-- Doku-Commit: Chronik, Funktionsliste und Zahlen nachgeführt. Branch
-  `worktree-popup-ablauf` gepusht nach `origin`; noch nicht in `main`.
+- Doku-Commit `e9693ac`: Chronik, Funktionsliste und Zahlen nachgeführt.
+- **`cc74893`** – Rückmeldung: Es kommt keine Mitteilung, wenn die App
+  geschlossen ist. Grund: Schliessen beendete die ganze App, danach lief kein
+  Code mehr.
+  - Läuft der Pomodoro oder ein eigener Timer, versteckt Schliessen das Fenster
+    nur; die App bleibt mit Symbol im Infobereich der Taskleiste (Menü
+    „Fokus öffnen“ / „Beenden“, Klick öffnet). Beim ersten Mal erklärt eine
+    Mitteilung das. Bei Ablauf kommt das Fenster mit Popup zurück.
+  - Läuft nichts, beendet Schliessen die App wie bisher; „Beenden“ im Menü
+    beendet immer.
+  - Die Seite meldet den Zustand alle 0,5 s über `fokusApp.setBusy()`
+    (Kanal `fokus-busy`). `pomodoro.js?v=36`, `CACHE_NAME` auf `fokus-cache-v34`.
+- Doku-Commit: Chronik und Zahlen nachgeführt. Branch `worktree-popup-ablauf`
+  gepusht nach `origin`; noch nicht in `main`.
 
 ---
 
@@ -421,7 +436,7 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 6. November 2026 |
-| Commits | 79 (davon 1 Merge) |
+| Commits | 81 (davon 1 Merge) |
 | Aktive Tage | 12 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
@@ -433,6 +448,9 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 - Für die Apps nach Änderungen `npm run build` (Windows) bzw. `npm run ios:sync` (iOS).
 - iOS: Die Web-Mitteilungen gibt es in der Capacitor-App nicht; dafür bräuchte es
   das Plugin `@capacitor/local-notifications` (einrichten auf dem Mac).
+- Web/PWA: Ist der Browser-Tab bzw. die PWA ganz geschlossen, kann keine
+  Mitteilung kommen (läuft kein Code). Dafür bräuchte es Web-Push über einen
+  Server (z.B. Supabase Edge Function).
 - Die Windows-`.exe` ist nicht signiert (SmartScreen-Warnung beim ersten Start).
 - Die Nebenbranches (`agy-test`, `agy--test`, `app-windows-ios`, `feature/login`,
   `hallmark-test`, `worktree-agent-…`) sind vollständig in `main` und können
