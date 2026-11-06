@@ -1772,6 +1772,7 @@ document.addEventListener("dblclick", e => {
 function setLayoutEdit(on) {
   document.body.classList.toggle("layout-edit", on);
   $("layoutBar").hidden = !on;
+  if (on) placeLayoutBar();
   $("layoutEditBtn")?.classList.toggle("active", on);
 
   const timerBtn = $("timerLayoutToggleBtn");
@@ -1812,6 +1813,53 @@ if ($("layoutReset")) $("layoutReset").onclick = () => {
   freeResetAll();
 };
 document.addEventListener("keydown", e => { if (e.key === "Escape") setLayoutEdit(false); });
+
+// Die Leiste "Layout bearbeiten" lässt sich an eine freie Stelle ziehen, damit sie keine Felder verdeckt.
+// Gemerkt pro Gerät als Anteil des freien Platzes (fx/fy 0..1), Doppelklick = zurück an den Standardplatz.
+const LBAR_KEY = "fokus_layoutbar_pos";
+let lbarPos = null;
+try { lbarPos = JSON.parse(localStorage.getItem(LBAR_KEY)); } catch {}
+
+function placeLayoutBar() {
+  const bar = $("layoutBar");
+  const ok = lbarPos && typeof lbarPos.fx === "number" && typeof lbarPos.fy === "number";
+  bar.classList.toggle("moved", !!ok);
+  if (!ok) { bar.style.removeProperty("left"); bar.style.removeProperty("top"); return; }
+  const clamp = v => Math.min(1, Math.max(0, v));
+  bar.style.left = Math.round(clamp(lbarPos.fx) * Math.max(0, innerWidth - bar.offsetWidth)) + "px";
+  bar.style.top = Math.round(clamp(lbarPos.fy) * Math.max(0, innerHeight - bar.offsetHeight)) + "px";
+}
+window.addEventListener("resize", () => { if (!$("layoutBar").hidden) placeLayoutBar(); });
+
+$("layoutBar").addEventListener("pointerdown", e => {
+  if (e.button !== 0 || e.target.closest("button")) return;
+  const bar = $("layoutBar"), r = bar.getBoundingClientRect();
+  const dx = e.clientX - r.left, dy = e.clientY - r.top;
+  e.preventDefault();
+  bar.setPointerCapture(e.pointerId);
+  bar.classList.add("dragging");
+  const move = ev => {
+    const clamp = v => Math.min(1, Math.max(0, v));
+    lbarPos = { fx: clamp((ev.clientX - dx) / Math.max(1, innerWidth - r.width)), fy: clamp((ev.clientY - dy) / Math.max(1, innerHeight - r.height)) };
+    placeLayoutBar();
+  };
+  const up = () => {
+    bar.classList.remove("dragging");
+    bar.removeEventListener("pointermove", move);
+    bar.removeEventListener("pointerup", up);
+    bar.removeEventListener("pointercancel", up);
+    try { lbarPos ? localStorage.setItem(LBAR_KEY, JSON.stringify(lbarPos)) : localStorage.removeItem(LBAR_KEY); } catch {}
+  };
+  bar.addEventListener("pointermove", move);
+  bar.addEventListener("pointerup", up);
+  bar.addEventListener("pointercancel", up);
+});
+$("layoutBar").addEventListener("dblclick", e => {
+  if (e.target.closest("button")) return;
+  lbarPos = null;
+  try { localStorage.removeItem(LBAR_KEY); } catch {}
+  placeLayoutBar();
+});
 
 applyLayout();
 

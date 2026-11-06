@@ -183,6 +183,7 @@ const I18N = {
     // Felder anordnen
     "layout.barTitle": "Layout bearbeiten:",
     "layout.barText": "Felder frei ziehen zum Verschieben, Kanten & Ecken ziehen für die Grösse.",
+    "layout.barMove": "Leiste ziehen zum Verschieben, Doppelklick = zurück an den Standardplatz",
     "layout.field": "Feld",
     "layout.auto": "Auto",
     "layout.screenScroll": "Bildschirmende – darunter muss man scrollen",
@@ -436,6 +437,7 @@ const I18N = {
 
     "layout.barTitle": "Edit layout:",
     "layout.barText": "Drag fields to move them, drag edges & corners to resize.",
+    "layout.barMove": "Drag the bar to move it, double-click = back to its default place",
     "layout.field": "Field",
     "layout.auto": "Auto",
     "layout.screenScroll": "End of screen – below this you have to scroll",
@@ -687,6 +689,7 @@ const I18N = {
 
     "layout.barTitle": "Modifier la disposition :",
     "layout.barText": "Fais glisser les champs pour les déplacer, tire les bords et les coins pour la taille.",
+    "layout.barMove": "Fais glisser la barre pour la déplacer, double-clic = retour à sa place",
     "layout.field": "Champ",
     "layout.auto": "Auto",
     "layout.screenScroll": "Fin de l’écran – en dessous, il faut faire défiler",
@@ -938,6 +941,7 @@ const I18N = {
 
     "layout.barTitle": "Modifica layout:",
     "layout.barText": "Trascina i riquadri per spostarli, trascina bordi e angoli per la dimensione.",
+    "layout.barMove": "Trascina la barra per spostarla, doppio clic = torna al posto predefinito",
     "layout.field": "Riquadro",
     "layout.auto": "Auto",
     "layout.screenScroll": "Fine dello schermo – sotto bisogna scorrere",
@@ -1189,6 +1193,7 @@ const I18N = {
 
     "layout.barTitle": "Elrendezés szerkesztése:",
     "layout.barText": "Húzd a mezőket a mozgatáshoz, a széleket és sarkokat az átméretezéshez.",
+    "layout.barMove": "Húzd a sávot az áthelyezéshez, dupla kattintás = vissza az alaphelyére",
     "layout.field": "Mező",
     "layout.auto": "Auto",
     "layout.screenScroll": "Képernyő vége – alatta görgetni kell",

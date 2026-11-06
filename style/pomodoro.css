@@ -751,6 +751,12 @@ body.layout-edit .card > *:not(.card-edit-bar):not(.card-resize):not(.free-handl
   color: var(--text); font-size: var(--text-sm);
 }
 .layout-bar[hidden] { display: none; }
+.layout-bar { cursor: grab; touch-action: none; user-select: none; }
+.layout-bar.dragging { cursor: grabbing; }
+.layout-bar .btn { cursor: pointer; }
+/* Verschoben: Platz kommt aus pomodoro.js (left/top) statt unten in der Mitte */
+.layout-bar.moved { bottom: auto; transform: none; }
+.layout-bar-grip { color: var(--accent); font-size: 1.1rem; line-height: 1; margin-right: -6px; flex-shrink: 0; }
 .layout-bar strong { color: var(--text); font-weight: 600; }
 .layout-bar-actions { display: flex; gap: var(--space-xs); flex-shrink: 0; }
 .layout-bar .btn { padding: var(--space-xs) var(--space-md); white-space: nowrap; }
