@@ -4,7 +4,7 @@ Stand: 6. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Tim
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (82 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (84 Commits,
 6. Oktober bis 6. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
@@ -43,7 +43,8 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
 - Felder auf allen Seiten (Timer, To-do, Statistik, Zitate)
   frei verschieben und in der Grösse ändern, Inhalt skaliert mit; Timer- und
   Statistik-Seite passen immer auf einen Bildschirm, die untersten Felder
-  reichen bis zum unteren Rand
+  reichen bis zum unteren Rand; beim Anordnen zeigt eine gestrichelte Linie,
+  wo der Bildschirm endet (untere Feldkanten rasten dort ein)
 - To-dos (mit optionaler Deadline)
 - Zitate: grosser Pool, zufällige Auswahl, eigene Zitate mit Autor
 - Seitenmenü klappt beim Darüberfahren auf, Menüpunkte ein-/ausblenden und sortieren
@@ -371,7 +372,9 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | 11:05 | `64c0822` | Dokumentation nachgefuehrt: App-Icon pro Design | main | 1, +30 / −5 |
 | 13:15 | `2ac9618` | Statistik passt auf einen Bildschirm, unterste Felder bis zum Rand | main | 4, +59 / −13 |
 | 13:15 | `8cedd2c` | Cache-Version hochgezaehlt (Statistik-Layout) | main | 1, +1 / −1 |
-| 13:20 | (dieser Commit) | Dokumentation nachgefuehrt: Statistik-Layout | main | Doku |
+| 13:20 | `50e6eff` | Dokumentation nachgefuehrt: Statistik-Layout | main | 1, +26 / −4 |
+| 13:23 | `2a2250b` | Felder anordnen: Linie zeigt das Bildschirmende | main | 6, +104 / −13 |
+| 13:25 | (dieser Commit) | Dokumentation nachgefuehrt: Linie am Bildschirmende | main | Doku |
 
 - **`cb938ba`** – Wunsch: Mitteilung, wenn die App nicht offen ist, und sehen,
   wie viel man nach Ablauf länger gearbeitet bzw. Pause gemacht hat.
@@ -434,6 +437,23 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
   der Schritt, weil `10a7121` schon v33 gesetzt hatte).
 - Doku-Commit: Chronik, Funktionsliste und Zahlen nachgeführt. Zusammen mit
   `2ac9618` und `8cedd2c` gepusht nach `origin/main`.
+- **`2a2250b`** – Wunsch: Beim Verschieben der Felder soll man sehen, wie gross
+  ein Bildschirm ist, damit man nicht scrollen muss.
+  - Im Bearbeitungsmodus zeigt jedes Raster eine gestrichelte Linie mit Text
+    (`.free-screen`, Keys `layout.screenScroll` / `layout.screenFit`): auf To-do
+    und Zitaten „darunter muss man scrollen“, auf Timer und Statistik „darunter
+    wird alles verkleinert“. Untere Feldkanten rasten beim Ziehen und beim
+    Ändern der Höhe an der Linie ein.
+  - `freeScreenRoom()` rechnet den Platz bis zum Bildschirmrand so, wie er ohne
+    Bearbeiten ist (die 0,8-Verkleinerung der Seite wird herausgerechnet).
+    Einpassen und Strecken nutzen das ebenfalls – vorher wurden die untersten
+    Statistik-Felder beim Bearbeiten über das spätere Bildschirmende hinaus
+    verlängert.
+  - Geprüft in Electron (Statistik, To-do, Timer): Linie liegt genau am
+    späteren unteren Rand; Einpassen ohne Bearbeiten unverändert; `npm test` ok.
+  - `CACHE_NAME` auf `fokus-cache-v35`.
+- Doku-Commit: Chronik, Funktionsliste und Zahlen nachgeführt. Zusammen mit
+  `2a2250b` gepusht nach `origin/main`.
 
 ---
 
@@ -442,7 +462,7 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 6. November 2026 |
-| Commits | 82 (davon 1 Merge) |
+| Commits | 84 (davon 1 Merge) |
 | Aktive Tage | 12 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
