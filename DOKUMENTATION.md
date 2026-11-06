@@ -4,7 +4,7 @@ Stand: 6. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Tim
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (77 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (79 Commits,
 6. Oktober bis 6. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
@@ -47,7 +47,8 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
 - Seitenmenü klappt beim Darüberfahren auf, Menüpunkte ein-/ausblenden und sortieren
 - Mobile Ansicht mit Hamburger-Menü
 - Sprache: Deutsch, Englisch, Französisch, Italienisch, Ungarisch
-- Design wählbar: **Original** (Olivgrün) oder **Coral**
+- Design wählbar: **Original** (Olivgrün) oder **Coral** – das App-Icon wechselt
+  mit (Browser-Tab, Windows-Fenster/Taskleiste, iOS-Homescreen)
 - Login und Cloud-Sync über Supabase – inklusive Feldgrössen und Design
   (nur die Menü-Einstellung bleibt pro Gerät); Bestätigungsmail lässt sich
   erneut senden
@@ -61,7 +62,7 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
 | `style/` | `tokens.css`, `base.css`, `pomodoro.css`, `pomodoro-original.css`, `start.css`, `start-coral.css`, `lang-menu.css`, Schriften |
 | `img/` | Icons, Bilder, App-Icons |
 | `sw.js`, `manifest.json` | PWA (offlinefähig, installierbar) |
-| `electron/` | Windows-Hülle (`main.js`, `serve-dist.js`) |
+| `electron/` | Windows-Hülle (`main.js`, `preload.js`, `serve-dist.js`) |
 | `ios/` | Xcode-Projekt (von Capacitor erzeugt) |
 | `supabase/schema.sql`, `supabase/ERD.md` | Tabelle `user_data` mit Row-Level-Security, Datenmodell-Diagramm |
 | `tools/` | Build-Script, Icon-Renderer, Smoke-Test |
@@ -363,7 +364,9 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | Zeit | Hash | Commit | Branch | Umfang |
 | --- | --- | --- | --- | --- |
 | 08:35 | `cb938ba` | Ueberzeit nach Ablauf, Pausen-Statistik, zuverlaessigere Mitteilung | main | 9, +279 / −46 |
-| 08:40 | (dieser Commit) | Dokumentation nachgefuehrt: Ueberzeit und Pausen-Statistik | main | Doku |
+| 08:36 | `032b957` | Dokumentation nachgefuehrt: Ueberzeit und Pausen-Statistik | main | Doku |
+| 11:05 | `10a7121` | App-Icon wechselt mit dem Design (Coral-Icon fuer Web, Windows und iOS) | main | 17, +162 / −20 |
+| 11:10 | (dieser Commit) | Dokumentation nachgefuehrt: App-Icon pro Design | main | Doku |
 
 - **`cb938ba`** – Wunsch: Mitteilung, wenn die App nicht offen ist, und sehen,
   wie viel man nach Ablauf länger gearbeitet bzw. Pause gemacht hat.
@@ -390,6 +393,25 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
     `stats.overTotal`; `CACHE_NAME` auf `fokus-cache-v32`.
 - Doku-Commit: Chronik, Funktionsliste und Zahlen nachgeführt. Zusammen mit
   `cb938ba` gepusht nach `origin/main`.
+- **`10a7121`** – Wunsch: Das Icon der App soll sich ändern, wenn man das Design wechselt.
+  - Neues Coral-Icon `img/icons/icon-coral-source.svg` (gleiche Form, Farben aus
+    `tokens.css`: Hintergrund #181411, Ring Koralle #eb8975, Zeiger Creme).
+    `npm run icons` rendert daraus `icon-coral-192/512.png`,
+    `apple-touch-icon-coral.png` und das iOS-Icon `AppIconCoral`. Das Skript
+    rendert jetzt offscreen mit Skalierung 1 (vorher falsche Grösse bei
+    Windows-Zoom) und schafft mehrere Icons nacheinander.
+  - `design-boot.js` setzt bei jedem Designwechsel und beim Laden das passende Icon:
+    Browser (`<link rel="icon">` neu in beiden Seiten, `apple-touch-icon`),
+    Windows über das neue `electron/preload.js` → `win.setIcon()` in `main.js`
+    (Fenster und Taskleiste; `.exe`/Verknüpfung bleiben beim Original-Icon),
+    iOS über das eigene Capacitor-Plugin `FokusIcon` in `AppDelegate.swift`
+    (`setAlternateIconName`, eingebunden über `FokusViewController` in
+    `Main.storyboard` und `ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES`).
+  - Electron geprüft (Seite meldet Design, Favicon wechselt), `npm test` ok.
+    iOS-Teil ist ohne Mac nicht gebaut.
+  - `CACHE_NAME` auf `fokus-cache-v33`, Coral-Icons im Service-Worker-Cache.
+- Doku-Commit: Chronik, Funktionsliste, Zahlen und offene Punkte nachgeführt.
+  Zusammen mit `10a7121` gepusht nach `origin/main`.
 
 ---
 
@@ -398,7 +420,7 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 6. November 2026 |
-| Commits | 77 (davon 1 Merge) |
+| Commits | 79 (davon 1 Merge) |
 | Aktive Tage | 12 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
@@ -410,6 +432,9 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 - Für die Apps nach Änderungen `npm run build` (Windows) bzw. `npm run ios:sync` (iOS).
 - iOS: Die Web-Mitteilungen gibt es in der Capacitor-App nicht; dafür bräuchte es
   das Plugin `@capacitor/local-notifications` (einrichten auf dem Mac).
+- iOS: Der Icon-Wechsel (`FokusIcon`, `AppIconCoral`) ist noch nie in Xcode gebaut
+  worden – beim nächsten `npm run ios:sync` auf dem Mac prüfen. Da Coral das
+  Standard-Design ist, wechselt das Icon beim ersten Start einmal (mit iOS-Hinweis).
 - Die Windows-`.exe` ist nicht signiert (SmartScreen-Warnung beim ersten Start).
 - Die Nebenbranches (`agy-test`, `agy--test`, `app-windows-ios`, `feature/login`,
   `hallmark-test`, `worktree-agent-…`) sind vollständig in `main` und können
