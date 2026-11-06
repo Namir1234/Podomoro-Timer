@@ -4,7 +4,7 @@ Stand: 6. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Tim
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (77 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (79 Commits,
 6. Oktober bis 6. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
@@ -29,7 +29,9 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
   Minute) und Ton-Schalter
 - Popup „Zeit ist um!“ am Ende einer Pomodoro-Phase oder eines Timers; ist die
   App nicht im Vordergrund (minimiert, anderes Programm), zusätzlich als
-  System-Mitteilung – abschaltbar unter „Mitteilung im Hintergrund“
+  System-Mitteilung – abschaltbar unter „Mitteilung im Hintergrund“. Die
+  Windows-App holt ihr Fenster dann selbst nach vorne, im Browser blinkt der
+  Tab-Titel, auf dem Handy vibriert es
 - Überzeit: Nach Ablauf zählt der Pomodoro-Timer mit „+“ weiter (max. 60 min),
   bis man die nächste Phase startet – „Mehr gearbeitet“ bzw. „Pause überzogen“
 - Oberfläche färbt sich gegen Ende der Phase rot
@@ -363,7 +365,7 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | Zeit | Hash | Commit | Branch | Umfang |
 | --- | --- | --- | --- | --- |
 | 08:35 | `cb938ba` | Ueberzeit nach Ablauf, Pausen-Statistik, zuverlaessigere Mitteilung | main | 9, +279 / −46 |
-| 08:40 | (dieser Commit) | Dokumentation nachgefuehrt: Ueberzeit und Pausen-Statistik | main | Doku |
+| 08:40 | `032b957` | Dokumentation nachgefuehrt: Ueberzeit und Pausen-Statistik | main | Doku |
 
 - **`cb938ba`** – Wunsch: Mitteilung, wenn die App nicht offen ist, und sehen,
   wie viel man nach Ablauf länger gearbeitet bzw. Pause gemacht hat.
@@ -391,6 +393,27 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 - Doku-Commit: Chronik, Funktionsliste und Zahlen nachgeführt. Zusammen mit
   `cb938ba` gepusht nach `origin/main`.
 
+### Phase 13 – Popup bei Ablauf nicht mehr verpassen (6. November 2026)
+
+| Zeit | Hash | Commit | Branch | Umfang |
+| --- | --- | --- | --- | --- |
+| 11:05 | `2a38279` | Popup bei Ablauf nicht mehr verpassen: Fenster nach vorne, Titel blinkt | worktree-popup-ablauf | 5, +66 / −7 |
+| 11:10 | (dieser Commit) | Dokumentation nachgefuehrt: Popup bei Ablauf | worktree-popup-ablauf | Doku |
+
+- **`2a38279`** – Wunsch: Ein Popup soll kommen, wenn die Zeit abgelaufen ist,
+  damit man weiss, dass es fertig ist. Das Popup „Zeit ist um!“ gab es schon,
+  war aber unsichtbar, wenn die App minimiert oder verdeckt war.
+  - **Windows-App:** neues `electron/preload.js` stellt `window.fokusApp.timeUp()`
+    bereit. `main.js` holt das Fenster bei Ablauf aus der Taskleiste, legt es
+    „immer oben“ und lässt das Taskleisten-Symbol blinken, bis man es anklickt
+    (Windows verweigert `focus()` aus dem Hintergrund oft).
+  - **Browser:** Der Tab-Titel blinkt „⏰ Zeit ist um!“, bis man zurückkommt
+    oder OK drückt; auf dem Handy vibriert es zusätzlich (`navigator.vibrate`).
+  - Gilt für Pomodoro und eigene Timer (beide laufen über `showTimeUp`).
+    `pomodoro.js?v=35`, `CACHE_NAME` auf `fokus-cache-v33`.
+- Doku-Commit: Chronik, Funktionsliste und Zahlen nachgeführt. Branch
+  `worktree-popup-ablauf` gepusht nach `origin`; noch nicht in `main`.
+
 ---
 
 ## 4. Zahlen
@@ -398,7 +421,7 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 6. November 2026 |
-| Commits | 77 (davon 1 Merge) |
+| Commits | 79 (davon 1 Merge) |
 | Aktive Tage | 12 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
