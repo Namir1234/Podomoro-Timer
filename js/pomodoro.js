@@ -268,6 +268,7 @@ function setMode(m) {
   mode = m;
   totalSec = phaseSec(m);
   remaining = totalSec;
+  saveTimer();
   draw();
 }
 
@@ -290,9 +291,10 @@ function scheduleEnd() {
   }, Math.max(0, endTime - Date.now()));
 }
 
-function start() {
+// end: Endzeit von einem anderen Gerät bzw. aus dem Speicher (dann wird nicht nochmals gespeichert)
+function start(end) {
   running = true;
-  endTime = Date.now() + remaining * 1000;   // Endzeit merken → bleibt genau, auch wenn der Tab im Hintergrund ist
+  endTime = end || Date.now() + remaining * 1000;   // Endzeit merken → bleibt genau, auch wenn der Tab im Hintergrund ist
   tick = setInterval(() => {
     remaining = Math.max(0, Math.round((endTime - Date.now()) / 1000));
     draw();
@@ -300,28 +302,78 @@ function start() {
   }, 250);
   scheduleEnd();
   ringFrame = requestAnimationFrame(animateRing);
+  if (!end) saveTimer();
+  draw();
+}
+
+function pause() {
+  stop();
+  remaining = Math.max(0, Math.round((endTime - Date.now()) / 1000));
+  saveTimer();
   draw();
 }
 
 // Phase abgelaufen: speichern, Popup zeigen und die Überzeit mitzählen
 function finish() {
   stop();
-  beep();
-  showTimeUp([t(mode === "focus" ? "done.focus" : "done.break"), t("done.over")]);
   const since = endTime;
   const entry = { date: dayKey(since), ts: since, min: round1(phaseSec(mode) / 60) };
+  // Ist die App auf mehreren Geräten offen, läuft die Phase überall ab: nur einmal zählen.
   if (mode === "focus") {
-    sessions.push({ ...entry, subject: $("subject").value.trim() || NO_SUBJECT });
+    if (!sessions.some(s => s.ts === since)) sessions.push({ ...entry, subject: $("subject").value.trim() || NO_SUBJECT });
     save("pomo_subject", $("subject").value.trim());
     save("pomo_sessions", sessions);
     updateSubjectList();
     renderToday();
   } else {
-    breaks.push({ ...entry, kind: mode });
+    if (!breaks.some(b => b.ts === since)) breaks.push({ ...entry, kind: mode });
     save("pomo_breaks", breaks);
   }
+  // Schon lange vorbei (App war zu): ohne Überzeit gleich zur nächsten Phase
+  if (Date.now() - since >= OVER_MAX_MIN * 60000) return mode === "focus" ? afterFocus() : setMode("focus");
+  beep();
+  showTimeUp([t(mode === "focus" ? "done.focus" : "done.break"), t("done.over")]);
   over = { since, mode };
-  overTick = setInterval(() => overSec() >= OVER_MAX_MIN * 60 ? endOver(false) : draw(), 250);
+  runOver();
+  saveTimer();
+  draw();
+}
+
+const runOver = () => { clearInterval(overTick); overTick = setInterval(() => overSec() >= OVER_MAX_MIN * 60 ? endOver(false) : draw(), 250); };
+
+// Stand des Pomodoro-Timers: übersteht so ein Neuladen, und angemeldete Geräte sehen ihn live.
+// Nur absolute Zeitpunkte (endTime, over.since) → jedes Gerät rechnet selbst weiter.
+function saveTimer() {
+  save("pomo_timer", { mode, totalSec, remaining, running, endTime: running ? endTime : 0, focusDone, over });
+}
+
+// Gespeicherten oder von einem anderen Gerät kommenden Stand übernehmen (ohne zurückzuspeichern)
+function applyTimer(s) {
+  if (!s || !MODE_TEXT[s.mode]) return;
+  const wasRunning = running, wasOver = !!over;
+  stop();
+  clearInterval(overTick);
+  mode = s.mode;
+  totalSec = +s.totalSec || phaseSec(mode);
+  remaining = Math.min(totalSec, Math.max(0, +s.remaining || 0));
+  focusDone = Math.max(0, +s.focusDone || 0);
+  over = s.over?.since ? { since: +s.over.since, mode: s.over.mode } : null;
+  if (over && overSec() >= OVER_MAX_MIN * 60) {
+    // Überzeit längst vorbei: nicht mehr mitzählen, nur zur nächsten Phase
+    const m = over.mode;
+    over = null;
+    return m === "focus" ? afterFocus() : setMode("focus");
+  }
+  if (s.running && s.endTime > Date.now()) start(+s.endTime);
+  else if (s.running && s.endTime) { endTime = +s.endTime; remaining = 0; return finish(); }
+  if (over) {
+    runOver();
+    // Ein anderes Gerät war einen Moment schneller: hier trotzdem Ton und Popup
+    if (wasRunning && !wasOver) {
+      beep();
+      showTimeUp([t(mode === "focus" ? "done.focus" : "done.break"), t("done.over")]);
+    }
+  } else if (wasOver) closeTimeUp();
   draw();
 }
 
@@ -431,7 +483,7 @@ showNotifySetting();
 document.addEventListener("langchange", showNotifySetting);
 
 // Während der Überzeit: Start = nächste Phase gleich starten, Reset/Skip = nur dorthin wechseln
-$("startBtn").onclick = () => over ? endOver(true) : running ? (stop(), draw()) : (askNotify(), start());
+$("startBtn").onclick = () => over ? endOver(true) : running ? pause() : (askNotify(), start());
 $("resetBtn").onclick = () => over ? endOver(false) : setMode(mode);
 $("skipBtn").onclick = () => {
   if (over) return endOver(false);
@@ -2911,6 +2963,7 @@ document.addEventListener("langchange", () => {
 applyI18n();
 freeHandleTitles();
 draw();
+applyTimer(load("pomo_timer", null));
 showQuote();
 renderQuoteList();
 showMonkQuote();
@@ -2922,6 +2975,15 @@ clockCheckDone(true);
 renderClocks();
 renderToday();
 showTimerQuote();
+
+// Änderungen von anderen Geräten gleich anzeigen (Live-Sync, siehe cloud.js).
+// Keys ohne Eintrag hier (Design, Layout, Zitate …) laden die Seite neu.
+cloud.onRemote("pomo_timer", applyTimer);
+cloud.onRemote("pomo_sessions", v => { sessions = Array.isArray(v) ? v : []; updateSubjectList(); renderToday(); renderStats(); });
+cloud.onRemote("pomo_breaks", v => { breaks = Array.isArray(v) ? v : []; renderStats(); });
+cloud.onRemote("pomo_todos", v => { todos = Array.isArray(v) ? v : []; renderTodos(); });
+cloud.onRemote("pomo_clocks", v => { clocks = Array.isArray(v) ? v : []; renderClocks(); });
+cloud.onRemote("pomo_subject", v => { if (document.activeElement !== $("subject")) $("subject").value = v || ""; });
 
 /* ============================================================
    NUR-TIMER-ANSICHT ("Zen")

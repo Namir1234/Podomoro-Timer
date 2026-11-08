@@ -15,6 +15,8 @@ const cloud = (() => {
   // Das Menü passt je nach Bildschirm, darum bleibt es pro Gerät. Feldanordnung und Design
   // werden mit dem Konto abgeglichen.
   const DEVICE_ONLY = new Set(["pomo_menu"]);
+  // Steuerung des Timers soll sofort auf den anderen Geräten ankommen
+  const FAST = new Set(["pomo_timer"]);
 
   const url = typeof SUPABASE_URL === "string" ? SUPABASE_URL.trim() : "";
   const anonKey = typeof SUPABASE_ANON_KEY === "string" ? SUPABASE_ANON_KEY.trim() : "";
@@ -27,6 +29,9 @@ const cloud = (() => {
   let chain = Promise.resolve();
   let startState = new Map();   // lokaler Stand beim Seitenstart (siehe syncOnLoad)
   let started = false;          // vor dem Start-Abgleich wird nur gesammelt, nicht hochgeladen
+  const handlers = new Map();   // key -> Funktion, die einen neuen Stand gleich anzeigt (aus pomodoro.js)
+  let channel = null;           // Realtime-Kanal für Änderungen anderer Geräte
+  const sent = new Map();       // key -> eigene hochgeladene Stände, deren Echo noch aussteht
 
   /* ---------- Hilfsfunktionen ---------- */
   const syncs = key => key.startsWith("pomo_") && !key.startsWith("pomo__") && !DEVICE_ONLY.has(key);
@@ -66,7 +71,7 @@ const cloud = (() => {
     if (!enabled || !syncs(key)) return;
     pending.set(key, value);
     clearTimeout(timer);
-    if (started) timer = setTimeout(flush, 1000);
+    if (started) timer = setTimeout(flush, FAST.has(key) ? 150 : 1000);
   }
 
   async function upload() {
@@ -96,6 +101,8 @@ const cloud = (() => {
         ses.value = mergeSessions(ses.value, data?.value);
         writeLocal(ses.key, ses.value);
       }
+      // Vor dem Upsert merken: Das Realtime-Echo kann vor der Antwort eintreffen.
+      for (const r of rows) sent.set(r.key, [...(sent.get(r.key) || []), canon(r.value)].slice(-10));
       const { error } = await client.from(TABLE).upsert(rows);
       if (error) throw error;
       setDirty(dirty().filter(k => !keys.includes(k) || pending.has(k)));
@@ -142,9 +149,53 @@ const cloud = (() => {
     reloadPage(false);
   }
 
+  // Stand eines anderen Geräts übernehmen. Keys mit Handler werden gleich angezeigt,
+  // für alle anderen gibt es false zurück (die App liest sie nur beim Laden → neu laden).
+  function applyRemote(key, remote) {
+    // Noch nicht hochgeladene eigene Änderung ist neuer und gewinnt.
+    if (!syncs(key) || pending.has(key) || dirty().includes(key)) return true;
+    const local = readLocal(key);
+    const value = MERGED.has(key) && local?.length ? mergeSessions(local, remote) : remote;
+    if (canon(value) === canon(local)) return true;   // nichts Neues, z. B. das Echo der eigenen Änderung
+    writeLocal(key, value);
+    const fn = handlers.get(key);
+    if (!fn) return false;
+    try { fn(value); } catch (e) { console.error(e); }
+    return true;
+  }
+
+  // Alle Stände holen und übernehmen (beim Start und wenn die App wieder sichtbar wird).
+  async function pullChanges() {
+    let rows;
+    try { rows = await pullAll(); } catch { return; }
+    let reload = false;
+    for (const r of rows) if (!applyRemote(r.key, r.value)) reload = true;
+    if (reload) reloadPage(true);
+  }
+
+  // Live: Supabase Realtime meldet jede Änderung an den eigenen Zeilen sofort.
+  // Dafür muss user_data in der Publikation supabase_realtime sein (supabase/schema.sql).
+  function subscribe() {
+    if (channel || !user) return;
+    channel = client.channel("user_data:" + user.id)
+      .on("postgres_changes", { event: "*", schema: "public", table: TABLE, filter: "user_id=eq." + user.id }, p => {
+        const r = p.new;
+        if (!r?.key) return;
+        // Echo eines eigenen Uploads: Ist man schon weiter (Start und gleich Pause), nicht zurückspringen.
+        const mine = sent.get(r.key) || [], i = mine.indexOf(canon(r.value));
+        if (i >= 0) { mine.splice(0, i + 1); return; }
+        if (!applyRemote(r.key, r.value)) reloadPage(true);
+      })
+      .subscribe();
+  }
+
+  function unsubscribe() {
+    if (channel) client.removeChannel(channel).catch(() => {});
+    channel = null;
+  }
+
   // Bei jedem Start: offene Änderungen hochladen, dann neuere Stände von
-  // anderen Geräten holen. Die App liest ihre Daten nur beim Laden, darum
-  // wird bei Änderungen neu geladen.
+  // anderen Geräten holen und ab dann live mithören.
   async function syncOnLoad() {
     // Erst wenn pomodoro.js durchgelaufen ist, sind alle Start-Speicherungen gesammelt.
     if (document.readyState !== "complete") await new Promise(r => window.addEventListener("load", r, { once: true }));
@@ -155,19 +206,8 @@ const cloud = (() => {
       if (canon(value) === canon(startState.get(key))) pending.delete(key);
     }
     await flush();
-    let rows;
-    try { rows = await pullAll(); } catch { return; }
-    const open = new Set([...dirty(), ...pending.keys()]);
-    let changed = false;
-    for (const r of rows) {
-      if (open.has(r.key)) continue;
-      const local = readLocal(r.key);
-      const value = MERGED.has(r.key) && local?.length ? mergeSessions(local, r.value) : r.value;
-      if (canon(value) === canon(local)) continue;
-      writeLocal(r.key, value);
-      changed = true;
-    }
-    if (changed) reloadPage(true);
+    subscribe();
+    await pullChanges();
   }
 
   /* ---------- Konto ---------- */
@@ -203,6 +243,7 @@ const cloud = (() => {
   async function signOut() {
     await flush();
     try { await client.auth.signOut({ scope: "local" }); } catch {}
+    unsubscribe();
     user = null;
     pending.clear();
     setDirty([]);
@@ -325,12 +366,18 @@ const cloud = (() => {
       renderAccount();
     });
     syncOnLoad().finally(() => { started = true; if (pending.size) flush(); });
-    window.addEventListener("online", flush);
+    window.addEventListener("online", () => { flush(); if (user) pullChanges(); });
+    // Falls Realtime nicht verbunden war (Handy im Hintergrund, Funkloch): beim Zurückkommen abgleichen.
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible" && started && user) flush().then(pullChanges);
+    });
     // Falls die Seite zugeht, bevor der Upload durch ist: Keys für den nächsten Start merken.
     const flushNow = () => { if (user || hasStoredLogin()) markDirty([...pending.keys()]); flush(); };
     window.addEventListener("pagehide", flushNow);
     document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flushNow(); });
   }
 
-  return { enabled, push, flush, signIn, signUp, signOut, resendConfirmation, pullAll, get user() { return user; } };
+  const onRemote = (key, fn) => handlers.set(key, fn);
+
+  return { enabled, push, flush, onRemote, signIn, signUp, signOut, resendConfirmation, pullAll, get user() { return user; } };
 })();

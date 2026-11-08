@@ -18,3 +18,8 @@ create policy "own rows" on user_data
   for all
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
+
+-- Live-Sync: Aenderungen sofort an die anderen angemeldeten Geraete melden
+-- (Supabase Realtime). RLS gilt auch hier: jede Person hoert nur ihre eigenen Zeilen.
+-- Einmal ausfuehren; meldet es "already member of publication", ist es schon aktiv.
+alter publication supabase_realtime add table user_data;
