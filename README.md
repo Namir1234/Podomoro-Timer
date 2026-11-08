@@ -1,10 +1,33 @@
 # Fokus – Pomodoro Timer
 
-Pomodoro-Timer mit Statistik, To-dos, Notizen und Projekten.
+**Live:** https://namir1234.github.io/Podomoro-Timer/ – im Browser oeffnen
+oder ueber "Zum Home-Bildschirm" / "App installieren" als App einrichten.
+
+Pomodoro-Timer mit Statistik, To-dos und Zitaten.
 Die Daten liegen auf dem Geraet (`localStorage`). Wer will, meldet sich an
 und gleicht sie ueber Supabase zwischen Geraeten ab (siehe "Login und Cloud-Sync").
 
 Derselbe Code laeuft als Webseite, als Windows-Programm und als iOS-App.
+
+![Statistik mit Verlauf ueber 12 Wochen](img/screens/stats.png)
+
+| Timer | To-dos | Handy |
+| --- | --- | --- |
+| ![Timer](img/screens/timer.png) | ![To-dos mit Fokuszeit](img/screens/todo.png) | ![Timer auf dem Handy](img/screens/mobile.png) |
+
+## Was die App kann
+
+- Pomodoro mit Fokus, kurzer und langer Pause; dazu beliebig viele eigene Timer und Stoppuhren
+- Tagesziel, Streak, Ueberzeit ("mehr gearbeitet" / "Pause ueberzogen")
+- Statistik pro Tag, Woche und Fach, Verlauf ueber 7 Tage, 12 Wochen oder 12 Monate, Export als CSV
+- To-dos mit Faelligkeitsdatum; ▶ startet den Timer mit dem To-do als Fach und zeigt die investierte Zeit
+- Felder frei verschieben und in der Groesse aendern, Nur-Timer-Ansicht
+- Tastenkuerzel: Leertaste Start/Pause, R Reset, N Skip, F Nur Timer
+- Live-Sync zwischen Geraeten, Timer auf dem Sperrbildschirm (Handy)
+- Deutsch, Englisch, Franzoesisch, Italienisch, Ungarisch; zwei Designs (Coral, Original)
+
+Die Screenshots erzeugt `npm run screenshots` mit Beispieldaten (eigenes,
+leeres Profil – echte Daten bleiben unberuehrt).
 
 ## Aufbau
 

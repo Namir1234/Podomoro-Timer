@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" href="../img/icons/apple-touch-icon.png">
 <link rel="stylesheet" href="../style/fonts/inter.css">
 <link rel="stylesheet" href="../style/fonts/coral.css">
-<link rel="stylesheet" href="../style/start.css?v=6">
+<link rel="stylesheet" href="../style/start.css?v=7">
 <link rel="stylesheet" href="../style/start-coral.css?v=1" data-design="coral">
 <link rel="stylesheet" href="../style/lang-menu.css?v=3">
 <script src="../js/design-boot.js?v=3"></script>
@@ -36,13 +36,15 @@
     </p>
 
     <ul class="features">
-      <li><img src="../img/timer.svg" alt="" width="20" height="20"><span data-i18n="start.f1">Timer mit eigenen Zeiten und Tagesziel</span></li>
-      <li><img src="../img/todo.svg" alt="" width="20" height="20"><span data-i18n="start.f2">To-dos mit Fälligkeitsdatum</span></li>
-      <li><img src="../img/stats.svg" alt="" width="20" height="20"><span data-i18n="start.f3">Statistik: wie viel du pro Tag und Fach lernst</span></li>
+      <li><img src="../img/timer.svg" alt="" width="20" height="20"><span data-i18n="start.f1">Pomodoro, Timer und Stoppuhr mit eigenen Zeiten und Tagesziel</span></li>
+      <li><img src="../img/todo.svg" alt="" width="20" height="20"><span data-i18n="start.f2">To-dos mit Fälligkeitsdatum – und der Zeit, die du schon reingesteckt hast</span></li>
+      <li><img src="../img/stats.svg" alt="" width="20" height="20"><span data-i18n="start.f3">Statistik pro Tag, Woche, Monat und Fach – auch als CSV</span></li>
+      <li><img src="../img/user.svg" alt="" width="20" height="20"><span data-i18n="start.f4">Läuft live auf Laptop und Handy gleichzeitig (mit Konto)</span></li>
+      <li><img src="../img/layout.svg" alt="" width="20" height="20"><span data-i18n="start.f5">Als App installierbar und offline nutzbar</span></li>
     </ul>
 
     <a class="btn" href="pomodoro.html" data-i18n="start.open">Timer öffnen</a>
-    <p class="note" data-i18n="start.note">Kostenlos, ohne Anmeldung. Deine Daten bleiben in deinem Browser.</p>
+    <p class="note" data-i18n="start.note">Kostenlos. Ohne Konto bleiben deine Daten in deinem Browser – mit Konto auf all deinen Geräten.</p>
   </section>
 
   <!-- ================= ZITAT (dezent) ================= -->
@@ -56,9 +58,24 @@
 
 </main>
 
-<footer data-i18n="start.footer">Bilder: Wikimedia Commons, gemeinfrei.</footer>
+<!-- ================= SCREENSHOTS (erzeugt mit npm run screenshots) ================= -->
+<section class="shots" aria-labelledby="shotsTitle">
+  <h2 id="shotsTitle" data-i18n="start.shots">So sieht Fokus aus</h2>
+  <div class="shots-row">
+    <figure class="shot shot-wide">
+      <img src="../img/screens/stats.png" alt="" width="1600" height="1000" loading="lazy">
+      <figcaption data-i18n="start.shotStats">Statistik mit Verlauf über 12 Wochen</figcaption>
+    </figure>
+    <figure class="shot shot-phone">
+      <img src="../img/screens/mobile.png" alt="" width="780" height="1688" loading="lazy">
+      <figcaption data-i18n="start.shotPhone">Timer auf dem Handy</figcaption>
+    </figure>
+  </div>
+</section>
 
-<script src="../js/i18n.js?v=5"></script>
+<footer><span data-i18n="start.footer">Bilder: Wikimedia Commons, gemeinfrei.</span> · <a href="https://github.com/Namir1234/Podomoro-Timer" data-i18n="start.source">Quellcode auf GitHub</a></footer>
+
+<script src="../js/i18n.js?v=12"></script>
 <script>
   // Mönchs-Zitate: es wird immer nur eines gezeigt
   const MONKS = [

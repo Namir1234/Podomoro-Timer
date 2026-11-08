@@ -12,7 +12,8 @@
     "ios:sync": "npm run build && cap sync ios",
     "ios:open": "cap open ios",
     "test": "npm run build && electron tools/smoke-test.js",
-    "icons": "electron tools/render-icons.js"
+    "icons": "electron tools/render-icons.js",
+    "screenshots": "npm run build && electron tools/screenshots.js"
   },
   "dependencies": {
     "@capacitor/core": "^7.4.4",

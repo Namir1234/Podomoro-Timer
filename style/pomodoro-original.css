@@ -1053,3 +1053,23 @@ body.zen .subject-row { width: min(100%, 420px); }
 .account-info p { line-height: 1.45; overflow-wrap: anywhere; }
 .account-info .account-msg { margin-top: 10px; }
 .modal button:disabled { opacity: .6; cursor: default; }
+
+/* ===== Verlauf-Zeitraum, CSV-Export, Zeit pro To-do, Tastenkuerzel ===== */
+.modes.chart-range { margin: 0 0 10px; }
+.modes.chart-range button { padding: 5px 10px; font-size: .75rem; }
+.chart.dense { gap: 3px; }
+.chart.dense .bar-val, .chart.dense .bar-day { font-size: .62rem; white-space: nowrap; }
+.link-row { display: flex; flex-wrap: wrap; gap: 16px; }
+.todo-time { color: var(--accent); border-color: var(--accent); }
+.todo-focus { background: none; border: 0; color: var(--muted); cursor: pointer; font-size: .8rem; padding: 4px 8px; line-height: 1; }
+.todo-focus:hover { color: var(--text); }
+@media (pointer: coarse) { .keys-hint { display: none; } }
+
+/* Handy: Uhr-Umschalter in eine eigene Zeile, sonst ueberlappt "Stoppuhr" die Symbol-Knoepfe */
+@media (max-width: 480px) {
+  .page-topbar:has(.ttabs) { flex-wrap: wrap; row-gap: 10px; }
+  .page-topbar:has(.ttabs) .page-topbar-actions { margin-left: auto; }
+  .page-topbar-info:has(.ttabs) { order: 2; width: 100%; }
+  .page-topbar-info .ttabs { width: 100%; }
+  .page-topbar-info .ttabs button { flex: 1; }
+}

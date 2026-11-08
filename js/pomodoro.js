@@ -408,6 +408,7 @@ function finish() {
     save("pomo_sessions", sessions);
     updateSubjectList();
     renderToday();
+    renderTodos();
   } else {
     if (!breaks.some(b => b.ts === since)) breaks.push({ ...entry, kind: mode });
     save("pomo_breaks", breaks);
@@ -689,6 +690,56 @@ updateSubjectList();
    ============================================================ */
 const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
+// Verlauf: 7 Tage (Minuten), 12 Wochen oder 12 Monate (Stunden)
+const RANGE_KEY = "pomo_chart_range";   // nur pro Gerät, wird nicht synchronisiert
+let chartRange = "days";
+try { const r = localStorage.getItem(RANGE_KEY); if (["days", "weeks", "months"].includes(r)) chartRange = r; } catch {}
+
+function chartBuckets(days) {
+  if (chartRange === "days") return days.map(d => ({ label: d.label, val: d.min }));
+  const sumRange = (from, to) => sessions.filter(s => s.date >= from && s.date < to).reduce((a, s) => a + s.min, 0);
+  const out = [];
+  if (chartRange === "weeks") {
+    const mon = new Date(); mon.setHours(0, 0, 0, 0);
+    mon.setDate(mon.getDate() - (mon.getDay() + 6) % 7);          // Montag dieser Woche
+    for (let i = 11; i >= 0; i--) {
+      const a = new Date(mon); a.setDate(a.getDate() - 7 * i);
+      const b = new Date(a); b.setDate(b.getDate() + 7);
+      out.push({ label: a.toLocaleDateString(locale(), { day: "numeric", month: "numeric" }), val: sumRange(dayKey(a), dayKey(b)) / 60 });
+    }
+  } else {
+    const now = new Date();
+    for (let i = 11; i >= 0; i--) {
+      const a = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const b = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+      out.push({ label: a.toLocaleDateString(locale(), { month: "short" }), val: sumRange(dayKey(a), dayKey(b)) / 60 });
+    }
+  }
+  return out;
+}
+
+function renderChart(days) {
+  const key = { days: "stats.chart", weeks: "stats.chartWeeks", months: "stats.chartMonths" }[chartRange];
+  $("chartTitle").dataset.i18n = key;
+  $("chartTitle").textContent = t(key);
+  $("chartRange").querySelectorAll("button").forEach(b => b.classList.toggle("active", b.dataset.range === chartRange));
+  const bars = chartBuckets(days);
+  const max = Math.max(...bars.map(d => d.val), chartRange === "days" ? 1 : 0.1);
+  $("chart").classList.toggle("dense", bars.length > 7);
+  $("chart").innerHTML = bars.map(d => `
+    <div class="bar-col">
+      <div class="bar-val">${round1(d.val) || ""}</div>
+      <div class="bar" style="height:${(d.val / max) * 100}%"></div>
+      <div class="bar-day">${esc(d.label)}</div>
+    </div>`).join("");
+}
+
+$("chartRange").querySelectorAll("button").forEach(b => b.onclick = () => {
+  chartRange = b.dataset.range;
+  try { localStorage.setItem(RANGE_KEY, chartRange); } catch {}
+  renderStats();
+});
+
 function renderStats() {
   const today = dayKey(new Date());
   const sumFor = key => sessions.filter(s => s.date === key).reduce((a, s) => a + s.min, 0);
@@ -699,13 +750,7 @@ function renderStats() {
     const d = new Date(); d.setDate(d.getDate() - i);
     days.push({ key: dayKey(d), label: d.toLocaleDateString(locale(), { weekday: "short" }), min: sumFor(dayKey(d)) });
   }
-  const max = Math.max(...days.map(d => d.min), 1);
-  $("chart").innerHTML = days.map(d => `
-    <div class="bar-col">
-      <div class="bar-val">${round1(d.min) || ""}</div>
-      <div class="bar" style="height:${(d.min / max) * 100}%"></div>
-      <div class="bar-day">${d.label}</div>
-    </div>`).join("");
+  renderChart(days);
 
   // Pausen und Überzeit (Pause = geplante Zeit + überzogen)
   const weekKeys = new Set(days.map(d => d.key));
@@ -748,6 +793,39 @@ function renderStats() {
   // Neuer Inhalt kann Felder fester Höhe vergrössern: Anordnung neu berechnen
   if ($("stats").classList.contains("active")) freeSchedule($("statsCanvas"), true);
 }
+
+// Alle Sessions und Pausen als CSV (Semikolon + BOM, damit Excel Umlaute und Spalten richtig liest)
+function statsCsv() {
+  const cell = v => {
+    let s = String(v ?? "");
+    if (/^[=+\-@]/.test(s)) s = "'" + s;                        // keine Formeln in Excel
+    return /[;"\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+  const num = n => new Intl.NumberFormat(locale(), { useGrouping: false, maximumFractionDigits: 1 }).format(round1(n || 0));
+  const rows = [
+    ...sessions.map(s => ({ ...s, kind: "focus" })),
+    ...breaks
+  ].sort((a, b) => a.ts - b.ts).map(x => {
+    const d = new Date(x.ts);
+    return [t("mode." + x.kind), x.date, d.toLocaleTimeString(locale(), { hour: "2-digit", minute: "2-digit" }),
+      num(x.min), num(x.over), x.kind === "focus" ? subjectName(x.subject) : ""].map(cell).join(";");
+  });
+  return "\ufeff" + [t("csv.head"), ...rows].join("\r\n") + "\r\n";
+}
+
+$("exportBtn").onclick = async () => {
+  const name = `fokus-statistik-${dayKey(new Date())}.csv`;
+  const blob = new Blob([statsCsv()], { type: "text/csv;charset=utf-8" });
+  // Auf Handys (v.a. iOS-App) gibt es keinen Download-Ordner: dort über "Teilen" sichern
+  const file = typeof File === "function" ? new File([blob], name, { type: blob.type }) : null;
+  if (file && matchMedia("(pointer: coarse)").matches && navigator.canShare?.({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: name }); return; } catch (e) { if (e.name === "AbortError") return; }
+  }
+  const url = URL.createObjectURL(blob);
+  const a = Object.assign(document.createElement("a"), { href: url, download: name });
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+};
 
 $("clearBtn").onclick = () => {
   if (confirm(t("stats.confirm"))) {
@@ -939,12 +1017,31 @@ function dueBadge(todo) {
   return `<span class="due ${cls}" title="${esc(t("due.title"))}">${date} · ${rel}</span>`;
 }
 
+// Ein To-do wird im Timer zum Fach (das Feld fasst 30 Zeichen); seine Zeit = Sessions mit diesem Fach
+const todoSubject = td => td.text.slice(0, 30).trim();
+function todoTime(td) {
+  const key = todoSubject(td);
+  const min = round1(sessions.filter(s => s.subject === key).reduce((a, s) => a + s.min, 0));
+  const txt = min < 60 ? t("dur.min", { n: min }) : round1(min / 60) + " h";
+  return min ? `<span class="due todo-time" title="${esc(t("todo.time"))}">${txt}</span>` : "";
+}
+
+function focusTodo(td) {
+  $("subject").value = todoSubject(td);
+  save("pomo_subject", $("subject").value);
+  document.querySelector('nav button[data-page="timer"]')?.click();
+  setTimerTab("timerCanvas");
+  if (!running && !over && mode !== "focus") setMode("focus");
+}
+
 function renderTodos() {
   $("todoList").innerHTML = todos.length
     ? todos.map(td => `
       <li class="${td.done ? "done" : ""}" data-id="${td.id}">
         <label><input type="checkbox" ${td.done ? "checked" : ""}><span>${esc(td.text)}</span></label>
+        ${todoTime(td)}
         ${dueBadge(td)}
+        ${td.done ? "" : `<button class="todo-focus" title="${esc(t("todo.focus"))}" aria-label="${esc(t("todo.focus"))}">▶</button>`}
         <button class="todo-del" title="${esc(t("btn.delete"))}" aria-label="${esc(t("btn.delete"))}">✕</button>
       </li>`).join("")
     : `<li class="empty">${esc(t("todo.empty"))}</li>`;
@@ -954,6 +1051,8 @@ function renderTodos() {
       const t = todos.find(x => x.id === id);
       if (t) { t.done = e.target.checked; saveTodos(); renderTodos(); }
     };
+    const focusBtn = li.querySelector(".todo-focus");
+    if (focusBtn) focusBtn.onclick = () => { const td = todos.find(x => x.id === id); if (td) focusTodo(td); };
     li.querySelector(".todo-del").onclick = () => {
       todos = todos.filter(x => x.id !== id); saveTodos(); renderTodos();
     };
@@ -3082,7 +3181,7 @@ showTimerQuote();
 // Änderungen von anderen Geräten gleich anzeigen (Live-Sync, siehe cloud.js).
 // Keys ohne Eintrag hier (Design, Layout, Zitate …) laden die Seite neu.
 cloud.onRemote("pomo_timer", applyTimer);
-cloud.onRemote("pomo_sessions", v => { sessions = Array.isArray(v) ? v : []; updateSubjectList(); renderToday(); renderStats(); });
+cloud.onRemote("pomo_sessions", v => { sessions = Array.isArray(v) ? v : []; updateSubjectList(); renderToday(); renderStats(); renderTodos(); });
 cloud.onRemote("pomo_breaks", v => { breaks = Array.isArray(v) ? v : []; renderStats(); });
 cloud.onRemote("pomo_todos", v => { todos = Array.isArray(v) ? v : []; renderTodos(); });
 cloud.onRemote("pomo_clocks", v => { clocks = Array.isArray(v) ? v : []; renderClocks(); });
@@ -3127,4 +3226,20 @@ document.querySelectorAll("nav button").forEach(b => {
   b.addEventListener("click", () => {
     if (b.dataset.page !== "timer") setZen(false);
   });
+});
+
+/* ============================================================
+   TASTENKÜRZEL (Pomodoro-Timer)
+   Leertaste Start/Pause · R Reset · N Skip · F Nur-Timer-Ansicht
+   Nicht beim Tippen, nicht bei offenen Dialogen oder im Layout-Modus.
+   ============================================================ */
+document.addEventListener("keydown", e => {
+  if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
+  if (e.target.closest?.("input, textarea, select, button, a, [contenteditable]")) return;
+  if (!$("timer").classList.contains("active") || !document.body.classList.contains("tab-pomodoro")) return;
+  if (document.body.classList.contains("layout-edit") || document.querySelector(".modal:not([hidden])")) return;
+  const k = e.key.toLowerCase();
+  const act = { " ": "startBtn", r: "resetBtn", n: "skipBtn" }[k];
+  if (act) { e.preventDefault(); $(act).click(); }
+  else if (k === "f") { e.preventDefault(); setZen(!document.body.classList.contains("zen")); }
 });
