@@ -4,14 +4,15 @@ Stand: 8. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Tim
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (92 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (95 Commits,
 6. Oktober bis 8. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
 
 ## 1. Überblick
 
-**Fokus** ist ein Pomodoro-Timer mit Statistik, To-dos und Zitaten. Derselbe Web-Code läuft auf drei Arten:
+**Fokus** ist ein Pomodoro-Timer mit Statistik, To-dos und Zitaten. Derselbe Web-Code läuft auf drei Arten.
+Online unter **https://namir1234.github.io/Podomoro-Timer/** (GitHub Pages, Branch `main`):
 
 | Plattform | Technik | Start |
 | --- | --- | --- |
@@ -46,7 +47,14 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
   reichen bis zum unteren Rand; beim Anordnen zeigt eine gestrichelte Linie,
   wo der Bildschirm endet (untere Feldkanten rasten dort ein); die Leiste
   „Layout bearbeiten“ lässt sich verschieben
-- To-dos (mit optionaler Deadline)
+- To-dos (mit optionaler Deadline); ▶ startet den Timer mit dem To-do als
+  Fach, daneben steht die schon investierte Fokuszeit
+- Statistik-Verlauf wählbar: 7 Tage (Minuten), 12 Wochen oder 12 Monate
+  (Stunden); Export aller Sessions und Pausen als CSV (Excel-tauglich)
+- Tastenkürzel auf der Pomodoro-Seite: Leertaste Start/Pause, R Reset,
+  N Skip, F Nur Timer
+- Startseite mit Screenshots (erzeugt mit `npm run screenshots`) und Link
+  zum Quellcode
 - Zitate: grosser Pool, zufällige Auswahl, eigene Zitate mit Autor
 - Seitenmenü klappt beim Darüberfahren auf, Menüpunkte ein-/ausblenden und sortieren
 - Mobile Ansicht mit Hamburger-Menü
@@ -74,12 +82,12 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
 | `pages/` | `index.html` (Startseite), `pomodoro.html` (App) |
 | `js/` | `pomodoro.js` (App-Logik), `i18n.js` (Übersetzungen), `cloud.js` + `cloud-config.js` (Supabase), `design-boot.js` (Design-Wahl), `vendor/supabase.js` |
 | `style/` | `tokens.css`, `base.css`, `pomodoro.css`, `pomodoro-original.css`, `start.css`, `start-coral.css`, `lang-menu.css`, Schriften |
-| `img/` | Icons, Bilder, App-Icons |
+| `img/` | Icons, Bilder, App-Icons, `screens/` (Screenshots für Startseite und README) |
 | `sw.js`, `manifest.json` | PWA (offlinefähig, installierbar) |
 | `electron/` | Windows-Hülle (`main.js`, `preload.js`, `serve-dist.js`) |
 | `ios/` | Xcode-Projekt (von Capacitor erzeugt) |
 | `supabase/schema.sql`, `supabase/ERD.md` | Tabelle `user_data` mit Row-Level-Security, Datenmodell-Diagramm |
-| `tools/` | Build-Script, Icon-Renderer, Smoke-Test |
+| `tools/` | Build-Script, Icon-Renderer, Smoke-Test, `screenshots.js` |
 | `dist/` | Build-Ausgabe, nicht von Hand bearbeiten |
 | `release/` | fertige Windows-Dateien |
 
@@ -566,6 +574,56 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 - Doku-Commit: Chronik, Funktionsliste, Zahlen und offene Punkte nachgeführt.
   Zusammen mit `3678553` gepusht nach `origin/main`.
 
+### Phase 15 – Ausbau, Aufräumen und Schaufenster (8. November 2026)
+
+| Zeit | Hash | Commit | Branch | Umfang |
+| --- | --- | --- | --- | --- |
+| 21:14 | `9192098` | Autorname vereinheitlicht (.mailmap) | claude/app-website-next-steps | 1, +3 / −0 |
+| 21:14 | `6591a98` | Verlauf ueber Wochen/Monate, CSV-Export, Zeit pro To-do, Tastenkuerzel, Startseite mit Screenshots | claude/app-website-next-steps | 15, +447 / −45 |
+| 21:20 | (dieser Commit) | Dokumentation nachgefuehrt: Ausbau und Schaufenster | claude/app-website-next-steps | Doku |
+
+Auftrag: Nach der Frage „Was kann ich jetzt mit App und Webseite machen?“
+alle vorgeschlagenen Schritte umsetzen (online stellen, offene Punkte,
+aufräumen, vorzeigbar machen, ausbauen).
+
+- **Online:** GitHub Pages war schon aktiv und auf dem neusten Stand
+  (`fokus-cache-v39` live). Adresse jetzt in README und Doku.
+- **`9192098`** – `.mailmap`: `Namir1234`, `Namir` und `Namir Al Gorani`
+  erscheinen in `git log`/`shortlog` einheitlich als „Namir Al Gorani“.
+  Die Historie bleibt unverändert (kein Umschreiben, kein Force-Push).
+- **`6591a98`** – Ausbau und Schaufenster:
+  - **Verlauf:** Umschalter 7 Tage / 12 Wochen / 12 Monate über dem Diagramm
+    (`renderChart()`, `chartBuckets()`); Wochen beginnen am Montag, Wochen
+    und Monate in Stunden. Wahl pro Gerät (`pomo_chart_range`, nicht synchronisiert).
+  - **CSV-Export** („Als CSV exportieren“ unter den letzten Sessions):
+    Semikolon + BOM, Zahlen im Format der Sprache, Formel-Zeichen am
+    Zellanfang werden entschärft. Auf Handys über „Teilen“, sonst Download.
+  - **Zeit pro To-do:** ▶ setzt das To-do (max. 30 Zeichen) als Fach und
+    wechselt zum Timer; die Fokuszeit aller Sessions mit diesem Fach steht
+    als Schild am To-do (ab 60 min in Stunden). Aktualisiert sich nach jeder
+    Session und beim Live-Sync.
+  - **Tastenkürzel:** Leertaste, R, N, F – nur auf der Pomodoro-Seite, nicht
+    beim Tippen, nicht bei offenen Dialogen oder im Layout-Modus. Hinweis
+    unter den Zeiteinstellungen (auf Touch-Geräten ausgeblendet).
+  - **Handy-Kopfzeile:** Bis 480 px steht der Umschalter Pomodoro/Timer/
+    Stoppuhr in einer eigenen Zeile – vorher überlappte „Stoppuhr“ den
+    Vollbild-Knopf.
+  - **Startseite:** fünf Funktionen statt drei, Hinweis zu Konto/Sync
+    korrigiert („ohne Anmeldung“ stimmte nicht mehr), Bereich „So sieht
+    Fokus aus“ mit Statistik- und Handy-Screenshot, Link zum Quellcode.
+  - **`tools/screenshots.js`** (`npm run screenshots`): Electron offscreen
+    mit eigenem Profil und Beispieldaten → `img/screens/*.png`.
+  - **README:** Live-Link, Screenshots, Funktionsliste.
+  - Texte in allen 5 Sprachen. Geprüft im Browser (Desktop und 375 px, beide
+    Designs) und mit `npm test` (ok). `CACHE_NAME` auf `fokus-cache-v40`.
+- Nicht gemacht: Fokus-Blocklisten (eine Webseite kann andere Seiten nicht
+  sperren, das ginge nur als Browser-Erweiterung); Branches löschen (von der
+  Sicherheitsprüfung blockiert, Befehle unter „Offene Punkte“); Supabase-SQL
+  (Anmeldung im Dashboard nötig).
+- Doku-Commit: Chronik, Funktionsliste, Projektstruktur, Zahlen und offene
+  Punkte nachgeführt. Zusammen mit `9192098` und `6591a98` gepusht nach
+  `origin/main` (Fast-Forward vom Branch `claude/app-website-next-steps`).
+
 ---
 
 ## 4. Zahlen
@@ -573,7 +631,7 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 8. November 2026 |
-| Commits | 92 (davon 1 Merge) |
+| Commits | 95 (davon 1 Merge) |
 | Aktive Tage | 13 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6., 8. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
@@ -599,7 +657,13 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
   einem Tipp in der App (Autoplay-Sperre). Eine echte Live Activity mit
   Dynamic Island ginge nur in der nativen iOS-App (Mac nötig).
 - Die Windows-`.exe` ist nicht signiert (SmartScreen-Warnung beim ersten Start).
-- Die Nebenbranches (`agy-test`, `agy--test`, `app-windows-ios`, `feature/login`,
-  `hallmark-test`, `worktree-agent-…`) sind vollständig in `main` und können
-  aufgeräumt werden.
-- Git-Autorname vereinheitlichen (`Namir1234` / `Namir` / `Namir Al Gorani`).
+- Branches aufräumen: `agy-test`, `agy--test`, `app-windows-ios`,
+  `worktree-agent-a3fd603009cb31500` und `feature/login` (samt Worktree
+  `.claude/worktrees/agent-a3fd…`) sowie `origin/hallmark-coral` sind
+  vollständig in `main` und können weg. `hallmark-coral`/`hallmark-test`
+  lokal behalten, solange ihre Ordner ungesicherte `.hallmark/`-Notizen haben.
+  **Nicht** in `main`: `worktree-popup-ablauf` (4 Commits, u. a. „Windows-App
+  läuft beim Schliessen im Infobereich weiter“) – erst prüfen und mergen.
+- Git-Autorname: über `.mailmap` vereinheitlicht. Für künftige Commits überall
+  `git config user.name "Namir Al Gorani"` setzen.
+- Screenshots nach grösseren Änderungen neu erzeugen: `npm run screenshots`.
