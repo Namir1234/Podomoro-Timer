@@ -4,7 +4,7 @@ Stand: 8. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Tim
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (95 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (96 Commits,
 6. Oktober bis 8. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
@@ -580,7 +580,8 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | --- | --- | --- | --- | --- |
 | 21:14 | `9192098` | Autorname vereinheitlicht (.mailmap) | claude/app-website-next-steps | 1, +3 / −0 |
 | 21:14 | `6591a98` | Verlauf ueber Wochen/Monate, CSV-Export, Zeit pro To-do, Tastenkuerzel, Startseite mit Screenshots | claude/app-website-next-steps | 15, +447 / −45 |
-| 21:20 | (dieser Commit) | Dokumentation nachgefuehrt: Ausbau und Schaufenster | claude/app-website-next-steps | Doku |
+| 21:20 | `e382d13` | Dokumentation nachgefuehrt: Ausbau und Schaufenster | claude/app-website-next-steps | Doku |
+| 21:35 | (dieser Commit) | Dokumentation nachgefuehrt: Realtime geprueft | claude/app-website-next-steps | Doku |
 
 Auftrag: Nach der Frage „Was kann ich jetzt mit App und Webseite machen?“
 alle vorgeschlagenen Schritte umsetzen (online stellen, offene Punkte,
@@ -618,8 +619,9 @@ aufräumen, vorzeigbar machen, ausbauen).
     Designs) und mit `npm test` (ok). `CACHE_NAME` auf `fokus-cache-v40`.
 - Nicht gemacht: Fokus-Blocklisten (eine Webseite kann andere Seiten nicht
   sperren, das ginge nur als Browser-Erweiterung); Branches löschen (von der
-  Sicherheitsprüfung blockiert, Befehle unter „Offene Punkte“); Supabase-SQL
-  (Anmeldung im Dashboard nötig).
+  Sicherheitsprüfung blockiert, Befehle unter „Offene Punkte“).
+- Supabase: Im SQL Editor geprüft – `user_data` war schon für Realtime
+  freigegeben, der `alter publication`-Befehl war nicht mehr nötig.
 - Doku-Commit: Chronik, Funktionsliste, Projektstruktur, Zahlen und offene
   Punkte nachgeführt. Zusammen mit `9192098` und `6591a98` gepusht nach
   `origin/main` (Fast-Forward vom Branch `claude/app-website-next-steps`).
@@ -631,7 +633,7 @@ aufräumen, vorzeigbar machen, ausbauen).
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 8. November 2026 |
-| Commits | 95 (davon 1 Merge) |
+| Commits | 96 (davon 1 Merge) |
 | Aktive Tage | 13 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6., 8. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
@@ -641,11 +643,10 @@ aufräumen, vorzeigbar machen, ausbauen).
 - Nach Änderungen an Web-Dateien `CACHE_NAME` in `sw.js` hochzählen, sonst
   sehen Browser-Nutzer die alte Version.
 - Für die Apps nach Änderungen `npm run build` (Windows) bzw. `npm run ios:sync` (iOS).
-- Live-Sync: Die letzte Zeile aus `supabase/schema.sql`
-  (`alter publication supabase_realtime add table user_data;`) muss einmal im
-  Supabase SQL Editor laufen. Ohne sie gleichen die Geräte nur beim Öffnen bzw.
-  beim Zurückwechseln in die App ab. Bei gleichzeitigen Aktionen gewinnt die
-  letzte; die Geräteuhren müssen ungefähr stimmen.
+- Live-Sync: `user_data` ist in der Publication `supabase_realtime`
+  (am 8. November im SQL Editor geprüft, `pg_publication_tables`). Bei
+  gleichzeitigen Aktionen gewinnt die letzte; die Geräteuhren müssen ungefähr
+  stimmen. Mit zwei echten Geräten noch nicht durchgetestet.
 - iOS: Die Web-Mitteilungen gibt es in der Capacitor-App nicht; dafür bräuchte es
   das Plugin `@capacitor/local-notifications` (einrichten auf dem Mac).
 - iOS: Der Icon-Wechsel (`FokusIcon`, `AppIconCoral`) ist noch nie in Xcode gebaut
