@@ -1,11 +1,11 @@
 # Projektdokumentation – Fokus Pomodoro-Timer
 
-Stand: 6. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Timer · Branch `main`
+Stand: 8. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Timer · Branch `main`
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (88 Commits,
-6. Oktober bis 6. November 2026) und wird bei jedem Commit und Push nachgeführt.
+Die Chronik weiter unten ist aus der Git-Historie erstellt (90 Commits,
+6. Oktober bis 8. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
 
@@ -56,6 +56,11 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
 - Login und Cloud-Sync über Supabase – inklusive Feldgrössen und Design
   (nur die Menü-Einstellung bleibt pro Gerät); Bestätigungsmail lässt sich
   erneut senden
+- Live-Sync zwischen Geräten (Supabase Realtime): Eine auf dem Laptop
+  gestartete Session läuft auf dem Handy sofort mit und lässt sich dort
+  pausieren, überspringen oder zurücksetzen; To-dos, Uhren und Statistik
+  aktualisieren sich ohne Neuladen. Der Pomodoro-Timer übersteht auch ein
+  Neuladen (`pomo_timer`)
 
 ### Projektstruktur
 
@@ -379,7 +384,7 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | 13:27 | `d47d125` | Leiste Layout bearbeiten verschiebbar | main | 6, +72 / −6 |
 | 13:30 | `c55eafd` | Dokumentation nachgefuehrt: verschiebbare Leiste | main | 1, +18 / −4 |
 | 13:30 | `f76fa77` | Statistik: Felder nie kleiner als ihr Inhalt, ganze Seite gleichmaessig verkleinert | main | 3, +11 / −15 |
-| 13:35 | (dieser Commit) | Dokumentation nachgefuehrt: Statistik-Felder | main | Doku |
+| 13:31 | `10d8dc7` | Dokumentation nachgefuehrt: Statistik-Felder | main | 1, +23 / −3 |
 
 - **`cb938ba`** – Wunsch: Mitteilung, wenn die App nicht offen ist, und sehen,
   wie viel man nach Ablauf länger gearbeitet bzw. Pause gemacht hat.
@@ -489,15 +494,48 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 - Doku-Commit: Chronik und Zahlen nachgeführt. Zusammen mit `f76fa77`
   gepusht nach `origin/main`.
 
+### Phase 13 – Live-Sync zwischen Geräten (8. November 2026)
+
+| Zeit | Hash | Commit | Branch | Umfang |
+| --- | --- | --- | --- | --- |
+| 14:22 | `fdb8902` | Live-Sync zwischen Geraeten, Timer-Stand gespeichert | main | 5, +143 / −29 |
+| 14:24 | (dieser Commit) | Dokumentation nachgefuehrt: Live-Sync | main | Doku |
+
+- **`fdb8902`** – Wunsch: Eine auf dem Laptop gestartete Session soll man auf
+  dem Handy sehen und bearbeiten können.
+  - **Timer-Stand:** Der Pomodoro (Modus, Restzeit, Endzeit, Runden, Überzeit)
+    wird neu als `pomo_timer` gespeichert – nur absolute Zeitpunkte, jedes Gerät
+    rechnet selbst. Er übersteht so auch ein Neuladen. Lief eine Phase ab,
+    während die App zu war, zählt sie beim Öffnen; liegt das Ende über 60 min
+    zurück, geht es ohne Überzeit gleich zur nächsten Phase. `finish()` zählt
+    eine Session nur einmal (gleicher `ts` auf allen Geräten).
+  - **Live-Empfang (`js/cloud.js`):** Supabase-Realtime-Kanal auf die eigenen
+    Zeilen von `user_data`. Über `cloud.onRemote(key, fn)` zeigt `pomodoro.js`
+    Timer, Sessions, Pausen, To-dos, Uhren und Fach sofort an; andere Keys laden
+    die Seite wie bisher neu. Echos eigener Uploads werden erkannt (kein
+    Zurückspringen bei Start + gleich Pause). Timer-Änderungen gehen nach 150 ms
+    statt 1 s hoch. Fallback: Abgleich beim Zurückwechseln in die App und wenn
+    sie wieder online ist.
+  - Läuft eine Phase auf mehreren offenen Geräten ab, kommen überall Ton und
+    Popup; geht ein Gerät weiter, schliesst sich das Popup auf den anderen.
+  - `supabase/schema.sql`: `alter publication supabase_realtime add table user_data;`
+    (muss einmal im SQL Editor laufen).
+  - Geprüft in Electron: Neuladen bei laufendem und pausiertem Timer,
+    abgelaufene Phase (eine Session), fremde Stände (Start, Pause, Ablauf,
+    Weiterwechseln); `npm test` ok. Realtime mit zwei echten Geräten noch offen.
+  - `CACHE_NAME` auf `fokus-cache-v38`.
+- Doku-Commit: Chronik, Funktionsliste, Zahlen und offene Punkte nachgeführt.
+  Zusammen mit `fdb8902` gepusht nach `origin/main`.
+
 ---
 
 ## 4. Zahlen
 
 | | |
 | --- | --- |
-| Zeitraum | 6. Oktober – 6. November 2026 |
-| Commits | 88 (davon 1 Merge) |
-| Aktive Tage | 12 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6. Nov.) |
+| Zeitraum | 6. Oktober – 8. November 2026 |
+| Commits | 90 (davon 1 Merge) |
+| Aktive Tage | 13 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6., 8. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
 
@@ -506,6 +544,11 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 - Nach Änderungen an Web-Dateien `CACHE_NAME` in `sw.js` hochzählen, sonst
   sehen Browser-Nutzer die alte Version.
 - Für die Apps nach Änderungen `npm run build` (Windows) bzw. `npm run ios:sync` (iOS).
+- Live-Sync: Die letzte Zeile aus `supabase/schema.sql`
+  (`alter publication supabase_realtime add table user_data;`) muss einmal im
+  Supabase SQL Editor laufen. Ohne sie gleichen die Geräte nur beim Öffnen bzw.
+  beim Zurückwechseln in die App ab. Bei gleichzeitigen Aktionen gewinnt die
+  letzte; die Geräteuhren müssen ungefähr stimmen.
 - iOS: Die Web-Mitteilungen gibt es in der Capacitor-App nicht; dafür bräuchte es
   das Plugin `@capacitor/local-notifications` (einrichten auf dem Mac).
 - iOS: Der Icon-Wechsel (`FokusIcon`, `AppIconCoral`) ist noch nie in Xcode gebaut
