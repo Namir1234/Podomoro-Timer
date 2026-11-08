@@ -12,9 +12,10 @@ const cloud = (() => {
   const RELOAD_KEY = "fokus_sync_reload";   // Schutz gegen Neulade-Schleifen
   // Listen, die über ts zusammengeführt statt überschrieben werden (Lern-Sessions und Pausen)
   const MERGED = new Set(["pomo_sessions", "pomo_breaks"]);
-  // Das Menü passt je nach Bildschirm, darum bleibt es pro Gerät. Feldanordnung und Design
+  // Das Menü passt je nach Bildschirm, darum bleibt es pro Gerät (ebenso die Sperrbildschirm-
+  // Anzeige, die andere Musik pausiert). Feldanordnung und Design
   // werden mit dem Konto abgeglichen.
-  const DEVICE_ONLY = new Set(["pomo_menu"]);
+  const DEVICE_ONLY = new Set(["pomo_menu", "pomo_lockscreen"]);
   // Steuerung des Timers soll sofort auf den anderen Geräten ankommen
   const FAST = new Set(["pomo_timer"]);
 

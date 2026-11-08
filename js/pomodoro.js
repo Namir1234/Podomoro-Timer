@@ -253,6 +253,89 @@ function draw() {
   const doneDots = focusDone + (over && mode === "focus" ? 1 : 0);
   $("dots").innerHTML = Array.from({ length: settings.rounds }, (_, i) => `<div class="dot ${i < doneDots ? "done" : ""}"></div>`).join("");
   $("cycleHint").textContent = t("cycle", { r: settings.rounds, f: fmtDur("focus"), s: fmtDur("short"), l: fmtDur("long") });
+  drawLock();
+}
+
+/* Sperrbildschirm: Der Pomodoro-Timer erscheint als "Wiedergabe" (Media Session) mit Phase,
+   Endzeit und Fortschrittsbalken, den das Handy selbst weiterzählt. Dafür läuft ein stummer
+   Ton in Schleife – das hält die App im Hintergrund wach (Ton und Mitteilung kommen pünktlich),
+   pausiert aber andere Musik. Pro Gerät (pomo_lockscreen), auf Handys standardmässig an. */
+const lockCan = "mediaSession" in navigator;
+let lockOn = lockCan && !!+load("pomo_lockscreen", matchMedia("(pointer: coarse)").matches ? 1 : 0);
+let lockAudio = null;
+let lockState = "";
+let lockSeen = false;               // einmal gestartet → Karte bleibt, auch nach Skip/Reset (Start dann vom Sperrbildschirm)
+
+// 10 s Stille als WAV (8 kHz, 8 Bit); Android zeigt die Karte erst ab 5 s Länge.
+// Als data:-URL, weil die App-CSP (tools/build-app.mjs) keine blob:-Medien erlaubt.
+function silentWav(sec) {
+  const n = 8000 * sec, v = new DataView(new ArrayBuffer(44 + n));
+  const str = (o, s) => [...s].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+  str(0, "RIFF"); v.setUint32(4, 36 + n, true); str(8, "WAVE"); str(12, "fmt ");
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true);
+  str(36, "data"); v.setUint32(40, n, true);
+  const bytes = new Uint8Array(v.buffer);
+  bytes.fill(128, 44);
+  let bin = "";
+  for (let i = 0; i < bytes.length; i += 8192) bin += String.fromCharCode(...bytes.subarray(i, i + 8192));
+  return "data:audio/wav;base64," + btoa(bin);
+}
+
+const clockTime = ms => new Date(ms).toLocaleTimeString(document.documentElement.lang || undefined, { hour: "2-digit", minute: "2-digit" });
+
+// Wird bei jedem draw() aufgerufen, ändert aber nur etwas, wenn sich der Zustand ändert
+function drawLock() {
+  if (!lockCan) return;
+  if (running) lockSeen = true;
+  const active = lockOn && (lockSeen || !!over || remaining < totalSec);
+  const title = t(over ? (mode === "focus" ? "over.focus" : "over.break") : mode === "focus" ? "mode.focus" : MODE_TEXT[mode]);
+  const state = active ? [mode, running, endTime, over?.since, running ? 0 : remaining, totalSec, title, design].join("|") : "";
+  if (state === lockState) return;
+  lockState = state;
+  const ms = navigator.mediaSession;
+  if (!active) {
+    lockAudio?.pause();
+    ms.metadata = null;
+    ms.playbackState = "none";
+    return;
+  }
+  if (!lockAudio) {
+    lockAudio = new Audio(silentWav(10));
+    lockAudio.loop = true;
+  }
+  const artist = over ? t("lock.since", { time: clockTime(over.since) })
+    : running ? t("lock.until", { time: clockTime(endTime) })
+    : t("lock.paused", { time: fmt(remaining) });
+  const icon = design === "original" ? "icon-512.png" : "icon-coral-512.png";
+  ms.metadata = new MediaMetadata({
+    title, artist, album: "Fokus",
+    artwork: [{ src: new URL("../img/icons/" + icon, location.href).href, sizes: "512x512", type: "image/png" }]
+  });
+  // Überzeit zählt aufwärts bis zum Maximum, sonst läuft der Balken über die ganze Phase
+  const [duration, position] = over ? [OVER_MAX_MIN * 60, overSec()]
+    : [totalSec, totalSec - (running ? Math.max(0, (endTime - Date.now()) / 1000) : remaining)];
+  try { ms.setPositionState({ duration: Math.max(1, duration), position: Math.min(duration, Math.max(0, position)), playbackRate: 1 }); } catch {}
+  if (running || over) {
+    // Braucht beim ersten Mal einen Tipp (Start-Knopf); schlägt es fehl, bleibt einfach die normale App
+    lockAudio.play().catch(() => {});
+    ms.playbackState = "playing";
+  } else {
+    lockAudio.pause();
+    ms.playbackState = "paused";
+  }
+}
+
+// Knöpfe auf dem Sperrbildschirm machen dasselbe wie die Knöpfe in der App
+if (lockCan) {
+  const act = (name, fn) => { try { navigator.mediaSession.setActionHandler(name, fn); } catch {} };
+  act("play", () => { if (!running && !over) $("startBtn").click(); });
+  act("pause", () => { if (running) $("startBtn").click(); else if (over) $("resetBtn").click(); });
+  act("nexttrack", () => $("skipBtn").click());
+  act("previoustrack", () => $("resetBtn").click());
+  act("seekto", null);
+  act("seekbackward", null);
+  act("seekforward", null);
 }
 
 // Nach einer Fokus-Runde: kurze Pause, nach der letzten Runde des Zyklus die lange Pause
@@ -408,10 +491,18 @@ function endOver(startNext) {
 window.addEventListener("pagehide", saveOver);
 document.addEventListener("visibilitychange", () => { if (document.hidden) saveOver(); });
 
+// Ein gemeinsamer Audio-Kontext, freigegeben beim Tippen auf Start: iOS spielt den Ton
+// sonst nicht ab, wenn die Phase im Hintergrund (Sperrbildschirm) endet.
+let audioCtx = null;
+function unlockAudio() {
+  try { audioCtx ||= new (window.AudioContext || window.webkitAudioContext)(); audioCtx.resume(); } catch {}
+}
+
 function beep() {
   if (!+settings.sound) return;
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    unlockAudio();
+    const ctx = audioCtx;
     [0, 0.25, 0.5].forEach(delay => {
       const o = ctx.createOscillator(), g = ctx.createGain();
       o.connect(g); g.connect(ctx.destination);
@@ -460,7 +551,9 @@ $("timeUpModal").onclick = e => { if (e.target === $("timeUpModal")) closeTimeUp
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("timeUpModal").hidden) closeTimeUp(); });
 
 // Beim Starten (Klick = Erlaubnis darf gefragt werden) einmalig um System-Mitteilungen bitten
+// und den Ton für das Ende freigeben
 function askNotify() {
+  unlockAudio();
   if (+settings.notify && canNotify() && Notification.permission === "default") Notification.requestPermission().then(showNotifySetting).catch(() => {});
 }
 
@@ -481,6 +574,16 @@ $("setNotify").onchange = e => {
 };
 showNotifySetting();
 document.addEventListener("langchange", showNotifySetting);
+
+// Schalter "Auf dem Sperrbildschirm" (nur wo der Browser Media Session kann)
+$("lockRow").hidden = $("lockHint").hidden = !lockCan;
+$("setLock").checked = lockOn;
+$("setLock").onchange = e => {
+  lockOn = e.target.checked;
+  lockSeen = false;
+  save("pomo_lockscreen", lockOn ? 1 : 0);
+  draw();
+};
 
 // Während der Überzeit: Start = nächste Phase gleich starten, Reset/Skip = nur dorthin wechseln
 $("startBtn").onclick = () => over ? endOver(true) : running ? pause() : (askNotify(), start());
