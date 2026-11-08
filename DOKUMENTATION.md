@@ -4,7 +4,7 @@ Stand: 8. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Tim
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (90 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (92 Commits,
 6. Oktober bis 8. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
@@ -61,6 +61,11 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
   pausieren, überspringen oder zurücksetzen; To-dos, Uhren und Statistik
   aktualisieren sich ohne Neuladen. Der Pomodoro-Timer übersteht auch ein
   Neuladen (`pomo_timer`)
+- Timer auf dem Sperrbildschirm (Handy): Phase, Endzeit und Fortschrittsbalken
+  als „Wiedergabe“-Karte (Media Session), mit Pause/Weiter, Überspringen und
+  Zurücksetzen; hält die Web-App im Hintergrund wach, damit Ton und Mitteilung
+  pünktlich kommen. Pro Gerät abschaltbar („Auf dem Sperrbildschirm“), auf
+  Handys standardmässig an
 
 ### Projektstruktur
 
@@ -499,7 +504,7 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | Zeit | Hash | Commit | Branch | Umfang |
 | --- | --- | --- | --- | --- |
 | 14:22 | `fdb8902` | Live-Sync zwischen Geraeten, Timer-Stand gespeichert | main | 5, +143 / −29 |
-| 14:24 | (dieser Commit) | Dokumentation nachgefuehrt: Live-Sync | main | Doku |
+| 14:24 | `c22ad03` | Dokumentation nachgefuehrt: Live-Sync | main | Doku |
 
 - **`fdb8902`** – Wunsch: Eine auf dem Laptop gestartete Session soll man auf
   dem Handy sehen und bearbeiten können.
@@ -527,6 +532,40 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 - Doku-Commit: Chronik, Funktionsliste, Zahlen und offene Punkte nachgeführt.
   Zusammen mit `fdb8902` gepusht nach `origin/main`.
 
+### Phase 14 – Timer auf dem Sperrbildschirm (8. November 2026)
+
+| Zeit | Hash | Commit | Branch | Umfang |
+| --- | --- | --- | --- | --- |
+| 15:05 | `3678553` | Timer auf dem Sperrbildschirm (Media Session) | main | 5, +135 / −4 |
+| 15:07 | (dieser Commit) | Dokumentation nachgefuehrt: Sperrbildschirm | main | Doku |
+
+- **`3678553`** – Wunsch: Auf dem Handy (iPhone, Web-App) soll der Timer wie
+  eine Live-Aktivität auf dem Sperrbildschirm stehen, damit man die App nicht
+  offen haben muss. Echte Live Activities gibt es nur für native iOS-Apps
+  (Swift, Mac nötig); die Web-App nutzt darum die Media Session.
+  - **`drawLock()`** (aus `draw()`, ändert nur bei neuem Zustand): Titel =
+    Phase bzw. „Mehr gearbeitet“/„Pause überzogen“, Untertitel „Endet um 14:35“,
+    „Pausiert – noch 12:00“ oder „Seit 14:35“, App-Icon des Designs als Bild.
+    `setPositionState` gibt den Balken vor, den das Handy selbst weiterzählt
+    (Überzeit zählt aufwärts bis 60 min).
+  - Dafür spielt ein stummes 10-s-WAV in Schleife (als `data:`-URL, die
+    App-CSP erlaubt kein `blob:`). Nachteil: andere Musik wird pausiert.
+    Vorteil: Die Seite schläft im Hintergrund nicht ein.
+  - Knöpfe: Play/Pause = Start/Pause, Vor = Skip, Zurück = Reset; in der
+    Überzeit beendet Pause sie. Nach Skip/Reset bleibt die Karte stehen, damit
+    man die nächste Phase vom Sperrbildschirm aus startet.
+  - Schalter „Auf dem Sperrbildschirm“ unter den Zeiteinstellungen, gespeichert
+    pro Gerät (`pomo_lockscreen`, in `cloud.js` bei `DEVICE_ONLY`); Standard an
+    bei Touch-Geräten. Texte in allen 5 Sprachen.
+  - Ton am Ende: ein gemeinsamer `AudioContext`, beim Tippen auf Start
+    freigegeben (`unlockAudio()` in `askNotify()`) – iOS spielt sonst im
+    Hintergrund keinen Ton ab.
+  - Geprüft in Electron: Start, Pause, Skip, Überzeit, Speichern des Schalters;
+    `npm test` ok. Auf einem echten iPhone noch nicht getestet.
+  - `CACHE_NAME` auf `fokus-cache-v39`.
+- Doku-Commit: Chronik, Funktionsliste, Zahlen und offene Punkte nachgeführt.
+  Zusammen mit `3678553` gepusht nach `origin/main`.
+
 ---
 
 ## 4. Zahlen
@@ -534,7 +573,7 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 8. November 2026 |
-| Commits | 90 (davon 1 Merge) |
+| Commits | 92 (davon 1 Merge) |
 | Aktive Tage | 13 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6., 8. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
@@ -554,6 +593,11 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 - iOS: Der Icon-Wechsel (`FokusIcon`, `AppIconCoral`) ist noch nie in Xcode gebaut
   worden – beim nächsten `npm run ios:sync` auf dem Mac prüfen. Da Coral das
   Standard-Design ist, wechselt das Icon beim ersten Start einmal (mit iOS-Hinweis).
+- Sperrbildschirm: Auf einem echten iPhone (Web-App vom Homescreen) testen, ob
+  Balken, Knöpfe und der Ton am Ende im Hintergrund wie erwartet laufen. Wird
+  der Timer auf einem anderen Gerät gestartet, erscheint die Karte erst nach
+  einem Tipp in der App (Autoplay-Sperre). Eine echte Live Activity mit
+  Dynamic Island ginge nur in der nativen iOS-App (Mac nötig).
 - Die Windows-`.exe` ist nicht signiert (SmartScreen-Warnung beim ersten Start).
 - Die Nebenbranches (`agy-test`, `agy--test`, `app-windows-ios`, `feature/login`,
   `hallmark-test`, `worktree-agent-…`) sind vollständig in `main` und können
