@@ -48,10 +48,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 }
 
-// Startet die Web-App und meldet das eigene Plugin an (in Main.storyboard eingetragen).
+// Startet die Web-App und meldet die eigenen Plugins an (in Main.storyboard eingetragen).
 class FokusViewController: CAPBridgeViewController {
     override func capacitorDidLoad() {
         bridge?.registerPluginInstance(FokusIconPlugin())
+        bridge?.registerPluginInstance(FokusTimerPlugin())   // Live Activity + Mitteilung (FokusTimerPlugin.swift)
     }
 }
 

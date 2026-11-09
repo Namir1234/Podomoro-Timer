@@ -1,0 +1,78 @@
+# Baut die iPhone-App auf einem Mac von GitHub (gratis fuer oeffentliche Repos).
+# Ergebnis: "Fokus-iOS" unter Actions → Lauf → Artifacts, darin Fokus.ipa (unsigniert).
+# Aufs iPhone kommt sie mit Sideloadly oder AltStore vom Windows-PC aus (README, Abschnitt iOS).
+
+name: iOS-App bauen
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ios/**"
+      - "js/**"
+      - "pages/**"
+      - "style/**"
+      - "img/**"
+      - "package.json"
+      - "package-lock.json"
+      - "capacitor.config.json"
+      - "tools/build-app.mjs"
+      - ".github/workflows/ios.yml"
+  workflow_dispatch:
+
+jobs:
+  ipa:
+    runs-on: macos-15
+    timeout-minutes: 40
+    env:
+      ELECTRON_SKIP_BINARY_DOWNLOAD: "1"   # Electron braucht es hier nicht
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Abhaengigkeiten
+        run: npm ci
+
+      - name: Web-Dateien bauen und ins Xcode-Projekt kopieren (inkl. pod install)
+        run: npm run ios:sync
+
+      - name: Xcode-Build ohne Signatur
+        working-directory: ios/App
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination "generic/platform=iOS" \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build | tee xcodebuild.log | grep -E "error:|warning: .*Fokus|BUILD (SUCCEEDED|FAILED)" || true
+          test -d build/Build/Products/Release-iphoneos/App.app
+
+      - name: Fehler-Ausschnitt
+        if: failure()
+        working-directory: ios/App
+        run: grep -n -B2 -A6 "error:" xcodebuild.log | head -200 || true
+
+      - name: .ipa packen
+        run: |
+          APP=ios/App/build/Build/Products/Release-iphoneos/App.app
+          test -d "$APP/PlugIns/FokusWidget.appex" && echo "Widget-Erweiterung ist drin"
+          mkdir -p out/Payload
+          cp -R "$APP" out/Payload/
+          (cd out && zip -qry ../Fokus.ipa Payload)
+          ls -lh Fokus.ipa
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Fokus-iOS
+          path: Fokus.ipa
+          retention-days: 30

@@ -255,16 +255,24 @@ function draw() {
   $("dots").innerHTML = Array.from({ length: settings.rounds }, (_, i) => `<div class="dot ${i < doneDots ? "done" : ""}"></div>`).join("");
   $("cycleHint").textContent = t("cycle", { r: settings.rounds, f: fmtDur("focus"), s: fmtDur("short"), l: fmtDur("long") });
   drawLock();
+  syncNativeNotify();
 }
 
 /* Sperrbildschirm: Der Pomodoro-Timer erscheint als "Wiedergabe" (Media Session) mit Phase,
    Endzeit und Fortschrittsbalken, den das Handy selbst weiterzählt. Dafür läuft ein stummer
    Ton in Schleife – das hält die App im Hintergrund wach (Ton und Mitteilung kommen pünktlich),
    pausiert aber andere Musik. Pro Gerät (pomo_lockscreen), auf Handys standardmässig an. */
-const lockCan = "mediaSession" in navigator;
+// iOS-App (Capacitor): statt der "Wiedergabe"-Karte eine eigene Live Activity auf Sperrbildschirm
+// und Dynamic Island (ios/App/App/FokusTimerPlugin.swift) – Musik anderer Apps läuft weiter.
+const iosApp = !!(window.Capacitor?.isNativePlatform?.() && window.Capacitor.getPlatform?.() === "ios"
+  && typeof window.Capacitor.nativePromise === "function");
+const nativeCall = (method, data = {}) => iosApp
+  ? window.Capacitor.nativePromise("FokusTimer", method, data).catch(() => {})
+  : Promise.resolve();
+const lockCan = iosApp || "mediaSession" in navigator;
 let lockOn = lockCan && !!+load("pomo_lockscreen", matchMedia("(pointer: coarse)").matches ? 1 : 0);
 let lockAudio = null;
-let lockState = "";
+let lockState = iosApp ? "start" : "";   // iOS-App: beim Start einmal abgleichen (alte Live Activity beenden)
 let lockSeen = false;               // einmal gestartet → Karte bleibt, auch nach Skip/Reset (Start dann vom Sperrbildschirm)
 
 // 10 s Stille als WAV (8 kHz, 8 Bit); Android zeigt die Karte erst ab 5 s Länge.
@@ -289,11 +297,13 @@ const clockTime = ms => new Date(ms).toLocaleTimeString(document.documentElement
 function drawLock() {
   if (!lockCan) return;
   if (running) lockSeen = true;
-  const active = lockOn && (lockSeen || !!over || remaining < totalSec);
+  // Live Activity nur, solange etwas läuft oder angefangen ist (hat keine Knöpfe zum Starten)
+  const active = lockOn && (iosApp ? running || !!over || remaining < totalSec : lockSeen || !!over || remaining < totalSec);
   const title = t(over ? (mode === "focus" ? "over.focus" : "over.break") : mode === "focus" ? "mode.focus" : MODE_TEXT[mode]);
   const state = active ? [mode, running, endTime, over?.since, running ? 0 : remaining, totalSec, title, design].join("|") : "";
   if (state === lockState) return;
   lockState = state;
+  if (iosApp) return drawLive(active, title);
   const ms = navigator.mediaSession;
   if (!active) {
     lockAudio?.pause();
@@ -327,8 +337,42 @@ function drawLock() {
   }
 }
 
+// iOS-App: Live Activity starten, ändern oder beenden. iOS zählt Countdown und Balken
+// selbst weiter; nach dem Ende zeigt sie "Zeit ist um!", bis die App weiterschaltet.
+function drawLive(active, title) {
+  if (!active) return nativeCall("end");
+  const left = running ? Math.max(0, endTime - Date.now()) : remaining * 1000;
+  const end = over ? over.since + OVER_MAX_MIN * 60000 : running ? endTime : Date.now() + left;
+  nativeCall("update", {
+    title, phase: mode, design,
+    subtitle: over ? t("lock.since", { time: clockTime(over.since) })
+      : running ? t("lock.until", { time: clockTime(endTime) })
+      : t("lock.paused", { time: fmt(remaining) }),
+    start: over ? over.since : end - totalSec * 1000,
+    end,
+    paused: !running && !over,
+    over: !!over,
+    remaining: fmt(remaining),
+    progress: totalSec ? 1 - remaining / totalSec : 0,
+    doneText: t("done.title")
+  });
+}
+
+// iOS-App: Mitteilung mit Ton genau am Ende planen (kommt auch, wenn die App im Hintergrund
+// schläft). Bei Pause, Reset oder Skip wird die geplante gelöscht.
+let nativeNotifyKey = "";
+function syncNativeNotify() {
+  if (!iosApp) return;
+  const at = running && +settings.notify ? endTime : 0;
+  const body = t(mode === "focus" ? "done.focus" : "done.break");
+  const key = at + "|" + body;
+  if (key === nativeNotifyKey) return;
+  nativeNotifyKey = key;
+  nativeCall("schedule", { at, title: t("done.title"), body });
+}
+
 // Knöpfe auf dem Sperrbildschirm machen dasselbe wie die Knöpfe in der App
-if (lockCan) {
+if (lockCan && !iosApp) {
   const act = (name, fn) => { try { navigator.mediaSession.setActionHandler(name, fn); } catch {} };
   act("play", () => { if (!running && !over) $("startBtn").click(); });
   act("pause", () => { if (running) $("startBtn").click(); else if (over) $("resetBtn").click(); });
@@ -553,8 +597,9 @@ function stopBlink() {
 window.addEventListener("focus", stopBlink);
 document.addEventListener("visibilitychange", () => { if (!document.hidden && document.hasFocus()) stopBlink(); });
 
-const canNotify = () => "Notification" in window;
+const canNotify = () => iosApp || "Notification" in window;
 function systemNotify(lines) {
+  if (iosApp) return;          // iOS-App: schon als Mitteilung geplant (syncNativeNotify)
   if (!+settings.notify || !canNotify() || Notification.permission !== "granted") return;
   const opts = {
     body: lines.join("\n"),
@@ -580,12 +625,13 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("timeUp
 // und den Ton für das Ende freigeben
 function askNotify() {
   unlockAudio();
+  if (iosApp) { if (+settings.notify) nativeCall("requestPermission"); return; }
   if (+settings.notify && canNotify() && Notification.permission === "default") Notification.requestPermission().then(showNotifySetting).catch(() => {});
 }
 
 // Schalter "Mitteilung im Hintergrund": an = gewünscht und nicht blockiert
 function showNotifySetting() {
-  const perm = canNotify() ? Notification.permission : "unsupported";
+  const perm = iosApp ? "granted" : canNotify() ? Notification.permission : "unsupported";
   $("setNotify").checked = !!+settings.notify && perm !== "denied" && perm !== "unsupported";
   $("setNotify").disabled = perm === "unsupported";
   const hint = perm === "unsupported" ? "notify.unsupported" : perm === "denied" ? "notify.blocked" : "";
@@ -603,6 +649,7 @@ document.addEventListener("langchange", showNotifySetting);
 
 // Schalter "Auf dem Sperrbildschirm" (nur wo der Browser Media Session kann)
 $("lockRow").hidden = $("lockHint").hidden = !lockCan;
+if (iosApp) { $("lockHint").dataset.i18n = "lock.hintApp"; $("lockHint").textContent = t("lock.hintApp"); }
 $("setLock").checked = lockOn;
 $("setLock").onchange = e => {
   lockOn = e.target.checked;
