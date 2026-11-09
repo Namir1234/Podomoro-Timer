@@ -4,7 +4,7 @@ Stand: 9. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Tim
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (102 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (103 Commits,
 6. Oktober bis 9. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
@@ -638,7 +638,8 @@ aufräumen, vorzeigbar machen, ausbauen).
 | 11:14 | `cc74893` | Windows-App laeuft beim Schliessen im Infobereich weiter, solange ein Timer laeuft | worktree-popup-ablauf | 5, +64 / −8 |
 | 11:16 | `c7a4170` | Dokumentation nachgefuehrt: Infobereich | worktree-popup-ablauf | Doku |
 | 9.11. 10:06 | `ea4f518` | Merge worktree-popup-ablauf: Popup bei Ablauf und Infobereich | claude/app-website-next-steps | 6, +163 / −13 |
-| 9.11. 10:10 | (dieser Commit) | Dokumentation nachgefuehrt: Merge Popup und Infobereich | claude/app-website-next-steps | Doku |
+| 9.11. 10:10 | `a60db21` | Dokumentation nachgefuehrt: Merge Popup und Infobereich | claude/app-website-next-steps | Doku |
+| 9.11. 10:20 | (dieser Commit) | Dokumentation nachgefuehrt: Branches aufgeraeumt | claude/app-website-next-steps | Doku |
 
 - **`2a38279`** – Wunsch: Ein Popup soll kommen, wenn die Zeit abgelaufen ist,
   damit man weiss, dass es fertig ist. Das Popup „Zeit ist um!“ gab es schon,
@@ -679,6 +680,12 @@ aufräumen, vorzeigbar machen, ausbauen).
     wieder sichtbar mit Popup, nach Reset `busy=false`; `npm test` ok.
 - Doku-Commit: Abschnitt als Phase 16 eingeordnet, Chronik, Zahlen und offene
   Punkte nachgeführt. Zusammen mit dem Merge gepusht nach `origin/main`.
+- **Aufräumen** (nach Prüfung, dass alles in `main` ist): Worktrees
+  `.claude/worktrees/agent-a3fd…` und `.claude/worktrees/popup-ablauf`
+  entfernt; lokale Branches `agy--test`, `agy-test`, `app-windows-ios`,
+  `worktree-agent-a3fd603009cb31500`, `feature/login`,
+  `worktree-popup-ablauf` gelöscht; auf GitHub `hallmark-coral` und
+  `worktree-popup-ablauf`. Doku-Commit gepusht nach `origin/main`.
 
 ---
 
@@ -687,7 +694,7 @@ aufräumen, vorzeigbar machen, ausbauen).
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 9. November 2026 |
-| Commits | 102 (davon 2 Merges) |
+| Commits | 103 (davon 2 Merges) |
 | Aktive Tage | 14 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6., 8., 9. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
@@ -715,13 +722,11 @@ aufräumen, vorzeigbar machen, ausbauen).
   Mitteilung kommen (läuft kein Code). Dafür bräuchte es Web-Push über einen
   Server (z.B. Supabase Edge Function).
 - Die Windows-`.exe` ist nicht signiert (SmartScreen-Warnung beim ersten Start).
-- Branches aufräumen: `agy-test`, `agy--test`, `app-windows-ios`,
-  `worktree-agent-a3fd603009cb31500` und `feature/login` (samt Worktree
-  `.claude/worktrees/agent-a3fd…`) sowie `origin/hallmark-coral` sind
-  vollständig in `main` und können weg. `hallmark-coral`/`hallmark-test`
-  lokal behalten, solange ihre Ordner ungesicherte `.hallmark/`-Notizen haben.
-  `worktree-popup-ablauf` ist seit `ea4f518` ebenfalls in `main` und kann
-  samt Worktree `.claude/worktrees/popup-ablauf` weg.
+- Branches: Am 9. November aufgeräumt (siehe Phase 16). Übrig sind `main`,
+  der Arbeitsbranch `claude/app-website-next-steps-…` sowie lokal
+  `hallmark-coral`/`hallmark-test` – deren Ordner (`Podomoro-Timer-coral`,
+  `Podomoro-Timer-hallmark`) haben ungesicherte `.hallmark/`-Notizen; erst
+  sichern, dann mit `git worktree remove` und `git branch -d` entfernen.
 - Git-Autorname: über `.mailmap` vereinheitlicht. Für künftige Commits überall
   `git config user.name "Namir Al Gorani"` setzen.
 - Screenshots nach grösseren Änderungen neu erzeugen: `npm run screenshots`.
