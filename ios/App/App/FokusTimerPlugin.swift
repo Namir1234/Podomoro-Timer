@@ -2,6 +2,8 @@
 // - update/end: Live Activity auf Sperrbildschirm und Dynamic Island (FokusWidget)
 // - schedule: Mitteilung mit Ton genau am Ende der Phase – kommt auch, wenn die App
 //   im Hintergrund schlaeft (die Web-Mitteilungen gibt es in der iOS-App nicht)
+// - takePending: was in der Zwischenzeit ueber die Knoepfe der Live Activity
+//   passiert ist (Pause, Weiter, Stopp – siehe Shared/FokusTimerIntents.swift)
 
 import ActivityKit
 import Capacitor
@@ -17,9 +19,9 @@ public class FokusTimerPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "end", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "schedule", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "requestPermission", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "takePending", returnType: CAPPluginReturnPromise),
     ]
 
-    private let notificationId = "fokus-timeup"
     /// Aenderungen an der Live Activity streng nacheinander (Pause und Weiter kurz hintereinander)
     private var lastTask: Task<Void, Never>?
 
@@ -44,14 +46,13 @@ public class FokusTimerPlugin: CAPPlugin, CAPBridgedPlugin {
         }
         let state = FokusTimerAttributes.ContentState(
             title: call.getString("title") ?? "Fokus",
-            subtitle: call.getString("subtitle") ?? "",
             phase: call.getString("phase") ?? "focus",
             start: date(call, "start"),
             end: date(call, "end"),
             paused: call.getBool("paused") ?? false,
             over: call.getBool("over") ?? false,
-            remaining: call.getString("remaining") ?? "",
-            progress: call.getDouble("progress") ?? 0,
+            remainingSec: call.getDouble("remainingSec") ?? 0,
+            total: call.getDouble("total") ?? 0,
             doneText: call.getString("doneText") ?? "",
             design: call.getString("design") ?? "coral"
         )
@@ -101,21 +102,23 @@ public class FokusTimerPlugin: CAPPlugin, CAPBridgedPlugin {
 
     /// at (ms seit 1970) > jetzt: Mitteilung planen; sonst nur die geplante loeschen
     @objc func schedule(_ call: CAPPluginCall) {
-        let center = UNUserNotificationCenter.current()
-        center.removePendingNotificationRequests(withIdentifiers: [notificationId])
-        let seconds = date(call, "at").timeIntervalSinceNow
-        guard seconds > 0.5 else {
+        guard #available(iOS 16.2, *) else {
             call.resolve()
             return
         }
-        let content = UNMutableNotificationContent()
-        content.title = call.getString("title") ?? "Fokus"
-        content.body = call.getString("body") ?? ""
-        content.sound = .default
-        if #available(iOS 15.0, *) { content.interruptionLevel = .timeSensitive }
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: seconds, repeats: false)
-        center.add(UNNotificationRequest(identifier: notificationId, content: content, trigger: trigger)) { error in
-            if let error = error { call.reject(error.localizedDescription) } else { call.resolve() }
+        FokusTimerStore.rememberNotifyText(title: call.getString("title") ?? "Fokus", body: call.getString("body") ?? "")
+        FokusTimerStore.scheduleNotification(at: date(call, "at"))
+        call.resolve()
+    }
+
+    // MARK: Knoepfe der Live Activity
+
+    /// {action: "pause"|"resume"|"stop", phase, remaining (s), end (ms)} oder {}
+    @objc func takePending(_ call: CAPPluginCall) {
+        guard #available(iOS 16.2, *), let action = FokusTimerStore.takePending() else {
+            call.resolve([:])
+            return
         }
+        call.resolve(action)
     }
 }

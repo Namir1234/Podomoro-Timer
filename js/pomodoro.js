@@ -345,17 +345,39 @@ function drawLive(active, title) {
   const end = over ? over.since + OVER_MAX_MIN * 60000 : running ? endTime : Date.now() + left;
   nativeCall("update", {
     title, phase: mode, design,
-    subtitle: over ? t("lock.since", { time: clockTime(over.since) })
-      : running ? t("lock.until", { time: clockTime(endTime) })
-      : t("lock.paused", { time: fmt(remaining) }),
     start: over ? over.since : end - totalSec * 1000,
     end,
     paused: !running && !over,
     over: !!over,
-    remaining: fmt(remaining),
-    progress: totalSec ? 1 - remaining / totalSec : 0,
+    remainingSec: left / 1000,
+    total: totalSec,
     doneText: t("done.title")
   });
+}
+
+// iOS-App: Knöpfe der Live Activity (Pause/Weiter, Stopp) ändern sie direkt, auch wenn die
+// App schläft. Den neuen Stand holt die App hier ab – beim Zurückkommen und alle 2 s.
+async function applyNativePending() {
+  const a = await nativeCall("takePending");
+  if (!a || !a.action || a.phase !== mode) return;
+  if (a.action === "stop") {
+    if (over) endOver(false); else setMode(mode);            // wie Reset in der App
+  } else if (over) {
+    return;
+  } else if (a.action === "pause" && running) {
+    stop();
+    remaining = Math.max(0, Math.round(a.remaining));
+    saveTimer();
+    draw();
+  } else if (a.action === "resume" && !running && a.end > Date.now()) {
+    remaining = Math.max(0, Math.round((a.end - Date.now()) / 1000));
+    start(a.end);
+    saveTimer();
+  }
+}
+if (iosApp) {
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) applyNativePending(); });
+  setInterval(() => { if (!document.hidden) applyNativePending(); }, 2000);
 }
 
 // iOS-App: Mitteilung mit Ton genau am Ende planen (kommt auch, wenn die App im Hintergrund

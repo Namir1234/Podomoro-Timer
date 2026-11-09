@@ -1,9 +1,11 @@
-// Widget-Erweiterung: zeichnet die Live Activity des Pomodoro-Timers als eigene Zeile
-// auf dem Sperrbildschirm und in der Dynamic Island. Den Countdown zaehlt iOS selbst
-// weiter (Text/ProgressView mit timerInterval) – die App muss dafuer nicht laufen und
-// Musik von anderen Apps (Spotify usw.) wird nicht unterbrochen.
+// Widget-Erweiterung: zeichnet die Live Activity des Pomodoro-Timers – aufgebaut wie der
+// Timer der Uhr-App: links Pause/Weiter und Stopp, rechts Beschriftung und grosse Zeit;
+// in der Dynamic Island ein Ring, der sich leert, und die Restzeit. Countdown und Ring
+// zaehlt iOS selbst weiter (timerInterval) – die App muss dafuer nicht laufen und Musik
+// aus anderen Apps (Spotify usw.) wird nicht unterbrochen.
 
 import ActivityKit
+import AppIntents
 import SwiftUI
 import WidgetKit
 
@@ -16,34 +18,20 @@ struct FokusWidgetBundle: WidgetBundle {
 
 // MARK: - Farben wie in der App
 
-private struct Palette {
-    let accent: Color
-    let pause: Color
-    let background: Color
-
-    static func of(_ design: String) -> Palette {
-        design == "original"
-            ? Palette(accent: Color(red: 0.53, green: 0.66, blue: 0.38),
-                      pause: Color(red: 0.66, green: 0.77, blue: 0.53),
-                      background: Color(red: 0.106, green: 0.129, blue: 0.098))
-            : Palette(accent: Color(red: 0.91, green: 0.54, blue: 0.46),
-                      pause: Color(red: 0.94, green: 0.71, blue: 0.64),
-                      background: Color(red: 0.11, green: 0.098, blue: 0.086))
+private extension FokusTimerAttributes.ContentState {
+    /// Fokus in der Akzentfarbe, Pausen und Ueberzeit etwas heller
+    var color: Color {
+        let focus = phase == "focus" && !over
+        if design == "original" {
+            return focus ? Color(red: 0.53, green: 0.66, blue: 0.38) : Color(red: 0.66, green: 0.77, blue: 0.53)
+        }
+        return focus ? Color(red: 0.95, green: 0.55, blue: 0.42) : Color(red: 0.96, green: 0.70, blue: 0.60)
     }
 }
 
-private extension FokusTimerAttributes.ContentState {
-    var palette: Palette { Palette.of(design) }
-    var color: Color { phase == "focus" && !over ? palette.accent : palette.pause }
-    var symbol: String { over ? "plus.circle" : phase == "focus" ? "timer" : "cup.and.saucer" }
-    /// Zeitspanne fuer Countdown und Balken (nie leer, sonst stuerzt Text(timerInterval:) ab)
-    var range: ClosedRange<Date> { start...max(end, start.addingTimeInterval(1)) }
-    /// Ueberzeit zaehlt bis zu 60 Minuten aufwaerts (wie in der App)
-    var overRange: ClosedRange<Date> { start...start.addingTimeInterval(3600) }
-}
+// MARK: - Bausteine
 
-// MARK: - Uhr und Balken
-
+/// Grosse Zeit: zaehlt herunter, pausiert fest, in der Ueberzeit aufwaerts mit "+"
 private struct ClockText: View {
     let state: FokusTimerAttributes.ContentState
     let stale: Bool
@@ -51,9 +39,12 @@ private struct ClockText: View {
     var body: some View {
         Group {
             if state.paused {
-                Text(state.remaining)
+                Text(state.remainingText)
             } else if state.over {
-                Text(timerInterval: state.overRange, countsDown: false)
+                HStack(spacing: 0) {
+                    Text("+")
+                    Text(timerInterval: state.overRange, countsDown: false)
+                }
             } else if stale {
                 Text("0:00")
             } else {
@@ -61,62 +52,93 @@ private struct ClockText: View {
             }
         }
         .monospacedDigit()
+        .lineLimit(1)
     }
 }
 
-private struct Bar: View {
+/// Ring wie bei der Uhr-App: voll beim Start, leert sich bis zum Ende
+private struct Ring: View {
     let state: FokusTimerAttributes.ContentState
     let stale: Bool
 
     var body: some View {
         Group {
             if state.paused {
-                ProgressView(value: min(1, max(0, state.progress)))
-            } else if state.over {
-                ProgressView(timerInterval: state.overRange, countsDown: false) { EmptyView() } currentValueLabel: { EmptyView() }
-            } else if stale {
+                ProgressView(value: state.leftFraction)
+            } else if state.over || stale {
                 ProgressView(value: 1.0)
             } else {
-                ProgressView(timerInterval: state.range, countsDown: false) { EmptyView() } currentValueLabel: { EmptyView() }
+                ProgressView(timerInterval: state.range, countsDown: true) { EmptyView() } currentValueLabel: { EmptyView() }
             }
         }
-        .progressViewStyle(.linear)
+        .progressViewStyle(.circular)
         .tint(state.color)
     }
 }
 
-// MARK: - Sperrbildschirm
-
-private struct LockScreenView: View {
-    let context: ActivityViewContext<FokusTimerAttributes>
+/// Runder Knopf wie in der Uhr-App
+private struct RoundIcon: View {
+    let symbol: String
+    let foreground: Color
+    let background: Color
+    let size: CGFloat
 
     var body: some View {
-        let state = context.state
-        let stale = context.isStale && !state.paused && !state.over
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .center, spacing: 12) {
-                Image(systemName: state.symbol)
-                    .font(.title2)
-                    .foregroundColor(state.color)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(stale ? state.doneText : state.title)
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    Text(state.subtitle)
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.65))
-                        .lineLimit(1)
+        Image(systemName: symbol)
+            .font(.system(size: size * 0.4, weight: .bold))
+            .foregroundColor(foreground)
+            .frame(width: size, height: size)
+            .background(Circle().fill(background))
+    }
+}
+
+/// Pause/Weiter und Stopp (Knoepfe in Live Activities gibt es ab iOS 17)
+private struct Buttons: View {
+    let state: FokusTimerAttributes.ContentState
+    let stale: Bool
+    let size: CGFloat
+
+    var body: some View {
+        HStack(spacing: size * 0.22) {
+            if #available(iOS 17.0, *) {
+                if !state.over && !stale {
+                    Button(intent: FokusPauseIntent()) {
+                        RoundIcon(symbol: state.paused ? "play.fill" : "pause.fill",
+                                  foreground: state.color, background: state.color.opacity(0.3), size: size)
+                    }
+                    .buttonStyle(.plain)
                 }
-                Spacer(minLength: 8)
-                ClockText(state: state, stale: stale)
-                    .font(.system(size: 34, weight: .semibold, design: .rounded))
-                    .foregroundColor(state.color)
-                    .multilineTextAlignment(.trailing)
-                    .frame(minWidth: 90, alignment: .trailing)
+                Button(intent: FokusStopIntent()) {
+                    RoundIcon(symbol: "xmark", foreground: .white, background: Color.white.opacity(0.18), size: size)
+                }
+                .buttonStyle(.plain)
+            } else {
+                RoundIcon(symbol: state.paused ? "pause.fill" : "timer",
+                          foreground: state.color, background: state.color.opacity(0.3), size: size)
             }
-            Bar(state: state, stale: stale)
         }
-        .padding(16)
+    }
+}
+
+/// Beschriftung + grosse Zeit rechts
+private struct LabelAndTime: View {
+    let state: FokusTimerAttributes.ContentState
+    let stale: Bool
+    let timeSize: CGFloat
+
+    var body: some View {
+        HStack(alignment: .lastTextBaseline, spacing: 8) {
+            Text(stale ? state.doneText : state.title)
+                .font(.system(size: timeSize * 0.42, weight: .semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+            ClockText(state: state, stale: stale)
+                .font(.system(size: timeSize, weight: .light))
+                .multilineTextAlignment(.trailing)
+                // Text(timerInterval:) nimmt sonst die ganze Breite ein
+                .frame(width: timeSize * (state.total >= 3600 || state.over ? 3.6 : 2.55), alignment: .trailing)
+        }
+        .foregroundColor(state.color)
     }
 }
 
@@ -125,47 +147,40 @@ private struct LockScreenView: View {
 struct FokusLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: FokusTimerAttributes.self) { context in
-            LockScreenView(context: context)
-                .activityBackgroundTint(context.state.palette.background)
-                .activitySystemActionForegroundColor(.white)
+            let state = context.state
+            let stale = context.isStale && !state.paused && !state.over
+            HStack(alignment: .center) {
+                Buttons(state: state, stale: stale, size: 50)
+                Spacer(minLength: 8)
+                LabelAndTime(state: state, stale: stale, timeSize: 46)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+            .activityBackgroundTint(Color.black.opacity(0.88))
+            .activitySystemActionForegroundColor(.white)
         } dynamicIsland: { context in
             let state = context.state
             let stale = context.isStale && !state.paused && !state.over
             return DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
-                    Label {
-                        Text(stale ? state.doneText : state.title)
-                            .font(.headline)
-                            .lineLimit(1)
-                    } icon: {
-                        Image(systemName: state.symbol).foregroundColor(state.color)
-                    }
+                    Buttons(state: state, stale: stale, size: 44)
+                        .padding(.leading, 4)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    ClockText(state: state, stale: stale)
-                        .font(.title2.weight(.semibold))
-                        .foregroundColor(state.color)
-                        .multilineTextAlignment(.trailing)
-                        .frame(maxWidth: 110, alignment: .trailing)
-                }
-                DynamicIslandExpandedRegion(.bottom) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(state.subtitle)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .lineLimit(1)
-                        Bar(state: state, stale: stale)
-                    }
+                    LabelAndTime(state: state, stale: stale, timeSize: 38)
+                        .padding(.trailing, 4)
                 }
             } compactLeading: {
-                Image(systemName: state.symbol).foregroundColor(state.color)
+                Ring(state: state, stale: stale)
+                    .frame(width: 22, height: 22)
             } compactTrailing: {
                 ClockText(state: state, stale: stale)
                     .foregroundColor(state.color)
                     .multilineTextAlignment(.trailing)
-                    .frame(maxWidth: 56)
+                    .frame(width: state.total >= 3600 || state.over ? 66 : 46)
             } minimal: {
-                Image(systemName: state.symbol).foregroundColor(state.color)
+                Ring(state: state, stale: stale)
+                    .frame(width: 22, height: 22)
             }
             .keylineTint(state.color)
         }

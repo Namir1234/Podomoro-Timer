@@ -20,6 +20,8 @@
 		F0C000000000000000000005 /* FokusTimerAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C000000000000000000003 /* FokusTimerAttributes.swift */; };
 		F0C000000000000000000007 /* FokusWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C000000000000000000006 /* FokusWidget.swift */; };
 		F0C00000000000000000000A /* FokusWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = F0C000000000000000000009 /* FokusWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		F0C000000000000000000018 /* FokusTimerIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C000000000000000000017 /* FokusTimerIntents.swift */; };
+		F0C000000000000000000019 /* FokusTimerIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C000000000000000000017 /* FokusTimerIntents.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,6 +66,7 @@
 		F0C000000000000000000006 /* FokusWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FokusWidget.swift; sourceTree = "<group>"; };
 		F0C000000000000000000008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F0C000000000000000000009 /* FokusWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FokusWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		F0C000000000000000000017 /* FokusTimerIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FokusTimerIntents.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,6 +155,7 @@
 			isa = PBXGroup;
 			children = (
 				F0C000000000000000000003 /* FokusTimerAttributes.swift */,
+				F0C000000000000000000017 /* FokusTimerIntents.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -304,6 +308,7 @@
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
 				F0C000000000000000000002 /* FokusTimerPlugin.swift in Sources */,
 				F0C000000000000000000004 /* FokusTimerAttributes.swift in Sources */,
+				F0C000000000000000000018 /* FokusTimerIntents.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -313,6 +318,7 @@
 			files = (
 				F0C000000000000000000007 /* FokusWidget.swift in Sources */,
 				F0C000000000000000000005 /* FokusTimerAttributes.swift in Sources */,
+				F0C000000000000000000019 /* FokusTimerIntents.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -469,6 +475,8 @@
 					"$(inherited)",
 					"-weak_framework",
 					ActivityKit,
+					"-weak_framework",
+					AppIntents,
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-DDEBUG\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.namiralgorani.fokus;
@@ -495,6 +503,8 @@
 					"$(inherited)",
 					"-weak_framework",
 					ActivityKit,
+					"-weak_framework",
+					AppIntents,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.namiralgorani.fokus;
 				PRODUCT_NAME = "$(TARGET_NAME)";
