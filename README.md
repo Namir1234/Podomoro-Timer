@@ -92,7 +92,7 @@ npm test         # prueft, dass die Oberflaeche wirklich rendert
 npm run dist:win # Installer und portable .exe nach release/
 ```
 
-`release/Fokus Setup 1.0.0.exe` installiert die App, `release/Fokus 1.0.0.exe`
+`release/Fokus Setup 1.1.0.exe` installiert die App, `release/Fokus 1.1.0.exe`
 laeuft ohne Installation.
 
 Die Seiten werden ueber ein eigenes `app://`-Protokoll ausgeliefert, nicht
