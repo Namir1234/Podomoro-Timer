@@ -4,7 +4,7 @@ Stand: 9. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Tim
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (103 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (105 Commits,
 6. Oktober bis 9. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
@@ -639,7 +639,9 @@ aufräumen, vorzeigbar machen, ausbauen).
 | 11:16 | `c7a4170` | Dokumentation nachgefuehrt: Infobereich | worktree-popup-ablauf | Doku |
 | 9.11. 10:06 | `ea4f518` | Merge worktree-popup-ablauf: Popup bei Ablauf und Infobereich | claude/app-website-next-steps | 6, +163 / −13 |
 | 9.11. 10:10 | `a60db21` | Dokumentation nachgefuehrt: Merge Popup und Infobereich | claude/app-website-next-steps | Doku |
-| 9.11. 10:20 | (dieser Commit) | Dokumentation nachgefuehrt: Branches aufgeraeumt | claude/app-website-next-steps | Doku |
+| 9.11. 10:20 | `01176dd` | Dokumentation nachgefuehrt: Branches aufgeraeumt | claude/app-website-next-steps | Doku |
+| 9.11. 10:13 | `7104b6f` | Version 1.1.0 (Windows-App neu gebaut) | claude/app-website-next-steps | 2, +2 / −2 |
+| 9.11. 10:15 | (dieser Commit) | Dokumentation nachgefuehrt: Version 1.1.0 | claude/app-website-next-steps | Doku |
 
 - **`2a38279`** – Wunsch: Ein Popup soll kommen, wenn die Zeit abgelaufen ist,
   damit man weiss, dass es fertig ist. Das Popup „Zeit ist um!“ gab es schon,
@@ -686,6 +688,13 @@ aufräumen, vorzeigbar machen, ausbauen).
   `worktree-agent-a3fd603009cb31500`, `feature/login`,
   `worktree-popup-ablauf` gelöscht; auf GitHub `hallmark-coral` und
   `worktree-popup-ablauf`. Doku-Commit gepusht nach `origin/main`.
+- **`7104b6f`** – Version 1.1.0: Die installierte Windows-App war noch 1.0.0
+  vom 8. November (ohne Live-Sync, Sperrbildschirm und alles danach).
+  `npm run dist:win` → `release/Fokus Setup 1.1.0.exe`, still installiert
+  (`/S`, pro Benutzer nach `%LOCALAPPDATA%ProgramsFokus`) und gestartet.
+  Die Daten bleiben erhalten (gleicher `app://`-Origin). README nennt die
+  neuen Dateinamen.
+- Doku-Commit: Chronik und Zahlen nachgeführt. Gepusht nach `origin/main`.
 
 ---
 
@@ -694,7 +703,7 @@ aufräumen, vorzeigbar machen, ausbauen).
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 9. November 2026 |
-| Commits | 103 (davon 2 Merges) |
+| Commits | 105 (davon 2 Merges) |
 | Aktive Tage | 14 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6., 8., 9. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
