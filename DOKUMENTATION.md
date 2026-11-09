@@ -30,7 +30,10 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
   Minute) und Ton-Schalter
 - Popup „Zeit ist um!“ am Ende einer Pomodoro-Phase oder eines Timers; ist die
   App nicht im Vordergrund (minimiert, anderes Programm), zusätzlich als
-  System-Mitteilung – abschaltbar unter „Mitteilung im Hintergrund“
+  System-Mitteilung – abschaltbar unter „Mitteilung im Hintergrund“. Die
+  Windows-App holt ihr Fenster dann selbst nach vorne, im Browser blinkt der
+  Tab-Titel, auf dem Handy vibriert es. Schliesst man die Windows-App, während
+  ein Timer läuft, bleibt sie im Infobereich der Taskleiste und meldet den Ablauf
 - Überzeit: Nach Ablauf zählt der Pomodoro-Timer mit „+“ weiter (max. 60 min),
   bis man die nächste Phase startet – „Mehr gearbeitet“ bzw. „Pause überzogen“
 - Oberfläche färbt sich gegen Ende der Phase rot
@@ -626,6 +629,41 @@ aufräumen, vorzeigbar machen, ausbauen).
   Punkte nachgeführt. Zusammen mit `9192098` und `6591a98` gepusht nach
   `origin/main` (Fast-Forward vom Branch `claude/app-website-next-steps`).
 
+### Phase 13 – Popup bei Ablauf nicht mehr verpassen (6. November 2026)
+
+| Zeit | Hash | Commit | Branch | Umfang |
+| --- | --- | --- | --- | --- |
+| 11:05 | `2a38279` | Popup bei Ablauf nicht mehr verpassen: Fenster nach vorne, Titel blinkt | worktree-popup-ablauf | 5, +66 / −7 |
+| 11:10 | `e9693ac` | Dokumentation nachgefuehrt: Popup bei Ablauf | worktree-popup-ablauf | Doku |
+| 11:14 | `cc74893` | Windows-App laeuft beim Schliessen im Infobereich weiter, solange ein Timer laeuft | worktree-popup-ablauf | 5, +64 / −8 |
+| 11:16 | (dieser Commit) | Dokumentation nachgefuehrt: Infobereich | worktree-popup-ablauf | Doku |
+
+- **`2a38279`** – Wunsch: Ein Popup soll kommen, wenn die Zeit abgelaufen ist,
+  damit man weiss, dass es fertig ist. Das Popup „Zeit ist um!“ gab es schon,
+  war aber unsichtbar, wenn die App minimiert oder verdeckt war.
+  - **Windows-App:** neues `electron/preload.js` stellt `window.fokusApp.timeUp()`
+    bereit. `main.js` holt das Fenster bei Ablauf aus der Taskleiste, legt es
+    „immer oben“ und lässt das Taskleisten-Symbol blinken, bis man es anklickt
+    (Windows verweigert `focus()` aus dem Hintergrund oft).
+  - **Browser:** Der Tab-Titel blinkt „⏰ Zeit ist um!“, bis man zurückkommt
+    oder OK drückt; auf dem Handy vibriert es zusätzlich (`navigator.vibrate`).
+  - Gilt für Pomodoro und eigene Timer (beide laufen über `showTimeUp`).
+    `pomodoro.js?v=35`, `CACHE_NAME` auf `fokus-cache-v33`.
+- Doku-Commit `e9693ac`: Chronik, Funktionsliste und Zahlen nachgeführt.
+- **`cc74893`** – Rückmeldung: Es kommt keine Mitteilung, wenn die App
+  geschlossen ist. Grund: Schliessen beendete die ganze App, danach lief kein
+  Code mehr.
+  - Läuft der Pomodoro oder ein eigener Timer, versteckt Schliessen das Fenster
+    nur; die App bleibt mit Symbol im Infobereich der Taskleiste (Menü
+    „Fokus öffnen“ / „Beenden“, Klick öffnet). Beim ersten Mal erklärt eine
+    Mitteilung das. Bei Ablauf kommt das Fenster mit Popup zurück.
+  - Läuft nichts, beendet Schliessen die App wie bisher; „Beenden“ im Menü
+    beendet immer.
+  - Die Seite meldet den Zustand alle 0,5 s über `fokusApp.setBusy()`
+    (Kanal `fokus-busy`). `pomodoro.js?v=36`, `CACHE_NAME` auf `fokus-cache-v34`.
+- Doku-Commit: Chronik und Zahlen nachgeführt. Branch `worktree-popup-ablauf`
+  gepusht nach `origin`; noch nicht in `main`.
+
 ---
 
 ## 4. Zahlen
@@ -657,6 +695,9 @@ aufräumen, vorzeigbar machen, ausbauen).
   der Timer auf einem anderen Gerät gestartet, erscheint die Karte erst nach
   einem Tipp in der App (Autoplay-Sperre). Eine echte Live Activity mit
   Dynamic Island ginge nur in der nativen iOS-App (Mac nötig).
+- Web/PWA: Ist der Browser-Tab bzw. die PWA ganz geschlossen, kann keine
+  Mitteilung kommen (läuft kein Code). Dafür bräuchte es Web-Push über einen
+  Server (z.B. Supabase Edge Function).
 - Die Windows-`.exe` ist nicht signiert (SmartScreen-Warnung beim ersten Start).
 - Branches aufräumen: `agy-test`, `agy--test`, `app-windows-ios`,
   `worktree-agent-a3fd603009cb31500` und `feature/login` (samt Worktree

@@ -171,6 +171,7 @@ let tick = null;
 let ringFrame = null;
 let endTimer = null;                // genauer Timeout aufs Ende (Intervalle laufen im Hintergrund gedrosselt)
 let focusDone = 0;                  // Fokus-Sessions im aktuellen Zyklus (0 bis settings.rounds)
+let blinkTick = null;               // Tab-Titel blinkt nach Ablauf, solange die App im Hintergrund ist
 
 // Überzeit: Ist eine Phase abgelaufen, zählt die Uhr weiter, bis man weitermacht.
 // over = { since: Ende der Phase (ms) = ts des Eintrags in sessions/breaks, mode }
@@ -245,7 +246,7 @@ function draw() {
   drawRing();
   document.body.classList.toggle("pause", mode !== "focus");
   document.body.classList.toggle("overtime", !!over);
-  document.title = (running || over ? digits + " · " : "") + t("doc.title");
+  if (!blinkTick) document.title = (running || over ? digits + " · " : "") + t("doc.title");
   document.querySelectorAll(".modes button[data-mode]").forEach(b => b.classList.toggle("active", b.dataset.mode === mode));
   $("startBtn").textContent = t(over ? (mode === "focus" ? "btn.toBreak" : "btn.toFocus")
     : running ? "btn.pause" : (remaining < totalSec ? "btn.resume" : "btn.start"));
@@ -525,8 +526,32 @@ function showTimeUp(lines) {
   }
   $("timeUpModal").hidden = false;
   $("timeUpOk").focus();
-  if (document.hidden || !document.hasFocus()) systemNotify(lines);
+  navigator.vibrate?.([300, 150, 300]);
+  if (document.hidden || !document.hasFocus()) {
+    window.fokusApp?.timeUp();   // Windows-App: Fenster nach vorne holen
+    systemNotify(lines);
+    startBlink();
+  }
 }
+
+// Tab-Titel blinkt "Zeit ist um!", bis man zur App zurückkommt – so sieht man es
+// auch am Browser-Tab bzw. in der Taskleiste, wenn das Popup verdeckt ist.
+function startBlink() {
+  if (blinkTick) return;
+  let on = false;
+  blinkTick = setInterval(() => {
+    on = !on;
+    document.title = on ? "⏰ " + t("done.title") : t("doc.title");
+  }, 1000);
+}
+function stopBlink() {
+  if (!blinkTick) return;
+  clearInterval(blinkTick);
+  blinkTick = null;
+  draw();
+}
+window.addEventListener("focus", stopBlink);
+document.addEventListener("visibilitychange", () => { if (!document.hidden && document.hasFocus()) stopBlink(); });
 
 const canNotify = () => "Notification" in window;
 function systemNotify(lines) {
@@ -546,7 +571,7 @@ function systemNotify(lines) {
     navigator.serviceWorker?.ready.then(reg => reg.showNotification(t("done.title"), opts)).catch(() => {});
   }
 }
-const closeTimeUp = () => { $("timeUpModal").hidden = true; $("timeUpList").replaceChildren(); };
+const closeTimeUp = () => { $("timeUpModal").hidden = true; $("timeUpList").replaceChildren(); stopBlink(); };
 $("timeUpOk").onclick = closeTimeUp;
 $("timeUpModal").onclick = e => { if (e.target === $("timeUpModal")) closeTimeUp(); };
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("timeUpModal").hidden) closeTimeUp(); });
@@ -1112,6 +1137,16 @@ if (!Array.isArray(clocks)) clocks = [];
 let clockTick = null;
 let clockEndTimer = null;
 const saveClocks = () => save("pomo_clocks", clocks);
+
+// Windows-App: melden, ob Pomodoro oder ein Timer läuft – dann beendet das Schliessen
+// des Fensters die App nicht, sie läuft im Infobereich weiter und meldet den Ablauf.
+if (window.fokusApp?.setBusy) {
+  let lastBusy = null;
+  setInterval(() => {
+    const busy = running || clocks.some(c => c.type === "timer" && c.start);
+    if (busy !== lastBusy) window.fokusApp.setBusy(lastBusy = busy);
+  }, 500);
+}
 
 const clockElapsed = c => c.acc + (c.start ? Date.now() - c.start : 0);
 const clockLeft = c => Math.max(0, c.dur * 1000 - clockElapsed(c));
