@@ -1,11 +1,11 @@
 # Projektdokumentation – Fokus Pomodoro-Timer
 
-Stand: 8. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Timer · Branch `main`
+Stand: 9. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Timer · Branch `main`
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (96 Commits,
-6. Oktober bis 8. November 2026) und wird bei jedem Commit und Push nachgeführt.
+Die Chronik weiter unten ist aus der Git-Historie erstellt (102 Commits,
+6. Oktober bis 9. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
 
@@ -548,7 +548,7 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | Zeit | Hash | Commit | Branch | Umfang |
 | --- | --- | --- | --- | --- |
 | 15:05 | `3678553` | Timer auf dem Sperrbildschirm (Media Session) | main | 5, +135 / −4 |
-| 15:07 | (dieser Commit) | Dokumentation nachgefuehrt: Sperrbildschirm | main | Doku |
+| 15:07 | `09a9b40` | Dokumentation nachgefuehrt: Sperrbildschirm | main | Doku |
 
 - **`3678553`** – Wunsch: Auf dem Handy (iPhone, Web-App) soll der Timer wie
   eine Live-Aktivität auf dem Sperrbildschirm stehen, damit man die App nicht
@@ -584,7 +584,7 @@ Rendern), `style/tokens.css`, `style/pomodoro-original.css`,
 | 21:14 | `9192098` | Autorname vereinheitlicht (.mailmap) | claude/app-website-next-steps | 1, +3 / −0 |
 | 21:14 | `6591a98` | Verlauf ueber Wochen/Monate, CSV-Export, Zeit pro To-do, Tastenkuerzel, Startseite mit Screenshots | claude/app-website-next-steps | 15, +447 / −45 |
 | 21:20 | `e382d13` | Dokumentation nachgefuehrt: Ausbau und Schaufenster | claude/app-website-next-steps | Doku |
-| 21:35 | (dieser Commit) | Dokumentation nachgefuehrt: Realtime geprueft | claude/app-website-next-steps | Doku |
+| 21:35 | `87efdb3` | Dokumentation nachgefuehrt: Realtime geprueft | claude/app-website-next-steps | Doku |
 
 Auftrag: Nach der Frage „Was kann ich jetzt mit App und Webseite machen?“
 alle vorgeschlagenen Schritte umsetzen (online stellen, offene Punkte,
@@ -629,14 +629,16 @@ aufräumen, vorzeigbar machen, ausbauen).
   Punkte nachgeführt. Zusammen mit `9192098` und `6591a98` gepusht nach
   `origin/main` (Fast-Forward vom Branch `claude/app-website-next-steps`).
 
-### Phase 13 – Popup bei Ablauf nicht mehr verpassen (6. November 2026)
+### Phase 16 – Popup bei Ablauf und Infobereich (am 6. November auf einem Nebenbranch entwickelt, am 9. November gemergt)
 
 | Zeit | Hash | Commit | Branch | Umfang |
 | --- | --- | --- | --- | --- |
 | 11:05 | `2a38279` | Popup bei Ablauf nicht mehr verpassen: Fenster nach vorne, Titel blinkt | worktree-popup-ablauf | 5, +66 / −7 |
 | 11:10 | `e9693ac` | Dokumentation nachgefuehrt: Popup bei Ablauf | worktree-popup-ablauf | Doku |
 | 11:14 | `cc74893` | Windows-App laeuft beim Schliessen im Infobereich weiter, solange ein Timer laeuft | worktree-popup-ablauf | 5, +64 / −8 |
-| 11:16 | (dieser Commit) | Dokumentation nachgefuehrt: Infobereich | worktree-popup-ablauf | Doku |
+| 11:16 | `c7a4170` | Dokumentation nachgefuehrt: Infobereich | worktree-popup-ablauf | Doku |
+| 9.11. 10:06 | `ea4f518` | Merge worktree-popup-ablauf: Popup bei Ablauf und Infobereich | claude/app-website-next-steps | 6, +163 / −13 |
+| 9.11. 10:10 | (dieser Commit) | Dokumentation nachgefuehrt: Merge Popup und Infobereich | claude/app-website-next-steps | Doku |
 
 - **`2a38279`** – Wunsch: Ein Popup soll kommen, wenn die Zeit abgelaufen ist,
   damit man weiss, dass es fertig ist. Das Popup „Zeit ist um!“ gab es schon,
@@ -663,6 +665,20 @@ aufräumen, vorzeigbar machen, ausbauen).
     (Kanal `fokus-busy`). `pomodoro.js?v=36`, `CACHE_NAME` auf `fokus-cache-v34`.
 - Doku-Commit: Chronik und Zahlen nachgeführt. Branch `worktree-popup-ablauf`
   gepusht nach `origin`; noch nicht in `main`.
+- **`ea4f518`** – Merge drei Tage später: Der Branch war vollständig, aber nie
+  in `main` gelandet.
+  - Konflikte: `electron/preload.js` stellt jetzt `setDesign`, `timeUp` und
+    `setBusy` bereit; `electron/main.js` vereint Design-Icon und Infobereich.
+    Das Symbol im Infobereich und die Hinweis-Mitteilung folgen dem gewählten
+    Design (`aktuellesIcon`, `tray.setImage` beim Wechsel).
+  - `js/pomodoro.js` liess sich automatisch zusammenführen (Titel blinkt,
+    Vibration, `fokusApp.timeUp()`/`setBusy()`).
+  - `pomodoro.js?v=41`, `CACHE_NAME` auf `fokus-cache-v41`.
+  - Geprüft in der echten Fenster-Huelle mit leerem Profil: 4-s-Timer starten
+    → `busy=true`, Fenster schliessen → versteckt statt beendet, nach Ablauf
+    wieder sichtbar mit Popup, nach Reset `busy=false`; `npm test` ok.
+- Doku-Commit: Abschnitt als Phase 16 eingeordnet, Chronik, Zahlen und offene
+  Punkte nachgeführt. Zusammen mit dem Merge gepusht nach `origin/main`.
 
 ---
 
@@ -670,9 +686,9 @@ aufräumen, vorzeigbar machen, ausbauen).
 
 | | |
 | --- | --- |
-| Zeitraum | 6. Oktober – 8. November 2026 |
-| Commits | 96 (davon 1 Merge) |
-| Aktive Tage | 13 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6., 8. Nov.) |
+| Zeitraum | 6. Oktober – 9. November 2026 |
+| Commits | 102 (davon 2 Merges) |
+| Aktive Tage | 14 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6., 8., 9. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
 
@@ -704,8 +720,8 @@ aufräumen, vorzeigbar machen, ausbauen).
   `.claude/worktrees/agent-a3fd…`) sowie `origin/hallmark-coral` sind
   vollständig in `main` und können weg. `hallmark-coral`/`hallmark-test`
   lokal behalten, solange ihre Ordner ungesicherte `.hallmark/`-Notizen haben.
-  **Nicht** in `main`: `worktree-popup-ablauf` (4 Commits, u. a. „Windows-App
-  läuft beim Schliessen im Infobereich weiter“) – erst prüfen und mergen.
+  `worktree-popup-ablauf` ist seit `ea4f518` ebenfalls in `main` und kann
+  samt Worktree `.claude/worktrees/popup-ablauf` weg.
 - Git-Autorname: über `.mailmap` vereinheitlicht. Für künftige Commits überall
   `git config user.name "Namir Al Gorani"` setzen.
 - Screenshots nach grösseren Änderungen neu erzeugen: `npm run screenshots`.
