@@ -114,10 +114,14 @@ In der iOS-App steht der laufende Pomodoro als eigene Zeile auf dem
 Sperrbildschirm und in der Dynamic Island – wie der Timer der Uhr-App, und
 Musik aus Spotify & Co. laeuft weiter. Countdown und Balken zaehlt iOS selbst,
 die App muss dafuer nicht offen sein. Am Ende kommt eine Mitteilung mit Ton.
-Ein-/ausschalten: "Auf dem Sperrbildschirm" in den Zeiteinstellungen.
-Braucht iOS 16.2 oder neuer.
+Aufgebaut wie der Timer der Uhr-App: Pause/Weiter- und Stopp-Knopf (ab
+iOS 17), Beschriftung und grosse Zeit; in der Dynamic Island ein Ring, der
+sich leert. Ein-/ausschalten: "Auf dem Sperrbildschirm" in den
+Zeiteinstellungen. Braucht iOS 16.2 oder neuer.
 
 - `ios/App/Shared/FokusTimerAttributes.swift` – Daten der Anzeige (beide Targets)
+- `ios/App/Shared/FokusTimerIntents.swift` – Knoepfe (Pause/Weiter, Stopp); die App
+  holt die Aktion beim naechsten Oeffnen ab (`takePending`)
 - `ios/App/FokusWidget/FokusWidget.swift` – Aussehen (Sperrbildschirm, Dynamic Island)
 - `ios/App/App/FokusTimerPlugin.swift` – `update`/`end` der Live Activity,
   `schedule` der Mitteilung; aufgerufen aus `js/pomodoro.js` (`drawLive`,

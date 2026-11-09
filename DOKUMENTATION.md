@@ -4,7 +4,7 @@ Stand: 9. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Tim
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (107 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (109 Commits,
 6. Oktober bis 9. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
@@ -706,7 +706,9 @@ aufräumen, vorzeigbar machen, ausbauen).
 | Zeit | Hash | Commit | Branch | Umfang |
 | --- | --- | --- | --- | --- |
 | 10:48 | `5e17dc4` | Live Activity fuer die iOS-App, Mitteilung am Ende, Cloud-Build der .ipa | claude/app-website-next-steps | 13, +682 / −13 |
-| 11:00 | (dieser Commit) | Dokumentation nachgefuehrt: Live Activity | claude/app-website-next-steps | Doku |
+| 11:00 | `64c1382` | Dokumentation nachgefuehrt: Live Activity | claude/app-website-next-steps | Doku |
+| 11:26 | `9211a3f` | Live Activity wie der Timer der Uhr-App: Ring, grosse Zeit, Pause- und Stopp-Knopf | claude/app-website-next-steps | 8, +309 / −124 |
+| 11:35 | (dieser Commit) | Dokumentation nachgefuehrt: Live Activity mit Knoepfen | claude/app-website-next-steps | Doku |
 
 - **`5e17dc4`** – Wunsch: Hört man Spotify, verdrängt die Musik die
   „Wiedergabe“-Karte des Timers vom Sperrbildschirm (davon gibt es auf dem
@@ -743,6 +745,29 @@ aufräumen, vorzeigbar machen, ausbauen).
 - Doku-Commit: Funktionsliste, Projektstruktur, Chronik, Zahlen, offene Punkte
   und README (Abschnitt iOS: Live Activity, Cloud-Build, Sideloadly)
   nachgeführt. Gepusht nach `origin/main`.
+- **`9211a3f`** – Rückmeldung mit Screenshots vom Timer der Uhr-App: So soll
+  es aussehen.
+  - **Sperrbildschirm** jetzt einzeilig wie die Uhr-App: links runder
+    Pause/Weiter-Knopf (Akzentfarbe) und ✕-Knopf, rechts Beschriftung
+    („Fokus“, „Kurze Pause“ …) und grosse, dünne Zeit; dunkler Hintergrund.
+    Überzeit zählt mit „+“ aufwärts, nach Ablauf steht „Zeit ist um!“ da.
+  - **Dynamic Island**: kompakt links ein Ring, der sich leert, rechts die Zeit;
+    erweitert Knöpfe links, Beschriftung und Zeit rechts; minimal der Ring.
+  - **Knöpfe** (ab iOS 17, `Shared/FokusTimerIntents.swift`):
+    `FokusPauseIntent` und `FokusStopIntent` (`LiveActivityIntent`, laufen im
+    App-Prozess). Sie ändern Live Activity und Mitteilung selbst
+    (`FokusTimerStore`) und merken sich die Aktion; `js/pomodoro.js` holt sie mit
+    `takePending` ab (beim Zurückkommen und alle 2 s) und übernimmt Pause,
+    Weiter oder Stopp (= Reset bzw. Überzeit beenden) – damit auch auf die
+    anderen Geräte. Unter iOS 16 erscheint statt der Knöpfe ein Symbol.
+  - `ContentState`: `remainingSec` und `total` statt Text/Fortschritt;
+    Restzeit im Format der Uhr-App („4:58“). App linkt auch `AppIntents` schwach.
+    `CACHE_NAME` auf `fokus-cache-v43`.
+  - Geprüft: Knopf-Aktionen in Electron mit vorgetäuschter iOS-Brücke (Pause →
+    Restzeit 600 s, Weiter → läuft mit neuer Endzeit, Stopp → zurückgesetzt und
+    gespeichert); Cloud-Build Lauf 42600906847 grün; `npm test` ok.
+- Doku-Commit: Chronik, Zahlen und offene Punkte nachgeführt. Gepusht nach
+  `origin/main`.
 
 ---
 
@@ -751,7 +776,7 @@ aufräumen, vorzeigbar machen, ausbauen).
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 9. November 2026 |
-| Commits | 107 (davon 2 Merges) |
+| Commits | 109 (davon 2 Merges) |
 | Aktive Tage | 14 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6., 8., 9. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
@@ -769,7 +794,8 @@ aufräumen, vorzeigbar machen, ausbauen).
   fehlerfrei, sind aber noch auf keinem echten iPhone gesehen worden. Beim
   ersten Aufspielen prüfen: Zeile auf Sperrbildschirm und Dynamic Island,
   Pause/Weiter, „Zeit ist um!“ nach Ablauf, Mitteilung mit Ton im Hintergrund.
-  Die Live Activity hat keine Knöpfe (bräuchte App Intents, iOS 17). Startet man
+  Knöpfe gibt es erst ab iOS 17; drückt man sie, übernimmt die App den Stand
+  beim nächsten Öffnen (vorher sehen andere Geräte ihn nicht). Startet man
   den Timer auf einem anderen Gerät, erscheint sie erst nach dem Öffnen der App
   (Start aus der Ferne bräuchte Push über APNs: bezahlter Developer-Account
   und Server). Eigene Timer/Stoppuhren erscheinen dort nicht, nur der Pomodoro.
