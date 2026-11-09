@@ -105,8 +105,46 @@ laesst sie sich starten.
 
 ## iOS
 
-Das Xcode-Projekt liegt in `ios/`. Zum Bauen braucht es einen Mac mit Xcode
-und CocoaPods – von Windows aus geht nur die Vorbereitung.
+Das Xcode-Projekt liegt in `ios/`. Es hat zwei Targets: `App` (die Web-App in
+Capacitor, plus `FokusTimerPlugin.swift`) und `FokusWidget` (Live Activity).
+
+### Live Activity
+
+In der iOS-App steht der laufende Pomodoro als eigene Zeile auf dem
+Sperrbildschirm und in der Dynamic Island – wie der Timer der Uhr-App, und
+Musik aus Spotify & Co. laeuft weiter. Countdown und Balken zaehlt iOS selbst,
+die App muss dafuer nicht offen sein. Am Ende kommt eine Mitteilung mit Ton.
+Ein-/ausschalten: "Auf dem Sperrbildschirm" in den Zeiteinstellungen.
+Braucht iOS 16.2 oder neuer.
+
+- `ios/App/Shared/FokusTimerAttributes.swift` – Daten der Anzeige (beide Targets)
+- `ios/App/FokusWidget/FokusWidget.swift` – Aussehen (Sperrbildschirm, Dynamic Island)
+- `ios/App/App/FokusTimerPlugin.swift` – `update`/`end` der Live Activity,
+  `schedule` der Mitteilung; aufgerufen aus `js/pomodoro.js` (`drawLive`,
+  `syncNativeNotify`)
+
+### Ohne Mac: Cloud-Build und Sideloadly
+
+Bei jedem Push auf `main` (der App-Dateien betrifft) baut GitHub Actions die
+App auf einem Mac (`.github/workflows/ios.yml`). Von Hand: Actions →
+"iOS-App bauen" → "Run workflow".
+
+1. GitHub → Actions → letzter gruener Lauf "iOS-App bauen" → unten bei
+   "Artifacts" **Fokus-iOS** herunterladen und entpacken → `Fokus.ipa`.
+2. Auf dem PC [Sideloadly](https://sideloadly.io) installieren, dazu iTunes und
+   iCloud **von apple.com** (nicht aus dem Microsoft Store).
+3. iPhone per Kabel anschliessen, "Diesem Computer vertrauen".
+4. In Sideloadly `Fokus.ipa` hineinziehen, Apple-ID eintragen, Start.
+5. Auf dem iPhone: Einstellungen → Allgemein → VPN und Geraeteverwaltung →
+   die eigene Apple-ID → "Vertrauen". Ab iOS 16 zusaetzlich
+   Einstellungen → Datenschutz & Sicherheit → Entwicklermodus einschalten.
+
+Mit einer Gratis-Apple-ID laeuft die App 7 Tage, dann mit Sideloadly erneut
+aufspielen (die Daten bleiben).
+
+### Mit Mac
+
+Zum Bauen in Xcode braucht es einen Mac mit Xcode und CocoaPods.
 
 Auf dem Mac:
 

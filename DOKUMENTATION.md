@@ -4,7 +4,7 @@ Stand: 9. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Tim
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (105 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (107 Commits,
 6. Oktober bis 9. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
@@ -77,6 +77,10 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
   Zurücksetzen; hält die Web-App im Hintergrund wach, damit Ton und Mitteilung
   pünktlich kommen. Pro Gerät abschaltbar („Auf dem Sperrbildschirm“), auf
   Handys standardmässig an
+- iOS-App: statt der Wiedergabe-Karte eine **Live Activity** – eigene Zeile auf
+  dem Sperrbildschirm und in der Dynamic Island mit Countdown und Balken,
+  Musik anderer Apps (Spotify usw.) läuft weiter; am Ende eine Mitteilung mit
+  Ton. Die `.ipa` baut GitHub Actions bei jedem Push (ohne eigenen Mac)
 
 ### Projektstruktur
 
@@ -88,7 +92,8 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
 | `img/` | Icons, Bilder, App-Icons, `screens/` (Screenshots für Startseite und README) |
 | `sw.js`, `manifest.json` | PWA (offlinefähig, installierbar) |
 | `electron/` | Windows-Hülle (`main.js`, `preload.js`, `serve-dist.js`) |
-| `ios/` | Xcode-Projekt (von Capacitor erzeugt) |
+| `ios/` | Xcode-Projekt (von Capacitor erzeugt), Targets `App` und `FokusWidget` (Live Activity), `Shared/` für beide |
+| `.github/workflows/ios.yml` | Cloud-Build der iPhone-App (`Fokus.ipa`) auf einem Mac von GitHub |
 | `supabase/schema.sql`, `supabase/ERD.md` | Tabelle `user_data` mit Row-Level-Security, Datenmodell-Diagramm |
 | `tools/` | Build-Script, Icon-Renderer, Smoke-Test, `screenshots.js` |
 | `dist/` | Build-Ausgabe, nicht von Hand bearbeiten |
@@ -641,7 +646,7 @@ aufräumen, vorzeigbar machen, ausbauen).
 | 9.11. 10:10 | `a60db21` | Dokumentation nachgefuehrt: Merge Popup und Infobereich | claude/app-website-next-steps | Doku |
 | 9.11. 10:20 | `01176dd` | Dokumentation nachgefuehrt: Branches aufgeraeumt | claude/app-website-next-steps | Doku |
 | 9.11. 10:13 | `7104b6f` | Version 1.1.0 (Windows-App neu gebaut) | claude/app-website-next-steps | 2, +2 / −2 |
-| 9.11. 10:15 | (dieser Commit) | Dokumentation nachgefuehrt: Version 1.1.0 | claude/app-website-next-steps | Doku |
+| 9.11. 10:15 | `3122b3b` | Dokumentation nachgefuehrt: Version 1.1.0 | claude/app-website-next-steps | Doku |
 
 - **`2a38279`** – Wunsch: Ein Popup soll kommen, wenn die Zeit abgelaufen ist,
   damit man weiss, dass es fertig ist. Das Popup „Zeit ist um!“ gab es schon,
@@ -691,10 +696,53 @@ aufräumen, vorzeigbar machen, ausbauen).
 - **`7104b6f`** – Version 1.1.0: Die installierte Windows-App war noch 1.0.0
   vom 8. November (ohne Live-Sync, Sperrbildschirm und alles danach).
   `npm run dist:win` → `release/Fokus Setup 1.1.0.exe`, still installiert
-  (`/S`, pro Benutzer nach `%LOCALAPPDATA%ProgramsFokus`) und gestartet.
+  (`/S`, pro Benutzer nach `%LOCALAPPDATA%\Programs\Fokus`) und gestartet.
   Die Daten bleiben erhalten (gleicher `app://`-Origin). README nennt die
   neuen Dateinamen.
 - Doku-Commit: Chronik und Zahlen nachgeführt. Gepusht nach `origin/main`.
+
+### Phase 17 – Live Activity für die iOS-App (9. November 2026)
+
+| Zeit | Hash | Commit | Branch | Umfang |
+| --- | --- | --- | --- | --- |
+| 10:48 | `5e17dc4` | Live Activity fuer die iOS-App, Mitteilung am Ende, Cloud-Build der .ipa | claude/app-website-next-steps | 13, +682 / −13 |
+| 11:00 | (dieser Commit) | Dokumentation nachgefuehrt: Live Activity | claude/app-website-next-steps | Doku |
+
+- **`5e17dc4`** – Wunsch: Hört man Spotify, verdrängt die Musik die
+  „Wiedergabe“-Karte des Timers vom Sperrbildschirm (davon gibt es auf dem
+  iPhone nur eine). Der Timer soll wie der der Uhr-App eine eigene Zeile haben.
+  Das geht nur nativ (ActivityKit), nicht in einer Webseite.
+  - **Widget-Erweiterung** `ios/App/FokusWidget/` (neues Target, iOS 16.2+):
+    Sperrbildschirm mit Symbol, Phase, „Endet um …“, grossem Countdown und
+    Balken; Dynamic Island kompakt (Symbol + Zeit), erweitert (dazu Balken),
+    minimal (Symbol). Countdown und Balken über `Text`/`ProgressView` mit
+    `timerInterval` – iOS zählt selbst, die App darf schlafen. Ab dem Ende gilt
+    die Anzeige als veraltet (`staleDate`) und zeigt „Zeit ist um!“. Pause:
+    feste Restzeit; Überzeit: zählt aufwärts. Farben je Design.
+  - **`FokusTimerAttributes.swift`** in `ios/App/Shared/`, in beiden Targets.
+  - **`FokusTimerPlugin.swift`** (in `FokusViewController` angemeldet):
+    `update` (startet oder ändert die Live Activity), `end`, `schedule`
+    (lokale Mitteilung mit Ton genau am Ende, löscht die vorige),
+    `requestPermission`. Aufrufe laufen streng nacheinander.
+  - **`js/pomodoro.js`**: erkennt die iOS-App (`window.Capacitor`), nimmt dort
+    `drawLive()` statt Media Session (keine stumme Wiedergabe mehr, Musik
+    läuft weiter) und plant die Mitteilung mit `syncNativeNotify()`; der
+    Schalter „Mitteilung im Hintergrund“ ist in der App jetzt nutzbar. Beim
+    Start werden alte Live Activities beendet. Hinweistext „lock.hintApp“ in
+    5 Sprachen. `CACHE_NAME` auf `fokus-cache-v42`.
+  - **Xcode-Projekt** von Hand ergänzt (Target, Einbetten der Erweiterung,
+    Abhängigkeit); App linkt ActivityKit schwach (läuft auch unter iOS 16);
+    Version 1.1; `NSSupportsLiveActivities` in `Info.plist`.
+  - **`.github/workflows/ios.yml`**: baut auf `macos-15` (npm ci, `ios:sync`
+    mit pod install, `xcodebuild` ohne Signatur) und lädt `Fokus.ipa` als
+    Artifact „Fokus-iOS“ hoch (30 Tage). Aufspielen mit Sideloadly (README).
+  - Geprüft: JS-Seite in Electron mit vorgetäuschter iOS-Brücke (Start, Pause,
+    Weiter, Skip schicken die richtigen `update`/`end`/`schedule`-Aufrufe);
+    Cloud-Build Lauf 42596211962 grün in 2:40 min, `FokusWidget.appex` in der
+    App; `npm test` ok. Auf einem echten iPhone noch nicht gesehen.
+- Doku-Commit: Funktionsliste, Projektstruktur, Chronik, Zahlen, offene Punkte
+  und README (Abschnitt iOS: Live Activity, Cloud-Build, Sideloadly)
+  nachgeführt. Gepusht nach `origin/main`.
 
 ---
 
@@ -703,7 +751,7 @@ aufräumen, vorzeigbar machen, ausbauen).
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 9. November 2026 |
-| Commits | 105 (davon 2 Merges) |
+| Commits | 107 (davon 2 Merges) |
 | Aktive Tage | 14 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6., 8., 9. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
@@ -717,16 +765,21 @@ aufräumen, vorzeigbar machen, ausbauen).
   (am 8. November im SQL Editor geprüft, `pg_publication_tables`). Bei
   gleichzeitigen Aktionen gewinnt die letzte; die Geräteuhren müssen ungefähr
   stimmen. Mit zwei echten Geräten noch nicht durchgetestet.
-- iOS: Die Web-Mitteilungen gibt es in der Capacitor-App nicht; dafür bräuchte es
-  das Plugin `@capacitor/local-notifications` (einrichten auf dem Mac).
-- iOS: Der Icon-Wechsel (`FokusIcon`, `AppIconCoral`) ist noch nie in Xcode gebaut
-  worden – beim nächsten `npm run ios:sync` auf dem Mac prüfen. Da Coral das
-  Standard-Design ist, wechselt das Icon beim ersten Start einmal (mit iOS-Hinweis).
+- iOS-App: Live Activity, Mitteilung am Ende und Icon-Wechsel bauen in der Cloud
+  fehlerfrei, sind aber noch auf keinem echten iPhone gesehen worden. Beim
+  ersten Aufspielen prüfen: Zeile auf Sperrbildschirm und Dynamic Island,
+  Pause/Weiter, „Zeit ist um!“ nach Ablauf, Mitteilung mit Ton im Hintergrund.
+  Die Live Activity hat keine Knöpfe (bräuchte App Intents, iOS 17). Startet man
+  den Timer auf einem anderen Gerät, erscheint sie erst nach dem Öffnen der App
+  (Start aus der Ferne bräuchte Push über APNs: bezahlter Developer-Account
+  und Server). Eigene Timer/Stoppuhren erscheinen dort nicht, nur der Pomodoro.
+  Da Coral das Standard-Design ist, wechselt das App-Icon beim ersten Start
+  einmal (mit iOS-Hinweis).
 - Sperrbildschirm: Auf einem echten iPhone (Web-App vom Homescreen) testen, ob
   Balken, Knöpfe und der Ton am Ende im Hintergrund wie erwartet laufen. Wird
   der Timer auf einem anderen Gerät gestartet, erscheint die Karte erst nach
-  einem Tipp in der App (Autoplay-Sperre). Eine echte Live Activity mit
-  Dynamic Island ginge nur in der nativen iOS-App (Mac nötig).
+  einem Tipp in der App (Autoplay-Sperre). Die Karte pausiert Musik anderer
+  Apps – wer das nicht will, nimmt die iOS-App (Live Activity, siehe oben).
 - Web/PWA: Ist der Browser-Tab bzw. die PWA ganz geschlossen, kann keine
   Mitteilung kommen (läuft kein Code). Dafür bräuchte es Web-Push über einen
   Server (z.B. Supabase Edge Function).
