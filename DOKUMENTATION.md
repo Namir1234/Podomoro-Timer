@@ -4,7 +4,7 @@ Stand: 11. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Ti
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (118 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (120 Commits,
 6. Oktober bis 11. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
@@ -878,6 +878,7 @@ aufräumen, vorzeigbar machen, ausbauen).
 | 12:25 | `2be2ccc` | Dokumentation nachgefuehrt: Passwort und E-Mail aendern | claude/password-email-change-ccd51b | Doku |
 | 13:17 | `cf7b53b` | Konto: E-Mail und Passwort aendern als dezente Zeilen mit Icon | claude/password-email-change-ccd51b | 9, +37 / −11 |
 | 13:20 | `0d8d90a` | Dokumentation nachgefuehrt: Konto-Zeilen | claude/password-email-change-ccd51b | Doku |
+| 13:22 | `8b5383b` | Dokumentation nachgefuehrt: Push von Passwort und E-Mail aendern | main | Doku |
 
 - **`8d1f221`** – Wunsch: Man soll sein Passwort und seine E-Mail-Adresse ändern können.
   - Im Konto-Fenster (angemeldet) gibt es zwei Zeilen „E-Mail ändern“ und
@@ -919,6 +920,44 @@ aufräumen, vorzeigbar machen, ausbauen).
 - Nach dem Test durch Namir in `main` übernommen (Fast-Forward) und gepusht
   nach `origin/main`.
 
+### Phase 21 – README mit Animationen (11. November 2026)
+
+| Zeit | Hash | Commit | Branch | Umfang |
+| --- | --- | --- | --- | --- |
+| 15:20 | `9485c4e` | README mit animierten SVG-Grafiken aufgepeppt | claude/readme-animations-b6e314 | 11, +544 / −50 |
+| – | (dieser Commit) | Dokumentation nachgefuehrt: README mit Animationen | claude/readme-animations-b6e314 | Doku |
+
+- **`9485c4e`** – Wunsch: Das README soll „richtig fancy“ werden, mit vielen Animationen.
+  - GitHub erlaubt im README kein JavaScript und kein eigenes CSS. Animationen gehen
+    nur über Bilder – darum sechs eigene SVGs in `img/readme/` mit CSS- und
+    SMIL-Animationen in den Farben des Coral-Designs:
+    - `hero.svg` – Banner: Titel mit wanderndem Glanz, Text, der sich selbst tippt,
+      Stoppuhr-Ring, der sich leert und dabei Fokus → kurze Pause → lange Pause
+      durchläuft, aufsteigende Funken.
+    - `features.svg` – sechs Karten, die nacheinander einblenden, jede mit eigenem
+      animiertem Icon (Ring, wachsende Balken, Haken, flackernde Flamme,
+      Sync-Punkte, wechselnde Sprachkürzel).
+    - `cycle.svg` – ein Pomodoro-Zyklus als Zeitleiste, ein Abspielkopf läuft durch.
+    - `platforms.svg` – Browser, Windows-Fenster und iPhone (mit Live Activity)
+      schweben, Countdown-Balken laufen.
+    - `divider.svg` (Trennlinie mit Lichtpunkt) und `footer.svg` (Wellen).
+  - Alle SVGs respektieren `prefers-reduced-motion`.
+  - README neu gegliedert: Banner, Badges (shields.io), Funktionen als Grafik und
+    aufklappbare Liste, Zyklus, Screenshots, Plattformen. Die technischen
+    Abschnitte (Cloud-Sync, Windows, iOS, App-Icon) behalten ihre Überschrift,
+    der Inhalt ist aufklappbar. Neu: Mermaid-Diagramm zum Sync-Ablauf und
+    GitHub-Hinweisboxen.
+  - Nur README und Bilder, keine App-Dateien – darum kein neuer `CACHE_NAME`.
+  - Geprüft: README über die GitHub-Markdown-API gerendert und im Browser
+    angesehen. Hinweisboxen und Mermaid rendert diese API nicht; sie sind erst
+    auf github.com sichtbar.
+
+  | Vorher | Nachher (Anfang) |
+  | --- | --- |
+  | ![Vorher](img/doku/readme/vorher-readme.jpg) | ![Nachher oben](img/doku/readme/nachher-readme-oben.jpg) |
+  | **Funktionen und Zyklus** | **Screenshots und Plattformen** |
+  | ![Funktionen](img/doku/readme/nachher-readme-funktionen.jpg) | ![Plattformen](img/doku/readme/nachher-readme-plattformen.jpg) |
+
 ---
 
 ## 4. Zahlen
@@ -926,7 +965,7 @@ aufräumen, vorzeigbar machen, ausbauen).
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 11. November 2026 |
-| Commits | 118 (davon 2 Merges) |
+| Commits | 120 (davon 2 Merges) |
 | Aktive Tage | 15 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6., 8., 9., 11. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
