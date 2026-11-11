@@ -1,11 +1,11 @@
 # Projektdokumentation – Fokus Pomodoro-Timer
 
-Stand: 9. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Timer · Branch `main`
+Stand: 11. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Timer · Branch `main`
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (109 Commits,
-6. Oktober bis 9. November 2026) und wird bei jedem Commit und Push nachgeführt.
+Die Chronik weiter unten ist aus der Git-Historie erstellt (111 Commits,
+6. Oktober bis 11. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
 
@@ -63,7 +63,9 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
 - Mobile Ansicht mit Hamburger-Menü
 - Sprache: Deutsch, Englisch, Französisch, Italienisch, Ungarisch
 - Design wählbar: **Original** (Olivgrün) oder **Coral** – das App-Icon wechselt
-  mit (Browser-Tab, Windows-Fenster/Taskleiste, iOS-Homescreen)
+  mit (Browser-Tab, Windows-Fenster/Taskleiste, iOS-Homescreen). Beide Designs
+  haben dieselben Abstände und Schriftgrössen: Beim Wechseln bleiben alle Felder
+  gleich gross und an derselben Stelle
 - Login und Cloud-Sync über Supabase – inklusive Feldgrössen und Design
   (nur die Menü-Einstellung bleibt pro Gerät); Bestätigungsmail lässt sich
   erneut senden
@@ -89,13 +91,13 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
 | `pages/` | `index.html` (Startseite), `pomodoro.html` (App) |
 | `js/` | `pomodoro.js` (App-Logik), `i18n.js` (Übersetzungen), `cloud.js` + `cloud-config.js` (Supabase), `design-boot.js` (Design-Wahl), `vendor/supabase.js` |
 | `style/` | `tokens.css`, `base.css`, `pomodoro.css`, `pomodoro-original.css`, `start.css`, `start-coral.css`, `lang-menu.css`, Schriften |
-| `img/` | Icons, Bilder, App-Icons, `screens/` (Screenshots für Startseite und README) |
+| `img/` | Icons, Bilder, App-Icons, `screens/` (Screenshots für Startseite und README), `doku/` (Vorher/Nachher-Bilder für diese Dokumentation) |
 | `sw.js`, `manifest.json` | PWA (offlinefähig, installierbar) |
 | `electron/` | Windows-Hülle (`main.js`, `preload.js`, `serve-dist.js`) |
 | `ios/` | Xcode-Projekt (von Capacitor erzeugt), Targets `App` und `FokusWidget` (Live Activity), `Shared/` für beide |
 | `.github/workflows/ios.yml` | Cloud-Build der iPhone-App (`Fokus.ipa`) auf einem Mac von GitHub |
 | `supabase/schema.sql`, `supabase/ERD.md` | Tabelle `user_data` mit Row-Level-Security, Datenmodell-Diagramm |
-| `tools/` | Build-Script, Icon-Renderer, Smoke-Test, `screenshots.js` |
+| `tools/` | Build-Script, Icon-Renderer, Smoke-Test, `screenshots.js`, `compare-designs.js` (misst die Felder in beiden Designs) |
 | `dist/` | Build-Ausgabe, nicht von Hand bearbeiten |
 | `release/` | fertige Windows-Dateien |
 
@@ -708,7 +710,7 @@ aufräumen, vorzeigbar machen, ausbauen).
 | 10:48 | `5e17dc4` | Live Activity fuer die iOS-App, Mitteilung am Ende, Cloud-Build der .ipa | claude/app-website-next-steps | 13, +682 / −13 |
 | 11:00 | `64c1382` | Dokumentation nachgefuehrt: Live Activity | claude/app-website-next-steps | Doku |
 | 11:26 | `9211a3f` | Live Activity wie der Timer der Uhr-App: Ring, grosse Zeit, Pause- und Stopp-Knopf | claude/app-website-next-steps | 8, +309 / −124 |
-| 11:35 | (dieser Commit) | Dokumentation nachgefuehrt: Live Activity mit Knoepfen | claude/app-website-next-steps | Doku |
+| 11:35 | `ae2acfe` | Dokumentation nachgefuehrt: Live Activity mit Knoepfen | claude/app-website-next-steps | Doku |
 
 - **`5e17dc4`** – Wunsch: Hört man Spotify, verdrängt die Musik die
   „Wiedergabe“-Karte des Timers vom Sperrbildschirm (davon gibt es auf dem
@@ -769,15 +771,60 @@ aufräumen, vorzeigbar machen, ausbauen).
 - Doku-Commit: Chronik, Zahlen und offene Punkte nachgeführt. Gepusht nach
   `origin/main`.
 
+### Phase 18 – Felder in beiden Designs gleich gross (11. November 2026)
+
+| Zeit | Hash | Commit | Branch | Umfang |
+| --- | --- | --- | --- | --- |
+| 11:19 | `a7d00ea` | Felder in beiden Designs gleich gross: Original uebernimmt Abstaende und Schriftgroessen von Coral | claude/field-size-consistency-320fcf | 8, +308 / −188 |
+| 11:25 | (dieser Commit) | Dokumentation nachgefuehrt: Felder gleich gross | claude/field-size-consistency-320fcf | Doku |
+
+- **`a7d00ea`** – Rückmeldung mit zwei Screenshots: Wechselt man das Design,
+  sind die Felder verschieden gross (z.B. „Heute“ und „Zeiten einstellen“
+  höher oder tiefer, „Deep Work“ zweizeilig). Grund: `pomodoro-original.css`
+  und `pomodoro.css` (Coral) hatten je eigene Abstände, Schriftgrössen,
+  Zeilenhöhen und Ränder.
+  - **Gleiche Masse**: Das Original lädt jetzt auch `tokens.css` und
+    `base.css` und übernimmt von Coral Regel für Regel alle Grössen
+    (Innen-/Aussenabstände, Lücken, Breiten, Höhen, Schriftgrössen,
+    Zeilenhöhen). Farben, Rundungen, Schatten und Schrift (Inter) bleiben.
+  - **Ränder ohne Platzbedarf**: Rahmen von Feldern, Moduswahl, Umschalter
+    oben und Stoppuhr-Feldern sind im Original jetzt `inset`-Schatten statt
+    `border` (Coral hat dort keinen Rand) – gleich sichtbar, 0 px Platz.
+  - **Kacheln** bei „Heute“ und in der Statistik: Coral trennt mit Linien,
+    das Original zeigt Kacheln. Die Kachel ist jetzt ein `::before` hinter dem
+    Inhalt; Abstände und (unsichtbare) Linien wie bei Coral.
+  - **Schriftbreite**: Inter läuft breiter als General Sans. Mit leicht
+    engerem Zeichenabstand (`-.025em` im Text, `-.03em` auf fetten Knöpfen,
+    `-.035em` bei Zitaten) brechen Zeilen gleich um.
+  - Für schmale Bildschirme die Coral-Regel für Moduswahl und Vorlagen auch
+    im Original. `CACHE_NAME` auf `fokus-cache-v44`, `pomodoro-original.css?v=12`.
+  - **Neues Werkzeug** `tools/compare-designs.js`: lädt Timer, To-do,
+    Statistik und Zitate in beiden Designs (mit festem Zufall, damit dieselben
+    Zitate kommen) und meldet jedes Feld, das in Breite, Höhe oder Lage
+    abweicht. Optionen `--breite 390` (Handy), `--tief` (alle Elemente),
+    `--shots <ordner>` (Screenshots).
+  - Geprüft: Bei 1280 px Breite sind alle Felder auf allen vier Seiten in
+    beiden Designs gleich gross und gleich platziert (vorher 52 Abweichungen);
+    nur Knöpfe innerhalb der Felder sind 2–4 px schmaler/breiter. `npm test` ok.
+
+  | | Original | Coral |
+  | --- | --- | --- |
+  | **Vorher** | ![Vorher Original](img/doku/felder-gleich/vorher-original.png) | ![Vorher Coral](img/doku/felder-gleich/vorher-coral.png) |
+  | **Nachher** | ![Nachher Original](img/doku/felder-gleich/nachher-original.png) | ![Nachher Coral](img/doku/felder-gleich/nachher-coral.png) |
+
+- Doku-Commit: Funktionsliste, Projektstruktur, Chronik mit Vorher/Nachher-
+  Screenshots, Zahlen und offene Punkte nachgeführt. Nach dem Test durch
+  Namir in `main` übernommen (Fast-Forward) und gepusht nach `origin/main`.
+
 ---
 
 ## 4. Zahlen
 
 | | |
 | --- | --- |
-| Zeitraum | 6. Oktober – 9. November 2026 |
-| Commits | 109 (davon 2 Merges) |
-| Aktive Tage | 14 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6., 8., 9. Nov.) |
+| Zeitraum | 6. Oktober – 11. November 2026 |
+| Commits | 111 (davon 2 Merges) |
+| Aktive Tage | 15 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6., 8., 9., 11. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
 
@@ -818,3 +865,8 @@ aufräumen, vorzeigbar machen, ausbauen).
 - Git-Autorname: über `.mailmap` vereinheitlicht. Für künftige Commits überall
   `git config user.name "Namir Al Gorani"` setzen.
 - Screenshots nach grösseren Änderungen neu erzeugen: `npm run screenshots`.
+- Design-Änderungen: Grössen (Abstände, Schriftgrössen) immer in **beiden**
+  Stylesheets gleich halten, danach `npm run build && npx electron
+  tools/compare-designs.js` (und mit `--breite 390`) laufen lassen.
+  Auf dem Handy (390 px) weichen ein paar Felder noch um wenige Pixel ab, weil
+  dort manche Felder so breit wie ihr Inhalt werden (war in Coral schon so).
