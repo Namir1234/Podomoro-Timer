@@ -4,7 +4,7 @@ Stand: 11. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Ti
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (117 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (118 Commits,
 6. Oktober bis 11. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
@@ -877,7 +877,7 @@ aufräumen, vorzeigbar machen, ausbauen).
 | 12:19 | `8d1f221` | Passwort und E-Mail im Konto aenderbar | claude/password-email-change-ccd51b | 11, +188 / −7 |
 | 12:25 | `2be2ccc` | Dokumentation nachgefuehrt: Passwort und E-Mail aendern | claude/password-email-change-ccd51b | Doku |
 | 13:17 | `cf7b53b` | Konto: E-Mail und Passwort aendern als dezente Zeilen mit Icon | claude/password-email-change-ccd51b | 9, +37 / −11 |
-| 13:20 | (dieser Commit) | Dokumentation nachgefuehrt: Konto-Zeilen | claude/password-email-change-ccd51b | Doku |
+| 13:20 | `0d8d90a` | Dokumentation nachgefuehrt: Konto-Zeilen | claude/password-email-change-ccd51b | Doku |
 
 - **`8d1f221`** – Wunsch: Man soll sein Passwort und seine E-Mail-Adresse ändern können.
   - Im Konto-Fenster (angemeldet) gibt es zwei Zeilen „E-Mail ändern“ und
@@ -916,6 +916,8 @@ aufräumen, vorzeigbar machen, ausbauen).
   `currentColor`, gleiche Masse in beiden Designs. Die Trennlinie über dem
   Formular ist weggefallen. Screenshots oben neu erzeugt. `CACHE_NAME` auf
   `fokus-cache-v47`.
+- Nach dem Test durch Namir in `main` übernommen (Fast-Forward) und gepusht
+  nach `origin/main`.
 
 ---
 
@@ -924,7 +926,7 @@ aufräumen, vorzeigbar machen, ausbauen).
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 11. November 2026 |
-| Commits | 117 (davon 2 Merges) |
+| Commits | 118 (davon 2 Merges) |
 | Aktive Tage | 15 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6., 8., 9., 11. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
