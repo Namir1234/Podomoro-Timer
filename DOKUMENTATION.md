@@ -4,7 +4,7 @@ Stand: 11. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Ti
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (120 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (121 Commits,
 6. Oktober bis 11. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
@@ -925,7 +925,8 @@ aufräumen, vorzeigbar machen, ausbauen).
 | Zeit | Hash | Commit | Branch | Umfang |
 | --- | --- | --- | --- | --- |
 | 15:20 | `9485c4e` | README mit animierten SVG-Grafiken aufgepeppt | claude/readme-animations-b6e314 | 11, +544 / −50 |
-| – | (dieser Commit) | Dokumentation nachgefuehrt: README mit Animationen | claude/readme-animations-b6e314 | Doku |
+| 15:21 | `03f9ff6` | Dokumentation nachgefuehrt: README mit Animationen | claude/readme-animations-b6e314 | Doku |
+| – | (dieser Commit) | Dokumentation nachgefuehrt: Push von README mit Animationen | claude/readme-animations-b6e314 | Doku |
 
 - **`9485c4e`** – Wunsch: Das README soll „richtig fancy“ werden, mit vielen Animationen.
   - GitHub erlaubt im README kein JavaScript und kein eigenes CSS. Animationen gehen
@@ -951,6 +952,8 @@ aufräumen, vorzeigbar machen, ausbauen).
   - Geprüft: README über die GitHub-Markdown-API gerendert und im Browser
     angesehen. Hinweisboxen und Mermaid rendert diese API nicht; sie sind erst
     auf github.com sichtbar.
+- Doku-Commit `03f9ff6`: Phase 21 mit Screenshots, fehlender Eintrag `8b5383b`, Zahlen.
+- Nach Freigabe durch Namir in `main` übernommen (Fast-Forward) und gepusht nach `origin/main`.
 
   | Vorher | Nachher (Anfang) |
   | --- | --- |
@@ -965,7 +968,7 @@ aufräumen, vorzeigbar machen, ausbauen).
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 11. November 2026 |
-| Commits | 120 (davon 2 Merges) |
+| Commits | 121 (davon 2 Merges) |
 | Aktive Tage | 15 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6., 8., 9., 11. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
