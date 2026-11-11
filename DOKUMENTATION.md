@@ -4,7 +4,7 @@ Stand: 11. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Ti
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (121 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (123 Commits,
 6. Oktober bis 11. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
@@ -926,7 +926,9 @@ aufräumen, vorzeigbar machen, ausbauen).
 | --- | --- | --- | --- | --- |
 | 15:20 | `9485c4e` | README mit animierten SVG-Grafiken aufgepeppt | claude/readme-animations-b6e314 | 11, +544 / −50 |
 | 15:21 | `03f9ff6` | Dokumentation nachgefuehrt: README mit Animationen | claude/readme-animations-b6e314 | Doku |
-| – | (dieser Commit) | Dokumentation nachgefuehrt: Push von README mit Animationen | claude/readme-animations-b6e314 | Doku |
+| 15:22 | `cff1c47` | Dokumentation nachgefuehrt: Push von README mit Animationen | claude/readme-animations-b6e314 | Doku |
+| 15:31 | `5266714` | README: Emojis entfernt, mehr Animationen | claude/readme-animations-2 | 17, +695 / −19 |
+| – | (dieser Commit) | Dokumentation nachgefuehrt: README ohne Emojis, mehr Animationen | claude/readme-animations-2 | Doku |
 
 - **`9485c4e`** – Wunsch: Das README soll „richtig fancy“ werden, mit vielen Animationen.
   - GitHub erlaubt im README kein JavaScript und kein eigenes CSS. Animationen gehen
@@ -954,6 +956,34 @@ aufräumen, vorzeigbar machen, ausbauen).
     auf github.com sichtbar.
 - Doku-Commit `03f9ff6`: Phase 21 mit Screenshots, fehlender Eintrag `8b5383b`, Zahlen.
 - Nach Freigabe durch Namir in `main` übernommen (Fast-Forward) und gepusht nach `origin/main`.
+- **`5266714`** – Rückmeldung: Emojis raus, mehr Animationen.
+  - Alle Emojis aus Überschriften, Liste und Tabelle entfernt (das ▶ bleibt, es ist
+    der Knopf in der App).
+  - Statt Markdown-Überschriften haben die Schaufenster-Abschnitte jetzt animierte
+    Titel (`title-*.svg`): Nummer, Titel, der von der Mitte her aufgeht, wandernder
+    Glanz, Unterstrich mit laufendem Punkt.
+  - Neue Grafiken:
+    - `stack.svg` – Laufband mit der verwendeten Technik.
+    - `stats.svg` – Dashboard: Kennzahlen rollen wie ein Zählwerk auf ihren Wert,
+      Balken wachsen, Trendlinie zeichnet sich, ein Rahmen fährt über die Wochen,
+      Ring „Nach Fach“ baut sich Stück für Stück auf.
+    - `sync.svg` – Handy, Supabase und Laptop: online fliegen Änderungen hin und
+      her, offline sammelt das Handy sie in `pomo__dirty` und schickt sie danach.
+    - `designs.svg` – App-Fenster wechselt fliessend zwischen Coral und Original,
+      Schalter und App-Icon wechseln mit.
+    - `shortcuts.svg` – Leertaste, R, N, F werden nacheinander gedrückt, die
+      Mini-Anzeige zeigt die Wirkung.
+    - `lockscreen.svg` – iPhone-Sperrbildschirm: Dynamic Island geht auf und zu,
+      Live Activity zählt herunter.
+  - Geprüft wie oben über die GitHub-Markdown-API und im Browser. Dabei zwei Fehler
+    behoben: gleich benannte Keyframes im Zählwerk (falsche Ziffern) und schwarze
+    Tasten vor dem ersten Drücken.
+
+  | Nachher 2: Anfang | Statistik, Sync, Designs |
+  | --- | --- |
+  | ![Anfang](img/doku/readme/nachher2-readme-oben.jpg) | ![Statistik, Sync, Designs](img/doku/readme/nachher2-statistik-sync-designs.jpg) |
+  | **Tasten und Sperrbildschirm** | |
+  | ![Tasten und Sperrbildschirm](img/doku/readme/nachher2-tasten-sperrbildschirm.jpg) | |
 
   | Vorher | Nachher (Anfang) |
   | --- | --- |
@@ -968,7 +998,7 @@ aufräumen, vorzeigbar machen, ausbauen).
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 11. November 2026 |
-| Commits | 121 (davon 2 Merges) |
+| Commits | 123 (davon 2 Merges) |
 | Aktive Tage | 15 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6., 8., 9., 11. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
