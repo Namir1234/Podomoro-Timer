@@ -4,7 +4,7 @@ Stand: 11. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Ti
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (115 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (117 Commits,
 6. Oktober bis 11. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
@@ -875,10 +875,12 @@ aufräumen, vorzeigbar machen, ausbauen).
 | Zeit | Hash | Commit | Branch | Umfang |
 | --- | --- | --- | --- | --- |
 | 12:19 | `8d1f221` | Passwort und E-Mail im Konto aenderbar | claude/password-email-change-ccd51b | 11, +188 / −7 |
-| 12:25 | (dieser Commit) | Dokumentation nachgefuehrt: Passwort und E-Mail aendern | claude/password-email-change-ccd51b | Doku |
+| 12:25 | `2be2ccc` | Dokumentation nachgefuehrt: Passwort und E-Mail aendern | claude/password-email-change-ccd51b | Doku |
+| 13:17 | `cf7b53b` | Konto: E-Mail und Passwort aendern als dezente Zeilen mit Icon | claude/password-email-change-ccd51b | 9, +37 / −11 |
+| 13:20 | (dieser Commit) | Dokumentation nachgefuehrt: Konto-Zeilen | claude/password-email-change-ccd51b | Doku |
 
 - **`8d1f221`** – Wunsch: Man soll sein Passwort und seine E-Mail-Adresse ändern können.
-  - Im Konto-Fenster (angemeldet) gibt es zwei Links „E-Mail ändern“ und
+  - Im Konto-Fenster (angemeldet) gibt es zwei Zeilen „E-Mail ändern“ und
     „Passwort ändern“. Sie klappen je ein kleines Formular auf (immer nur eines).
   - **Passwort:** aktuelles Passwort, neues Passwort, Wiederholung. Stimmen die
     beiden neuen nicht überein oder ist das neue gleich dem alten, kommt eine
@@ -906,6 +908,14 @@ aufräumen, vorzeigbar machen, ausbauen).
   | ![Passwort ändern Handy](img/doku/konto-aendern/nachher-passwort-handy.png) | |
 
 - Doku-Commit: Funktionsliste, Chronik mit Screenshots und Zahlen nachgeführt.
+- **`cf7b53b`** – Rückmeldung: Die zwei Links sahen zu langweilig aus, es soll
+  aber dezent bleiben. Jetzt eine kleine Liste wie in App-Einstellungen: zwei
+  Zeilen in einem abgesetzten Kasten, links ein Icon (Brief, Schlüssel), rechts
+  ein Pfeil, der sich beim Aufklappen nach unten dreht. Beim Überfahren und
+  wenn offen färbt sich das Icon in der Akzentfarbe. Inline-SVG mit
+  `currentColor`, gleiche Masse in beiden Designs. Die Trennlinie über dem
+  Formular ist weggefallen. Screenshots oben neu erzeugt. `CACHE_NAME` auf
+  `fokus-cache-v47`.
 
 ---
 
@@ -914,7 +924,7 @@ aufräumen, vorzeigbar machen, ausbauen).
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 11. November 2026 |
-| Commits | 115 (davon 2 Merges) |
+| Commits | 117 (davon 2 Merges) |
 | Aktive Tage | 15 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6., 8., 9., 11. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
