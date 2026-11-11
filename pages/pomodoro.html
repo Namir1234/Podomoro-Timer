@@ -11,8 +11,8 @@
 <link rel="apple-touch-icon" href="../img/icons/apple-touch-icon.png">
 <link rel="stylesheet" href="../style/fonts/inter.css">
 <link rel="stylesheet" href="../style/fonts/coral.css">
-<link rel="stylesheet" href="../style/pomodoro-original.css?v=13" data-design="original">
-<link rel="stylesheet" href="../style/pomodoro.css?v=32" data-design="coral">
+<link rel="stylesheet" href="../style/pomodoro-original.css?v=14" data-design="original">
+<link rel="stylesheet" href="../style/pomodoro.css?v=33" data-design="coral">
 <link rel="stylesheet" href="../style/lang-menu.css?v=3">
 <link rel="stylesheet" href="../style/uhren.css?v=1">
 <script src="../js/design-boot.js?v=3"></script>
@@ -366,6 +366,21 @@
     <div class="account-info" id="accountInfo" hidden>
       <p><span data-i18n="acc.signedInAs">Angemeldet als</span> <strong id="accountUser"></strong></p>
       <p class="hint" data-i18n="acc.info">Deine Daten werden automatisch gespeichert. Nach dem Abmelden bleiben sie auf diesem Gerät, werden aber nicht mehr abgeglichen.</p>
+      <div class="account-actions">
+        <button class="link-btn" type="button" id="accountEmailToggle" aria-expanded="false" aria-controls="accountEmailForm" data-i18n="acc.changeEmail">E-Mail ändern</button>
+        <button class="link-btn" type="button" id="accountPwToggle" aria-expanded="false" aria-controls="accountPwForm" data-i18n="acc.changePw">Passwort ändern</button>
+      </div>
+      <form class="account-form account-change" id="accountEmailForm" hidden>
+        <label><span data-i18n="acc.newEmail">Neue E-Mail</span> <input type="email" id="accountNewEmail" autocomplete="email" required></label>
+        <label><span data-i18n="acc.currentPw">Aktuelles Passwort</span> <input type="password" id="accountEmailPw" autocomplete="current-password" required></label>
+        <button class="btn" type="submit" data-i18n="acc.saveEmail">E-Mail ändern</button>
+      </form>
+      <form class="account-form account-change" id="accountPwForm" hidden>
+        <label><span data-i18n="acc.currentPw">Aktuelles Passwort</span> <input type="password" id="accountOldPw" autocomplete="current-password" required></label>
+        <label><span data-i18n="acc.newPw">Neues Passwort</span> <input type="password" id="accountNewPw" autocomplete="new-password" minlength="6" required></label>
+        <label><span data-i18n="acc.repeatPw">Neues Passwort wiederholen</span> <input type="password" id="accountNewPw2" autocomplete="new-password" minlength="6" required></label>
+        <button class="btn" type="submit" data-i18n="acc.savePw">Passwort ändern</button>
+      </form>
       <p class="account-msg" id="accountInfoMsg" role="status"></p>
       <div class="controls">
         <button class="btn secondary" type="button" id="accountClose" data-i18n="acc.close">Schliessen</button>
@@ -375,10 +390,10 @@
   </div>
 </div>
 
-<script src="../js/i18n.js?v=14"></script>
+<script src="../js/i18n.js?v=15"></script>
 <script src="../js/vendor/supabase.js"></script>
 <script src="../js/cloud-config.js"></script>
-<script src="../js/cloud.js?v=2"></script>
+<script src="../js/cloud.js?v=3"></script>
 <script src="../js/pomodoro.js?v=44"></script>
 <script>
   // Mobile Schublade: Hamburger-Menü öffnen/schliessen

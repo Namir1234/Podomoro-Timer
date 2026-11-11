@@ -1073,6 +1073,10 @@ body.zen .subject-row { width: min(100%, 420px); }
 .account-cancel, .account-resend { display: block; margin: var(--space-sm) auto 0; }
 .account-info p { line-height: 1.5; overflow-wrap: anywhere; }
 .account-info .account-msg { margin-top: var(--space-sm); }
+.account-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-xs) var(--space-md); }
+.account-actions .link-btn[aria-expanded="true"] { color: var(--text); }
+.account-change { margin-top: var(--space-md); padding-top: var(--space-md); border-top: 1px solid var(--border); }
+.account-change .btn { display: block; width: 100%; margin-top: var(--space-xs); }
 .modal button:disabled { opacity: .6; cursor: default; }
 
 /* ===== Verlauf-Zeitraum, CSV-Export, Zeit pro To-do, Tastenkuerzel ===== */

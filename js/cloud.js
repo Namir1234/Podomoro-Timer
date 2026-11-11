@@ -240,6 +240,31 @@ const cloud = (() => {
     if (error) throw error;
   }
 
+  // Vor einer Änderung am Konto das aktuelle Passwort prüfen, damit niemand
+  // an einem offenen Gerät einfach E-Mail oder Passwort umstellen kann.
+  async function verifyPassword(password) {
+    if (!user?.email) throw { code: "not_signed_in" };
+    const { error } = await client.auth.signInWithPassword({ email: user.email, password });
+    if (error) throw error.code === "invalid_credentials" ? { code: "wrong_password" } : error;
+  }
+
+  async function changePassword(current, next) {
+    if (current === next) throw { code: "same_password" };
+    await verifyPassword(current);
+    const { error } = await client.auth.updateUser({ password: next });
+    if (error) throw error;
+  }
+
+  // Supabase schickt einen Bestätigungslink an die neue Adresse (je nach
+  // Einstellung auch an die alte). Erst danach gilt die neue Adresse.
+  async function changeEmail(email, password) {
+    if (email.toLowerCase() === (user?.email || "").toLowerCase()) throw { code: "same_email" };
+    await verifyPassword(password);
+    const opts = /^https?:$/.test(location.protocol) ? { emailRedirectTo: location.href.split("#")[0] } : {};
+    const { error } = await client.auth.updateUser({ email }, opts);
+    if (error) throw error;
+  }
+
   // Lokale Daten bleiben auf dem Gerät, sie werden nur nicht mehr abgeglichen.
   async function signOut() {
     await flush();
@@ -263,6 +288,13 @@ const cloud = (() => {
       over_email_send_rate_limit: "acc.err.emailRate",
       over_request_rate_limit: "acc.err.rate",
       signup_disabled: "acc.err.signupOff",
+      wrong_password: "acc.err.wrongPw",
+      same_password: "acc.err.samePw",
+      pw_mismatch: "acc.err.pwMismatch",
+      same_email: "acc.err.sameEmail",
+      not_signed_in: "acc.err.notSignedIn",
+      reauthentication_needed: "acc.err.reauth",
+      session_not_found: "acc.err.notSignedIn",
       "42P01": "acc.err.table",
       PGRST205: "acc.err.table"
     };
@@ -285,6 +317,18 @@ const cloud = (() => {
     el("accountForm").hidden = !!email;
     el("accountInfo").hidden = !email;
     el("accountUser").textContent = email;
+    if (!email) showChange(null);
+  }
+
+  // Nur eines der beiden Änderungs-Formulare ist offen; nochmals klicken schliesst es.
+  const changeForms = { email: ["accountEmailToggle", "accountEmailForm"], pw: ["accountPwToggle", "accountPwForm"] };
+  function showChange(which) {
+    for (const [key, [toggle, form]] of Object.entries(changeForms)) {
+      const on = key === which;
+      el(form).hidden = !on;
+      el(toggle).setAttribute("aria-expanded", String(on));
+      if (!on) el(form).reset();
+    }
   }
 
   function setMsg(text, ok) {
@@ -316,7 +360,7 @@ const cloud = (() => {
   function initUi() {
     const modal = el("accountModal");
     if (!modal) return;
-    const open = () => { setMsg(""); showResend(false); renderAccount(); modal.hidden = false; (user ? el("accountClose") : el("accountEmail")).focus(); };
+    const open = () => { setMsg(""); showResend(false); showChange(null); renderAccount(); modal.hidden = false; (user ? el("accountClose") : el("accountEmail")).focus(); };
     const close = () => { modal.hidden = true; };
     const creds = () => [el("accountEmail").value.trim(), el("accountPassword").value];
 
@@ -351,6 +395,35 @@ const cloud = (() => {
         showResend(true);
       });
     };
+    for (const [key, [toggle, form]] of Object.entries(changeForms)) {
+      el(toggle).onclick = () => {
+        setMsg("");
+        const opening = el(form).hidden;
+        showChange(opening ? key : null);
+        if (opening) el(form).querySelector("input").focus();
+      };
+    }
+    el("accountEmailForm").onsubmit = e => {
+      e.preventDefault();
+      const email = el("accountNewEmail").value.trim();
+      run(async () => {
+        setMsg(t("acc.saving"), true);
+        await changeEmail(email, el("accountEmailPw").value);
+        showChange(null);
+        setMsg(t("acc.emailSent", { email }), true);
+      });
+    };
+    el("accountPwForm").onsubmit = e => {
+      e.preventDefault();
+      const next = el("accountNewPw").value;
+      if (next !== el("accountNewPw2").value) { setMsg(t("acc.err.pwMismatch")); el("accountNewPw2").focus(); return; }
+      run(async () => {
+        setMsg(t("acc.saving"), true);
+        await changePassword(el("accountOldPw").value, next);
+        showChange(null);
+        setMsg(t("acc.pwChanged"), true);
+      });
+    };
     el("accountSignOut").onclick = () => run(async () => {
       await signOut();
       setMsg(t("acc.signedOut"), true);
@@ -380,5 +453,5 @@ const cloud = (() => {
 
   const onRemote = (key, fn) => handlers.set(key, fn);
 
-  return { enabled, push, flush, onRemote, signIn, signUp, signOut, resendConfirmation, pullAll, get user() { return user; } };
+  return { enabled, push, flush, onRemote, signIn, signUp, signOut, resendConfirmation, changePassword, changeEmail, pullAll, get user() { return user; } };
 })();
