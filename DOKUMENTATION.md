@@ -4,7 +4,7 @@ Stand: 11. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Ti
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (113 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (115 Commits,
 6. Oktober bis 11. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
@@ -75,7 +75,7 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
   gleich gross und an derselben Stelle
 - Login und Cloud-Sync über Supabase – inklusive Feldgrössen und Design
   (nur die Menü-Einstellung bleibt pro Gerät); Bestätigungsmail lässt sich
-  erneut senden
+  erneut senden; E-Mail-Adresse und Passwort lassen sich im Konto ändern
 - Live-Sync zwischen Geräten (Supabase Realtime): Eine auf dem Laptop
   gestartete Session läuft auf dem Handy sofort mit und lässt sich dort
   pausieren, überspringen oder zurücksetzen; To-dos, Uhren und Statistik
@@ -828,7 +828,7 @@ aufräumen, vorzeigbar machen, ausbauen).
 | Zeit | Hash | Commit | Branch | Umfang |
 | --- | --- | --- | --- | --- |
 | 11:38 | `d4d0204` | Timer und Stoppuhr maximierbar, analoge Anzeige als Zifferblatt | feature/uhren-maximieren-analog | 15, +234 / −30 |
-| 11:45 | (dieser Commit) | Dokumentation nachgefuehrt: Uhren maximieren und analog | feature/uhren-maximieren-analog | Doku |
+| 11:45 | `05e71e3` | Dokumentation nachgefuehrt: Uhren maximieren und analog | feature/uhren-maximieren-analog | Doku |
 
 - **`d4d0204`** – Wunsch: Timer und Stoppuhr sollen sich wie der Pomodoro
   maximieren lassen, und die Zeit soll man auch analog anzeigen können.
@@ -870,6 +870,43 @@ aufräumen, vorzeigbar machen, ausbauen).
   nachgeführt. Nach dem Test durch Namir in `main` übernommen (Fast-Forward)
   und gepusht nach `origin/main`.
 
+### Phase 20 – Passwort und E-Mail ändern (11. November 2026)
+
+| Zeit | Hash | Commit | Branch | Umfang |
+| --- | --- | --- | --- | --- |
+| 12:19 | `8d1f221` | Passwort und E-Mail im Konto aenderbar | claude/password-email-change-ccd51b | 11, +188 / −7 |
+| 12:25 | (dieser Commit) | Dokumentation nachgefuehrt: Passwort und E-Mail aendern | claude/password-email-change-ccd51b | Doku |
+
+- **`8d1f221`** – Wunsch: Man soll sein Passwort und seine E-Mail-Adresse ändern können.
+  - Im Konto-Fenster (angemeldet) gibt es zwei Links „E-Mail ändern“ und
+    „Passwort ändern“. Sie klappen je ein kleines Formular auf (immer nur eines).
+  - **Passwort:** aktuelles Passwort, neues Passwort, Wiederholung. Stimmen die
+    beiden neuen nicht überein oder ist das neue gleich dem alten, kommt eine
+    Meldung, ohne den Server zu fragen.
+  - **E-Mail:** neue Adresse und aktuelles Passwort. Supabase schickt einen
+    Bestätigungslink an die neue Adresse (je nach Einstellung „Secure email
+    change“ auch an die alte); erst danach gilt sie. Bis dahin bleibt man mit
+    der alten angemeldet.
+  - Beide Änderungen prüfen zuerst das aktuelle Passwort
+    (`verifyPassword()` in `js/cloud.js`, per `signInWithPassword`), damit
+    niemand an einem offenen Gerät das Konto übernehmen kann. Danach
+    `client.auth.updateUser()`. Neue Fehlermeldungen (falsches Passwort,
+    gleiches Passwort, gleiche Adresse, Neu-Anmeldung nötig) in allen 5 Sprachen.
+  - CSS in beiden Design-Stylesheets gleich. `CACHE_NAME` auf `fokus-cache-v46`.
+  - Geprüft: `npm test` ok; im Browser Auf- und Zuklappen und die Meldung bei
+    ungleichen Passwörtern. Die eigentliche Änderung gegen Supabase ist noch
+    nicht mit einem echten Konto durchgespielt.
+
+  | Vorher (angemeldet) | Nachher: E-Mail ändern |
+  | --- | --- |
+  | ![Vorher](img/doku/konto-aendern/vorher-konto.png) | ![E-Mail ändern](img/doku/konto-aendern/nachher-email.png) |
+  | **Passwort ändern** | **Nach dem Absenden (Design Original)** |
+  | ![Passwort ändern](img/doku/konto-aendern/nachher-passwort.png) | ![Bestätigungsmail gesendet](img/doku/konto-aendern/nachher-email-gesendet.png) |
+  | **Passwort ändern auf dem Handy** | |
+  | ![Passwort ändern Handy](img/doku/konto-aendern/nachher-passwort-handy.png) | |
+
+- Doku-Commit: Funktionsliste, Chronik mit Screenshots und Zahlen nachgeführt.
+
 ---
 
 ## 4. Zahlen
@@ -877,7 +914,7 @@ aufräumen, vorzeigbar machen, ausbauen).
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 11. November 2026 |
-| Commits | 113 (davon 2 Merges) |
+| Commits | 115 (davon 2 Merges) |
 | Aktive Tage | 15 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6., 8., 9., 11. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
@@ -891,6 +928,9 @@ aufräumen, vorzeigbar machen, ausbauen).
   (am 8. November im SQL Editor geprüft, `pg_publication_tables`). Bei
   gleichzeitigen Aktionen gewinnt die letzte; die Geräteuhren müssen ungefähr
   stimmen. Mit zwei echten Geräten noch nicht durchgetestet.
+- Passwort/E-Mail ändern: mit einem echten Konto testen. In Supabase unter
+  Authentication → URL Configuration muss die Seiten-URL als Redirect erlaubt
+  sein, sonst führt der Bestätigungslink auf die Site URL.
 - iOS-App: Live Activity, Mitteilung am Ende und Icon-Wechsel bauen in der Cloud
   fehlerfrei, sind aber noch auf keinem echten iPhone gesehen worden. Beim
   ersten Aufspielen prüfen: Zeile auf Sperrbildschirm und Dynamic Island,
