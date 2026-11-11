@@ -4,7 +4,7 @@ Stand: 11. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Ti
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (123 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (124 Commits,
 6. Oktober bis 11. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
@@ -928,7 +928,8 @@ aufräumen, vorzeigbar machen, ausbauen).
 | 15:21 | `03f9ff6` | Dokumentation nachgefuehrt: README mit Animationen | claude/readme-animations-b6e314 | Doku |
 | 15:22 | `cff1c47` | Dokumentation nachgefuehrt: Push von README mit Animationen | claude/readme-animations-b6e314 | Doku |
 | 15:31 | `5266714` | README: Emojis entfernt, mehr Animationen | claude/readme-animations-2 | 17, +695 / −19 |
-| – | (dieser Commit) | Dokumentation nachgefuehrt: README ohne Emojis, mehr Animationen | claude/readme-animations-2 | Doku |
+| 15:31 | `55d089d` | Dokumentation nachgefuehrt: README ohne Emojis, mehr Animationen | claude/readme-animations-2 | Doku |
+| – | (dieser Commit) | Dokumentation nachgefuehrt: Push von README ohne Emojis | claude/readme-animations-2 | Doku |
 
 - **`9485c4e`** – Wunsch: Das README soll „richtig fancy“ werden, mit vielen Animationen.
   - GitHub erlaubt im README kein JavaScript und kein eigenes CSS. Animationen gehen
@@ -985,6 +986,9 @@ aufräumen, vorzeigbar machen, ausbauen).
   | **Tasten und Sperrbildschirm** | |
   | ![Tasten und Sperrbildschirm](img/doku/readme/nachher2-tasten-sperrbildschirm.jpg) | |
 
+- Doku-Commit `55d089d`: Abschnitt oben mit Screenshots, Zahlen.
+- Nach Freigabe durch Namir in `main` übernommen (Fast-Forward) und gepusht nach `origin/main`.
+
   | Vorher | Nachher (Anfang) |
   | --- | --- |
   | ![Vorher](img/doku/readme/vorher-readme.jpg) | ![Nachher oben](img/doku/readme/nachher-readme-oben.jpg) |
@@ -998,7 +1002,7 @@ aufräumen, vorzeigbar machen, ausbauen).
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 11. November 2026 |
-| Commits | 123 (davon 2 Merges) |
+| Commits | 124 (davon 2 Merges) |
 | Aktive Tage | 15 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6., 8., 9., 11. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
