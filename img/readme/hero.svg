@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" width="1200" height="420" role="img" aria-label="Fokus – Pomodoro-Timer">
+  <title>Fokus – Pomodoro-Timer</title>
+  <defs>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#eb8975" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#eb8975" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1f1a16"/>
+      <stop offset="1" stop-color="#14110e"/>
+    </linearGradient>
+    <linearGradient id="title" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ede9e4"/>
+      <stop offset="0.45" stop-color="#ede9e4"/>
+      <stop offset="0.5" stop-color="#f4b2a3"/>
+      <stop offset="0.55" stop-color="#ede9e4"/>
+      <stop offset="1" stop-color="#ede9e4"/>
+      <animate attributeName="x1" values="-1;1" dur="5s" repeatCount="indefinite"/>
+      <animate attributeName="x2" values="0;2" dur="5s" repeatCount="indefinite"/>
+    </linearGradient>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.2" fill="#ede9e4" fill-opacity="0.06"/>
+    </pattern>
+    <clipPath id="card"><rect width="1200" height="420" rx="24"/></clipPath>
+    <clipPath id="type"><rect class="typer" x="80" y="232" width="640" height="40"/></clipPath>
+  </defs>
+  <style>
+    .fade-up { opacity: 0; animation: fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .d1 { animation-delay: 0.15s; } .d2 { animation-delay: 0.35s; } .d3 { animation-delay: 0.6s; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+    .ring { transform-origin: 920px 215px; transform: rotate(-90deg); stroke-dasharray: 754; animation: drain 8s linear infinite, tint 24s steps(1) infinite; }
+    @keyframes drain { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 754; } }
+    @keyframes tint { 0% { stroke: #eb8975; } 33.333% { stroke: #86a861; } 66.666% { stroke: #e8c37a; } }
+    .hand { transform-origin: 920px 215px; animation: spin 8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .phase { opacity: 0; animation: phase 24s infinite; }
+    .p2 { animation-delay: 8s; } .p3 { animation-delay: 16s; }
+    @keyframes phase { 0% { opacity: 0; } 2% { opacity: 1; } 31% { opacity: 1; } 33.333% { opacity: 0; } 100% { opacity: 0; } }
+
+    .halo { transform-origin: 920px 215px; animation: breathe 4s ease-in-out infinite; }
+    @keyframes breathe { 0%,100% { transform: scale(0.92); opacity: 0.7; } 50% { transform: scale(1.08); opacity: 1; } }
+
+    .typer { transform: translateX(-640px); animation: type 10s steps(48) infinite; }
+    @keyframes type { 0% { transform: translateX(-640px); } 40% { transform: translateX(0); } 85% { transform: translateX(0); } 95%,100% { transform: translateX(-640px); } }
+    .caret { animation: caret 10s steps(48) infinite, blink 0.8s steps(1) infinite; }
+    @keyframes caret { 0% { transform: translateX(0); } 40% { transform: translateX(570px); } 85% { transform: translateX(622px); } 95%,100% { transform: translateX(0); } }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .spark { animation: rise linear infinite; opacity: 0; }
+    @keyframes rise { 0% { transform: translateY(0); opacity: 0; } 15% { opacity: 0.9; } 100% { transform: translateY(-260px); opacity: 0; } }
+
+    .pill-dot { animation: pulse 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+    @keyframes pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.6); opacity: 0.4; } }
+
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } .fade-up, .phase.p1 { opacity: 1; } .typer { transform: none; } }
+  </style>
+
+  <g clip-path="url(#card)">
+    <rect width="1200" height="420" fill="url(#bg)"/>
+    <rect width="1200" height="420" fill="url(#dots)"/>
+    <circle class="halo" cx="920" cy="215" r="260" fill="url(#glow)"/>
+
+    <!-- aufsteigende Funken -->
+    <g fill="#eb8975">
+      <circle class="spark" cx="760" cy="420" r="3" style="animation-duration:7s;animation-delay:0s"/>
+      <circle class="spark" cx="830" cy="430" r="2" style="animation-duration:9s;animation-delay:1.5s"/>
+      <circle class="spark" cx="1010" cy="425" r="2.5" style="animation-duration:8s;animation-delay:3s"/>
+      <circle class="spark" cx="1080" cy="430" r="2" style="animation-duration:10s;animation-delay:0.8s"/>
+      <circle class="spark" cx="960" cy="440" r="3" style="animation-duration:11s;animation-delay:4.5s"/>
+      <circle class="spark" cx="880" cy="440" r="1.8" style="animation-duration:6.5s;animation-delay:2.2s"/>
+      <circle class="spark" cx="1140" cy="440" r="2.2" style="animation-duration:9.5s;animation-delay:5.5s"/>
+      <circle class="spark" cx="700" cy="440" r="1.6" style="animation-duration:12s;animation-delay:6s"/>
+    </g>
+  </g>
+
+  <!-- Text links -->
+  <g font-family="'Segoe UI', -apple-system, 'Helvetica Neue', Arial, sans-serif">
+    <g class="fade-up d1">
+      <text x="80" y="104" fill="#eb8975" font-size="18" font-weight="600" letter-spacing="4">POMODORO · STATISTIK · TO-DOS</text>
+    </g>
+    <g class="fade-up d2">
+      <text x="74" y="208" fill="url(#title)" font-size="124" font-weight="700" letter-spacing="-4">Fokus</text>
+    </g>
+  </g>
+
+  <g class="fade-up d3" font-family="Consolas, 'SF Mono', Menlo, monospace" font-size="22">
+    <g clip-path="url(#type)">
+      <text x="80" y="260" fill="#a9a29b" textLength="564" lengthAdjust="spacingAndGlyphs">&gt; eine Sache nach der anderen. Pause inklusive.</text>
+    </g>
+    <rect class="caret" x="80" y="242" width="11" height="24" fill="#eb8975"/>
+  </g>
+
+  <g class="fade-up d3" font-family="'Segoe UI', -apple-system, 'Helvetica Neue', Arial, sans-serif" font-size="16" font-weight="600">
+    <rect x="80" y="304" width="132" height="38" rx="19" fill="#eb8975" fill-opacity="0.12" stroke="#eb8975" stroke-opacity="0.45"/>
+    <circle class="pill-dot" cx="102" cy="323" r="5" fill="#eb8975"/>
+    <text x="116" y="329" fill="#ede9e4">Web / PWA</text>
+    <rect x="226" y="304" width="118" height="38" rx="19" fill="#ede9e4" fill-opacity="0.05" stroke="#ede9e4" stroke-opacity="0.18"/>
+    <text x="250" y="329" fill="#ede9e4">Windows</text>
+    <rect x="358" y="304" width="78" height="38" rx="19" fill="#ede9e4" fill-opacity="0.05" stroke="#ede9e4" stroke-opacity="0.18"/>
+    <text x="381" y="329" fill="#ede9e4">iOS</text>
+  </g>
+
+  <!-- Stoppuhr rechts -->
+  <g fill="none" stroke-linecap="round">
+    <line x1="920" y1="40" x2="920" y2="70" stroke="#eb8975" stroke-width="10"/>
+    <line x1="900" y1="40" x2="940" y2="40" stroke="#eb8975" stroke-width="10"/>
+    <line x1="1020" y1="92" x2="1036" y2="76" stroke="#eb8975" stroke-width="8"/>
+    <circle cx="920" cy="215" r="120" stroke="#2e2722" stroke-width="16"/>
+    <circle class="ring" cx="920" cy="215" r="120" stroke="#eb8975" stroke-width="16"/>
+    <g stroke="#ede9e4" stroke-opacity="0.25" stroke-width="3">
+      <line x1="920" y1="113" x2="920" y2="123"/><line x1="1022" y1="215" x2="1012" y2="215"/>
+      <line x1="920" y1="317" x2="920" y2="307"/><line x1="818" y1="215" x2="828" y2="215"/>
+    </g>
+    <g class="hand"><line x1="920" y1="215" x2="920" y2="135" stroke="#ede9e4" stroke-opacity="0.18" stroke-width="4"/></g>
+  </g>
+  <g font-family="'Segoe UI', -apple-system, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle">
+    <g class="phase p1"><text x="920" y="226" fill="#ede9e4" font-size="44" font-weight="700">25:00</text><text x="920" y="258" fill="#eb8975" font-size="15" font-weight="600" letter-spacing="3">FOKUS</text></g>
+    <g class="phase p2"><text x="920" y="226" fill="#ede9e4" font-size="44" font-weight="700">05:00</text><text x="920" y="258" fill="#86a861" font-size="15" font-weight="600" letter-spacing="3">KURZE PAUSE</text></g>
+    <g class="phase p3"><text x="920" y="226" fill="#ede9e4" font-size="44" font-weight="700">15:00</text><text x="920" y="258" fill="#e8c37a" font-size="15" font-weight="600" letter-spacing="3">LANGE PAUSE</text></g>
+  </g>
+</svg>

@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 190" width="1200" height="190" role="img" aria-label="Pomodoro-Zyklus: viermal Fokus mit kurzen Pausen, dann eine lange Pause">
+  <title>Pomodoro-Zyklus</title>
+  <!-- Breiten proportional: Fokus 25, kurze Pause 5, lange Pause 15 (Summe 130 -> 1040px, 8px pro Minute) -->
+  <defs>
+    <clipPath id="sweep"><rect x="80" y="40" width="0" height="80">
+      <animate attributeName="width" values="0;1040;1040;0" keyTimes="0;0.85;0.95;1" dur="13s" repeatCount="indefinite"/>
+    </rect></clipPath>
+    <g id="segs">
+      <rect x="80"  y="64" width="196" height="32" rx="8"/>
+      <rect x="284" y="64" width="32"  height="32" rx="8"/>
+      <rect x="324" y="64" width="196" height="32" rx="8"/>
+      <rect x="528" y="64" width="32"  height="32" rx="8"/>
+      <rect x="568" y="64" width="196" height="32" rx="8"/>
+      <rect x="772" y="64" width="32"  height="32" rx="8"/>
+      <rect x="812" y="64" width="196" height="32" rx="8"/>
+      <rect x="1016" y="64" width="104" height="32" rx="8"/>
+    </g>
+  </defs>
+  <style>
+    text { font-family: 'Segoe UI', -apple-system, 'Helvetica Neue', Arial, sans-serif; }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+  </style>
+  <rect width="1200" height="190" rx="20" fill="#1c1814"/>
+
+  <g fill="#ede9e4" fill-opacity="0.07"><use href="#segs"/></g>
+  <g clip-path="url(#sweep)">
+    <rect x="80"  y="64" width="196" height="32" rx="8" fill="#eb8975"/>
+    <rect x="284" y="64" width="32"  height="32" rx="8" fill="#86a861"/>
+    <rect x="324" y="64" width="196" height="32" rx="8" fill="#eb8975"/>
+    <rect x="528" y="64" width="32"  height="32" rx="8" fill="#86a861"/>
+    <rect x="568" y="64" width="196" height="32" rx="8" fill="#eb8975"/>
+    <rect x="772" y="64" width="32"  height="32" rx="8" fill="#86a861"/>
+    <rect x="812" y="64" width="196" height="32" rx="8" fill="#eb8975"/>
+    <rect x="1016" y="64" width="104" height="32" rx="8" fill="#e8c37a"/>
+  </g>
+  <!-- Abspielkopf -->
+  <g>
+    <line x1="80" y1="52" x2="80" y2="108" stroke="#ede9e4" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="80" cy="50" r="6" fill="#ede9e4"/>
+    <animateTransform attributeName="transform" type="translate" values="0 0;1040 0;1040 0;0 0" keyTimes="0;0.85;0.95;1" dur="13s" repeatCount="indefinite"/>
+  </g>
+
+  <g font-size="15" font-weight="600" fill="#a9a29b">
+    <text x="80" y="128">FOKUS 25</text>
+    <text x="324" y="128">FOKUS 25</text>
+    <text x="568" y="128">FOKUS 25</text>
+    <text x="812" y="128">FOKUS 25</text>
+    <text x="1016" y="128" fill="#e8c37a">LANGE PAUSE 15</text>
+  </g>
+  <g font-size="15">
+    <circle cx="86" cy="160" r="6" fill="#eb8975"/><text x="100" y="165" fill="#ede9e4">Fokus</text>
+    <circle cx="174" cy="160" r="6" fill="#86a861"/><text x="188" y="165" fill="#ede9e4">kurze Pause</text>
+    <circle cx="306" cy="160" r="6" fill="#e8c37a"/><text x="320" y="165" fill="#ede9e4">lange Pause</text>
+    <text x="1120" y="165" fill="#a9a29b" text-anchor="end">Zeiten frei einstellbar – auch sekundengenau</text>
+  </g>
+  <text x="80" y="34" font-size="15" font-weight="600" fill="#eb8975" letter-spacing="3">EIN ZYKLUS</text>
+</svg>

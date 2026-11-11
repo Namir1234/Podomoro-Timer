@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 24" width="1200" height="24" aria-hidden="true">
+  <defs>
+    <linearGradient id="l" x1="0" x2="1">
+      <stop offset="0" stop-color="#eb8975" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#eb8975" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#eb8975" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="g"><stop offset="0" stop-color="#f4b2a3"/><stop offset="1" stop-color="#eb8975" stop-opacity="0"/></radialGradient>
+  </defs>
+  <style>
+    .dot { animation: run 4s cubic-bezier(0.65,0,0.35,1) infinite alternate; }
+    @keyframes run { from { transform: translateX(0); } to { transform: translateX(1000px); } }
+    @media (prefers-reduced-motion: reduce) { .dot { animation: none; transform: translateX(500px); } }
+  </style>
+  <rect x="0" y="11" width="1200" height="2" fill="url(#l)"/>
+  <g class="dot"><circle cx="100" cy="12" r="12" fill="url(#g)"/><circle cx="100" cy="12" r="3.5" fill="#ede9e4"/></g>
+</svg>

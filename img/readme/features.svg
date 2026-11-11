@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560" width="1200" height="560" role="img" aria-label="Funktionen von Fokus">
+  <title>Funktionen von Fokus</title>
+  <style>
+    text { font-family: 'Segoe UI', -apple-system, 'Helvetica Neue', Arial, sans-serif; }
+    .card { opacity: 0; animation: pop 0.8s cubic-bezier(0.16,1,0.3,1) forwards; }
+    @keyframes pop { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+    .c1 { animation-delay: 0.05s; } .c2 { animation-delay: 0.2s; } .c3 { animation-delay: 0.35s; }
+    .c4 { animation-delay: 0.5s; } .c5 { animation-delay: 0.65s; } .c6 { animation-delay: 0.8s; }
+    .bg { fill: #1c1814; stroke: #ede9e4; stroke-opacity: 0.08; }
+    .h { fill: #ede9e4; font-size: 24px; font-weight: 700; }
+    .t { fill: #a9a29b; font-size: 16px; }
+    .acc { stroke: #eb8975; }
+
+    /* 1 Ring */
+    .mini { transform: rotate(-90deg); transform-box: fill-box; transform-origin: center; stroke-dasharray: 176; animation: fill 4s ease-in-out infinite; }
+    @keyframes fill { 0% { stroke-dashoffset: 176; } 70%,100% { stroke-dashoffset: 0; } }
+    /* 2 Balken */
+    .bar { transform-box: fill-box; transform-origin: bottom; animation: grow 3.2s cubic-bezier(0.16,1,0.3,1) infinite; }
+    @keyframes grow { 0% { transform: scaleY(0.1); } 45%,80% { transform: scaleY(1); } 100% { transform: scaleY(0.1); } }
+    /* 3 Haken */
+    .check { stroke-dasharray: 40; animation: draw 3s ease-out infinite; }
+    @keyframes draw { 0%,15% { stroke-dashoffset: 40; } 45%,85% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 40; } }
+    .box { animation: boxfill 3s ease-out infinite; }
+    @keyframes boxfill { 0%,15% { fill-opacity: 0; } 45%,85% { fill-opacity: 0.18; } 100% { fill-opacity: 0; } }
+    /* 4 Flamme */
+    .flame { transform-box: fill-box; transform-origin: bottom center; animation: flicker 1.4s ease-in-out infinite alternate; }
+    .flame2 { animation-duration: 0.9s; }
+    @keyframes flicker { 0% { transform: scale(1, 1) skewX(0deg); } 50% { transform: scale(0.94, 1.08) skewX(3deg); } 100% { transform: scale(1.04, 0.95) skewX(-3deg); } }
+    /* 5 Sync */
+    .packet { animation: travel 2.4s ease-in-out infinite; }
+    @keyframes travel { 0% { transform: translateX(0); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateX(84px); opacity: 0; } }
+    .packet.back { animation-delay: 1.2s; animation-name: travelBack; }
+    @keyframes travelBack { 0% { transform: translateX(0); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateX(-84px); opacity: 0; } }
+    /* 6 Sprachen */
+    .lang { opacity: 0; animation: lang 7.5s infinite; }
+    .l2 { animation-delay: 1.5s; } .l3 { animation-delay: 3s; } .l4 { animation-delay: 4.5s; } .l5 { animation-delay: 6s; }
+    @keyframes lang { 0% { opacity: 0; transform: translateY(10px); } 4% { opacity: 1; transform: none; } 18% { opacity: 1; transform: none; } 22%,100% { opacity: 0; transform: translateY(-10px); } }
+
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } .card, .lang.l1 { opacity: 1; } }
+  </style>
+
+  <!-- Reihe 1 -->
+  <g><g class="card c1">
+    <rect class="bg" x="0" y="0" width="384" height="264" rx="20"/>
+    <circle cx="68" cy="72" r="28" fill="none" stroke="#2e2722" stroke-width="7"/>
+    <circle class="mini acc" cx="68" cy="72" r="28" fill="none" stroke-width="7" stroke-linecap="round"/>
+    <text class="h" x="32" y="160">Pomodoro &amp; eigene Timer</text>
+    <text class="t" x="32" y="192">Fokus, kurze und lange Pause –</text>
+    <text class="t" x="32" y="216">dazu beliebig viele Timer und Stoppuhren.</text>
+  </g></g>
+  <g transform="translate(408 0)"><g class="card c2">
+    <rect class="bg" x="0" y="0" width="384" height="264" rx="20"/>
+    <g fill="#eb8975">
+      <rect class="bar" x="40" y="66" width="14" height="36" rx="3" style="animation-delay:0s"/>
+      <rect class="bar" x="60" y="50" width="14" height="52" rx="3" style="animation-delay:0.1s;fill-opacity:0.8"/>
+      <rect class="bar" x="80" y="74" width="14" height="28" rx="3" style="animation-delay:0.2s;fill-opacity:0.6"/>
+      <rect class="bar" x="100" y="40" width="14" height="62" rx="3" style="animation-delay:0.3s"/>
+    </g>
+    <text class="h" x="32" y="160">Statistik</text>
+    <text class="t" x="32" y="192">Pro Tag, Woche und Fach. Verlauf ueber</text>
+    <text class="t" x="32" y="216">7 Tage, 12 Wochen, 12 Monate · CSV-Export.</text>
+  </g></g>
+  <g transform="translate(816 0)"><g class="card c3">
+    <rect class="bg" x="0" y="0" width="384" height="264" rx="20"/>
+    <rect class="box" x="44" y="48" width="48" height="48" rx="10" fill="#eb8975" stroke="#eb8975" stroke-width="4"/>
+    <path class="check" d="M56 73 L66 83 L82 61" fill="none" stroke="#ede9e4" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text class="h" x="32" y="160">To-dos mit Fokuszeit</text>
+    <text class="t" x="32" y="192">▶ startet den Timer mit dem To-do als Fach</text>
+    <text class="t" x="32" y="216">und zeigt die investierte Zeit.</text>
+  </g></g>
+
+  <!-- Reihe 2 -->
+  <g transform="translate(0 288)"><g class="card c4">
+    <rect class="bg" x="0" y="0" width="384" height="264" rx="20"/>
+    <path class="flame" d="M68 104 C44 104 38 84 46 68 C50 60 56 56 56 44 C66 52 70 60 68 70 C74 66 78 60 78 54 C90 66 94 80 90 90 C86 100 78 104 68 104 Z" fill="#eb8975"/>
+    <path class="flame flame2" d="M68 104 C58 104 54 96 58 88 C61 82 66 80 66 72 C74 80 80 88 78 96 C76 101 72 104 68 104 Z" fill="#e8c37a"/>
+    <text class="h" x="32" y="160">Tagesziel &amp; Streak</text>
+    <text class="t" x="32" y="192">Ueberzeit zaehlt mit: „mehr gearbeitet“</text>
+    <text class="t" x="32" y="216">oder „Pause ueberzogen“.</text>
+  </g></g>
+  <g transform="translate(408 288)"><g class="card c5">
+    <rect class="bg" x="0" y="0" width="384" height="264" rx="20"/>
+    <rect x="36" y="52" width="30" height="48" rx="6" fill="none" stroke="#ede9e4" stroke-opacity="0.6" stroke-width="3"/>
+    <rect x="146" y="56" width="52" height="38" rx="5" fill="none" stroke="#ede9e4" stroke-opacity="0.6" stroke-width="3"/>
+    <line x1="140" y1="102" x2="204" y2="102" stroke="#ede9e4" stroke-opacity="0.6" stroke-width="3" stroke-linecap="round"/>
+    <line x1="72" y1="76" x2="140" y2="76" stroke="#ede9e4" stroke-opacity="0.12" stroke-width="2" stroke-dasharray="4 5"/>
+    <circle class="packet" cx="64" cy="70" r="5" fill="#eb8975"/>
+    <circle class="packet back" cx="148" cy="82" r="5" fill="#86a861"/>
+    <text class="h" x="32" y="160">Live-Sync</text>
+    <text class="t" x="32" y="192">Optionales Konto ueber Supabase –</text>
+    <text class="t" x="32" y="216">offline zuerst, abgleichen wenn online.</text>
+  </g></g>
+  <g transform="translate(816 288)"><g class="card c6">
+    <rect class="bg" x="0" y="0" width="384" height="264" rx="20"/>
+    <rect x="36" y="48" width="84" height="52" rx="12" fill="#eb8975" fill-opacity="0.12" stroke="#eb8975" stroke-opacity="0.5" stroke-width="2"/>
+    <g font-size="26" font-weight="700" fill="#eb8975" text-anchor="middle">
+      <text class="lang l1" x="78" y="84">DE</text>
+      <text class="lang l2" x="78" y="84">EN</text>
+      <text class="lang l3" x="78" y="84">FR</text>
+      <text class="lang l4" x="78" y="84">IT</text>
+      <text class="lang l5" x="78" y="84">HU</text>
+    </g>
+    <circle cx="146" cy="62" r="10" fill="#eb8975"/>
+    <circle cx="146" cy="88" r="10" fill="#86a861"/>
+    <text class="h" x="32" y="160">5 Sprachen · 2 Designs</text>
+    <text class="t" x="32" y="192">Deutsch, Englisch, Franzoesisch, Italienisch,</text>
+    <text class="t" x="32" y="216">Ungarisch – in Coral oder Original.</text>
+  </g></g>
+</svg>

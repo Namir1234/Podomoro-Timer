@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 380" width="1200" height="380" role="img" aria-label="Ein Code, drei Plattformen: Web, Windows und iOS">
+  <title>Ein Code, drei Plattformen</title>
+  <style>
+    text { font-family: 'Segoe UI', -apple-system, 'Helvetica Neue', Arial, sans-serif; }
+    .float { animation: float 5s ease-in-out infinite; }
+    .f2 { animation-delay: -1.6s; } .f3 { animation-delay: -3.2s; }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+    .shadow { transform-box: fill-box; transform-origin: center; animation: shadow 5s ease-in-out infinite; }
+    @keyframes shadow { 0%,100% { transform: scaleX(1); opacity: 0.5; } 50% { transform: scaleX(0.8); opacity: 0.25; } }
+    .s2 { animation-delay: -1.6s; } .s3 { animation-delay: -3.2s; }
+    .ring { stroke-dasharray: 101; transform-box: fill-box; transform-origin: center; transform: rotate(-90deg); animation: drain 6s linear infinite; }
+    @keyframes drain { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 101; } }
+    .bar { transform-box: fill-box; transform-origin: left; animation: shrink 6s linear infinite; }
+    @keyframes shrink { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+    .tray { animation: tray 3s ease-in-out infinite; }
+    @keyframes tray { 0%,100% { fill-opacity: 0.4; } 50% { fill-opacity: 1; } }
+    .line { stroke-dasharray: 6 8; animation: dash 1.2s linear infinite; }
+    @keyframes dash { to { stroke-dashoffset: -28; } }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+  </style>
+  <rect width="1200" height="380" rx="20" fill="#1c1814"/>
+  <text x="600" y="50" text-anchor="middle" font-size="15" font-weight="600" fill="#eb8975" letter-spacing="3">EIN CODE · DREI PLATTFORMEN</text>
+
+  <!-- Verbindungslinien -->
+  <g stroke="#eb8975" stroke-opacity="0.35" stroke-width="2" fill="none">
+    <path class="line" d="M352 190 H470"/>
+    <path class="line" d="M730 190 H858"/>
+  </g>
+
+  <!-- Web -->
+  <ellipse class="shadow" cx="220" cy="300" rx="110" ry="8" fill="#000"/>
+  <g class="float">
+    <rect x="90" y="110" width="260" height="170" rx="14" fill="#241f1a" stroke="#ede9e4" stroke-opacity="0.15" stroke-width="2"/>
+    <circle cx="112" cy="130" r="5" fill="#eb8975"/><circle cx="128" cy="130" r="5" fill="#e8c37a"/><circle cx="144" cy="130" r="5" fill="#86a861"/>
+    <rect x="164" y="122" width="168" height="16" rx="8" fill="#ede9e4" fill-opacity="0.08"/>
+    <circle cx="220" cy="208" r="16" fill="none" stroke="#2e2722" stroke-width="6"/>
+    <circle class="ring" cx="220" cy="208" r="16" fill="none" stroke="#eb8975" stroke-width="6"/>
+    <rect x="160" y="240" width="120" height="8" rx="4" fill="#ede9e4" fill-opacity="0.1"/>
+  </g>
+  <text x="220" y="336" text-anchor="middle" font-size="20" font-weight="700" fill="#ede9e4">Web / PWA</text>
+  <text x="220" y="360" text-anchor="middle" font-size="14" fill="#a9a29b">offline dank Service Worker</text>
+
+  <!-- Windows -->
+  <ellipse class="shadow s2" cx="600" cy="300" rx="120" ry="8" fill="#000"/>
+  <g class="float f2">
+    <rect x="480" y="100" width="240" height="160" rx="10" fill="#241f1a" stroke="#ede9e4" stroke-opacity="0.15" stroke-width="2"/>
+    <rect x="480" y="100" width="240" height="24" rx="10" fill="#ede9e4" fill-opacity="0.06"/>
+    <g stroke="#ede9e4" stroke-opacity="0.5" stroke-width="2"><line x1="676" y1="112" x2="684" y2="112"/><rect x="692" y="108" width="8" height="8" fill="none"/></g>
+    <text x="600" y="200" text-anchor="middle" font-size="34" font-weight="700" fill="#ede9e4">24:13</text>
+    <rect x="530" y="220" width="140" height="6" rx="3" fill="#2e2722"/>
+    <rect class="bar" x="530" y="220" width="140" height="6" rx="3" fill="#eb8975"/>
+    <rect x="460" y="270" width="280" height="18" rx="4" fill="#ede9e4" fill-opacity="0.06"/>
+    <circle class="tray" cx="722" cy="279" r="4" fill="#eb8975"/>
+  </g>
+  <text x="600" y="336" text-anchor="middle" font-size="20" font-weight="700" fill="#ede9e4">Windows</text>
+  <text x="600" y="360" text-anchor="middle" font-size="14" fill="#a9a29b">Electron · Installer + portable .exe</text>
+
+  <!-- iOS -->
+  <ellipse class="shadow s3" cx="980" cy="300" rx="70" ry="8" fill="#000"/>
+  <g class="float f3">
+    <rect x="918" y="82" width="124" height="206" rx="22" fill="#241f1a" stroke="#ede9e4" stroke-opacity="0.2" stroke-width="2"/>
+    <!-- Dynamic Island mit Ring -->
+    <rect x="950" y="94" width="60" height="18" rx="9" fill="#000"/>
+    <circle cx="1000" cy="103" r="5" fill="none" stroke="#2e2722" stroke-width="2.5"/>
+    <circle class="ring" cx="1000" cy="103" r="5" fill="none" stroke="#eb8975" stroke-width="2.5" style="stroke-dasharray:32;animation-name:drainS"/>
+    <text x="980" y="160" text-anchor="middle" font-size="30" font-weight="300" fill="#ede9e4">9:41</text>
+    <!-- Live Activity -->
+    <rect x="928" y="214" width="104" height="56" rx="12" fill="#ede9e4" fill-opacity="0.08"/>
+    <text x="938" y="234" font-size="10" font-weight="600" fill="#eb8975">FOKUS</text>
+    <text x="938" y="254" font-size="16" font-weight="700" fill="#ede9e4">18:42</text>
+    <rect x="938" y="260" width="84" height="4" rx="2" fill="#2e2722"/>
+    <rect class="bar" x="938" y="260" width="84" height="4" rx="2" fill="#eb8975"/>
+  </g>
+  <text x="980" y="336" text-anchor="middle" font-size="20" font-weight="700" fill="#ede9e4">iOS</text>
+  <text x="980" y="360" text-anchor="middle" font-size="14" fill="#a9a29b">Live Activity + Dynamic Island</text>
+  <style>@keyframes drainS { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 32; } }</style>
+</svg>
