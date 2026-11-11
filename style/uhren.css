@@ -1,0 +1,68 @@
+/* ===== Analoge Anzeige und maximierte Timer/Stoppuhren =====
+   Gilt für beide Designs (Farben kommen aus den Variablen des aktiven Designs),
+   darum ändern sich die Feldgrössen beim Wechseln des Designs nicht. */
+
+/* Zifferblatt: liegt über dem Ring, nur mit body.analog sichtbar */
+.analog-face { position: absolute; inset: 0; width: 100%; height: 100%; display: none; overflow: visible; }
+body.analog .ring-wrap:not(.an-off) .analog-face { display: block; }
+body.analog .ring-wrap:not(.an-off) .ring { visibility: hidden; }
+
+.analog-face .an-dial { fill: var(--inset); stroke: var(--border); stroke-width: 1.5; }
+.analog-face .an-wedge { fill: var(--accent); opacity: .32; }
+.analog-face .an-tick { stroke: var(--muted); stroke-width: 1.2; stroke-linecap: round; opacity: .55; }
+.analog-face .an-tick.major { stroke: var(--text); stroke-width: 2.4; opacity: .9; }
+.analog-face .an-num { fill: var(--muted); font-size: 13px; font-weight: 600; text-anchor: middle; dominant-baseline: central; font-variant-numeric: tabular-nums; }
+.analog-face .an-min { stroke: var(--text); stroke-width: 6; stroke-linecap: round; }
+.analog-face .an-sec { stroke: var(--accent); stroke-width: 2; stroke-linecap: round; }
+.analog-face .an-cap { fill: var(--accent); stroke: var(--card); stroke-width: 2; }
+/* Countdown (Pomodoro, Timer): Keil = Restminuten, kein Minutenzeiger. Stoppuhr: Minuten- und Sekundenzeiger, kein Keil */
+.analog-face.is-countdown .an-min, .analog-face:not(.is-countdown) .an-wedge { display: none; }
+
+/* Ziffern klein unter der Mitte, wie die Digitalanzeige einer Armbanduhr */
+body.analog .ring-wrap:not(.an-off) .time { justify-content: flex-end; padding-bottom: 30cqi; pointer-events: none; }
+body.analog .ring-wrap:not(.an-off) .time .digits,
+body.analog .ring-wrap:not(.an-off) .time .digits.long,
+body.analog .ring-wrap:not(.an-off) .time .digits.xlong {
+  font-size: 8cqi; letter-spacing: 0; padding: .5cqi 2.5cqi; border-radius: 2cqi;
+  background: color-mix(in srgb, var(--card) 85%, transparent);
+}
+body.analog .ring-wrap:not(.an-off) .time .label { display: none; }
+
+/* Knopf "Maximieren" oben rechts in jedem Timer und jeder Stoppuhr */
+.clock-zen {
+  position: absolute; top: 10px; right: 10px; z-index: 2;
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--text);
+  cursor: pointer; opacity: .6; transition: opacity .12s ease, border-color .12s ease;
+}
+.clock-zen:hover, .clock-zen:focus-visible { opacity: 1; border-color: var(--accent); }
+.clock-zen .icon { width: 16px; height: 16px; margin: 0; vertical-align: 0; }
+.clock-zen-name { display: none; }
+
+/* Maximiert: nur die gewählte Uhr, ohne Rahmen, mittig und gross (Grösse des Rings wie beim Pomodoro) */
+body.zen .zen-card .clock-add,
+body.zen .zen-card .clock-list > li:not(.zen-target),
+body.zen .zen-card .clock-name-row,
+body.zen .clock-zen { display: none !important; }
+body.zen .zen-card .clock-list { display: flex; justify-content: center; width: 100%; }
+body.zen .zen-card .clock-item.zen-target {
+  width: 100%; padding: 0; background: transparent; border: 0; box-shadow: none;
+  display: flex; flex-direction: column; align-items: center; gap: clamp(8px, 1.4vh, 16px);
+}
+body.zen .zen-card .clock-item.zen-target > * { margin: 0; }
+body.zen .zen-card .clock-zen-name { display: block; font-size: var(--text-lg, 1.2rem); font-weight: 600; color: var(--muted); text-align: center; }
+body.zen .zen-card .clock-laps { width: min(100%, 420px); max-height: 22vh; }
+
+/* Analog-Knopf in der maximierten Ansicht (neben dem X) */
+.zen-analog {
+  display: none;
+  position: fixed; top: 16px; right: 68px; z-index: 320;
+  width: 44px; height: 44px; align-items: center; justify-content: center;
+  border: 1px solid var(--border); background: var(--card); border-radius: 8px; cursor: pointer;
+  opacity: .35; transition: opacity .12s ease, border-color .12s ease;
+}
+.zen-analog .icon { width: 20px; height: 20px; margin: 0; vertical-align: 0; }
+.zen-analog:hover, .zen-analog:focus-visible { opacity: 1; border-color: var(--accent); }
+body.zen .zen-analog { display: flex; }
+body.analog .zen-analog { border-color: var(--accent); }
+@media (hover: none) { .zen-analog { opacity: .8; } }

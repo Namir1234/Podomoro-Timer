@@ -368,7 +368,6 @@ h2 .icon { width: 18px; height: 18px; margin-right: var(--space-xs); opacity: .8
 /* Umschalter oben auf der Timer-Seite: nur die gewählte Ansicht zeigen */
 #timer .free-canvas.tview:not(.active) { display: none !important; }
 #timer.active .tview:not(#timerCanvas) { overflow-y: auto; }
-body:not(.tab-pomodoro) #zenToggleBtn { display: none; }
 .page-topbar-info:has(.ttabs) { align-items: center; }
 .ttabs { display: flex; gap: var(--space-3xs); background: var(--inset); box-shadow: var(--press-groove); padding: var(--space-3xs); border-radius: var(--radius-groove); }
 .ttabs button {
@@ -980,14 +979,14 @@ body.zen.page-timer #timer.active {
 }
 
 /* Alle Felder ausser dem Timer verschwinden */
-body.zen .free-canvas > .card:not([data-card-id="timer-clock"]) { display: none !important; }
+body.zen .free-canvas > .card:not(.zen-card) { display: none !important; }
 
 /* Timer-Feld füllt den Bildschirm – überschreibt die Inline-Styles des freien Layouts */
 body.zen #timer.active .free-canvas,
 body.zen .free-canvas.free-ready {
   height: 100% !important; min-height: 0 !important;
 }
-body.zen .free-canvas > .card[data-card-id="timer-clock"] {
+body.zen .free-canvas > .card.zen-card {
   position: absolute !important;
   left: 0 !important; top: 0 !important;
   width: 100% !important; height: 100% !important;
@@ -1000,7 +999,7 @@ body.zen .free-canvas > .card[data-card-id="timer-clock"] {
   align-items: center; justify-content: center; gap: clamp(var(--space-xs), 1.4vh, var(--space-md));
   overflow: auto;
 }
-body.zen .free-canvas > .card[data-card-id="timer-clock"] > * { flex-shrink: 0; margin: 0; }
+body.zen .free-canvas > .card.zen-card > * { flex-shrink: 0; margin: 0; }
 
 /* Timer selbst deutlich groesser */
 body.zen .ring-wrap { width: min(58vmin, 540px); margin: 0 auto; }
@@ -1014,7 +1013,7 @@ body.zen .subject-row { width: min(100%, 420px); }
 /* Schmale Bildschirme: Hoehe nicht erzwingen, Inhalt darf scrollen */
 @media (max-width: 720px) {
   /* Inhalt oben ausrichten und im Feld scrollen – der Bildschirm selbst bleibt fix */
-  body.zen .free-canvas > .card[data-card-id="timer-clock"] {
+  body.zen .free-canvas > .card.zen-card {
     justify-content: flex-start;
     padding-top: 60px !important;
   }
@@ -1026,7 +1025,7 @@ body.zen .subject-row { width: min(100%, 420px); }
   }
 
   /* Nichts darf seitlich hinausragen – sonst verschiebt sich der ganze Inhalt */
-  body.zen .free-canvas > .card[data-card-id="timer-clock"] { overflow-x: clip; }
+  body.zen .free-canvas > .card.zen-card { overflow-x: clip; }
   body.zen .modes {
     max-width: 100%;
     flex-wrap: wrap;

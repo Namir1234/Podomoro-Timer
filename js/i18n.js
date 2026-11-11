@@ -171,7 +171,7 @@ const I18N = {
     "csv.head": "Art;Datum;Uhrzeit;Minuten;Überzeit (Min.);Fach",
     "todo.time": "Fokuszeit für dieses To-do",
     "todo.focus": "Mit diesem To-do fokussieren",
-    "keys.hint": "Tasten: Leertaste Start/Pause · R Reset · N Skip · F Nur Timer",
+    "keys.hint": "Tasten: Leertaste Start/Pause · R Reset · N Skip · F Nur Timer · A Analog",
 
     // Zitate
     "q.wrap": "«{t}»",
@@ -251,6 +251,10 @@ const I18N = {
     "zen.title": "Nur den Timer gross anzeigen (Esc zum Beenden)",
     "zen.exit": "Beenden (Esc)",
     "zen.exitAria": "Nur-Timer-Ansicht beenden",
+    "analog.label": "Analog",
+    "analog.title": "Zeit als Zifferblatt anzeigen (A)",
+    "analog.aria": "Analoge Anzeige ein/aus",
+    "clocks.max": "Maximieren (F)",
 
     // Konto
     "acc.title": "Konto",
@@ -451,7 +455,7 @@ const I18N = {
     "csv.head": "Type;Date;Time;Minutes;Overtime (min);Subject",
     "todo.time": "Focus time for this task",
     "todo.focus": "Focus on this task",
-    "keys.hint": "Keys: Space start/pause · R reset · N skip · F timer only",
+    "keys.hint": "Keys: Space start/pause · R reset · N skip · F timer only · A analog",
 
     "q.wrap": "“{t}”",
     "q.tabGeneral": "General",
@@ -527,6 +531,10 @@ const I18N = {
     "zen.title": "Show only the timer, full size (Esc to exit)",
     "zen.exit": "Exit (Esc)",
     "zen.exitAria": "Exit timer-only view",
+    "analog.label": "Analog",
+    "analog.title": "Show the time as a clock face (A)",
+    "analog.aria": "Analog display on/off",
+    "clocks.max": "Maximize (F)",
 
     "acc.title": "Account",
     "acc.intro": "With an account, your settings, to-dos and statistics are saved and synced between your devices.",
@@ -726,7 +734,7 @@ const I18N = {
     "csv.head": "Type;Date;Heure;Minutes;Dépassement (min);Matière",
     "todo.time": "Temps de concentration pour cette tâche",
     "todo.focus": "Se concentrer sur cette tâche",
-    "keys.hint": "Touches : Espace démarrer/pause · R réinitialiser · N passer · F minuteur seul",
+    "keys.hint": "Touches : Espace démarrer/pause · R réinitialiser · N passer · F minuteur seul · A analogique",
 
     "q.wrap": "« {t} »",
     "q.tabGeneral": "Général",
@@ -802,6 +810,10 @@ const I18N = {
     "zen.title": "Afficher seulement le minuteur en grand (Échap pour quitter)",
     "zen.exit": "Quitter (Échap)",
     "zen.exitAria": "Quitter la vue minuteur seul",
+    "analog.label": "Analogique",
+    "analog.title": "Afficher l’heure sur un cadran (A)",
+    "analog.aria": "Affichage analogique oui/non",
+    "clocks.max": "Agrandir (F)",
 
     "acc.title": "Compte",
     "acc.intro": "Avec un compte, tes réglages, tâches et statistiques sont enregistrés et synchronisés entre tes appareils.",
@@ -1001,7 +1013,7 @@ const I18N = {
     "csv.head": "Tipo;Data;Ora;Minuti;Tempo extra (min);Materia",
     "todo.time": "Tempo di concentrazione per questa attività",
     "todo.focus": "Concentrati su questa attività",
-    "keys.hint": "Tasti: Spazio avvia/pausa · R reset · N salta · F solo timer",
+    "keys.hint": "Tasti: Spazio avvia/pausa · R reset · N salta · F solo timer · A analogico",
 
     "q.wrap": "«{t}»",
     "q.tabGeneral": "Generali",
@@ -1077,6 +1089,10 @@ const I18N = {
     "zen.title": "Mostra solo il timer a grandezza piena (Esc per uscire)",
     "zen.exit": "Esci (Esc)",
     "zen.exitAria": "Esci dalla vista solo timer",
+    "analog.label": "Analogico",
+    "analog.title": "Mostra il tempo su un quadrante (A)",
+    "analog.aria": "Visualizzazione analogica sì/no",
+    "clocks.max": "Ingrandisci (F)",
 
     "acc.title": "Account",
     "acc.intro": "Con un account, impostazioni, attività e statistiche vengono salvati e sincronizzati tra i tuoi dispositivi.",
@@ -1276,7 +1292,7 @@ const I18N = {
     "csv.head": "Típus;Dátum;Időpont;Perc;Túlóra (perc);Tantárgy",
     "todo.time": "Fókuszidő ehhez a feladathoz",
     "todo.focus": "Fókuszálás erre a feladatra",
-    "keys.hint": "Billentyűk: Szóköz indítás/szünet · R visszaállítás · N átugrás · F csak időzítő",
+    "keys.hint": "Billentyűk: Szóköz indítás/szünet · R visszaállítás · N átugrás · F csak időzítő · A analóg",
 
     "q.wrap": "„{t}”",
     "q.tabGeneral": "Általános",
@@ -1352,6 +1368,10 @@ const I18N = {
     "zen.title": "Csak az időzítő nagyban (kilépés: Esc)",
     "zen.exit": "Kilépés (Esc)",
     "zen.exitAria": "Kilépés a csak időzítő nézetből",
+    "analog.label": "Analóg",
+    "analog.title": "Idő megjelenítése számlapon (A)",
+    "analog.aria": "Analóg kijelzés be/ki",
+    "clocks.max": "Teljes méret (F)",
 
     "acc.title": "Fiók",
     "acc.intro": "Fiókkal a beállításaid, teendőid és statisztikáid mentésre kerülnek, és szinkronizálódnak az eszközeid között.",

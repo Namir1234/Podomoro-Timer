@@ -1,4 +1,4 @@
-const CACHE_NAME = "fokus-cache-v44";
+const CACHE_NAME = "fokus-cache-v45";
 
 const ASSETS = [
   "./",
@@ -10,6 +10,7 @@ const ASSETS = [
   "./style/pomodoro.css",
   "./style/pomodoro-original.css",
   "./style/lang-menu.css",
+  "./style/uhren.css",
   "./js/i18n.js",
   "./js/design-boot.js",
   "./js/pomodoro.js",
@@ -30,6 +31,7 @@ const ASSETS = [
   "./img/icons/apple-touch-icon.png",
   "./img/icons/apple-touch-icon-coral.png",
   "./img/logo.svg",
+  "./img/analog.svg",
   "./img/back.svg",
   "./img/design.svg",
   "./img/edit.svg",

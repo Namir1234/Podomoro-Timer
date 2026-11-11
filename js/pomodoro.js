@@ -156,11 +156,74 @@ document.querySelectorAll("nav button").forEach(btn => {
 updatePageTimerState();
 
 /* ============================================================
+   ANALOGE ANZEIGE
+   Zifferblatt statt Ziffern für Pomodoro, Timer und Stoppuhr (pro Gerät, "fokus_analog").
+   Countdown: Keil = verbleibende Minuten (eine Runde = 60 min), Sekundenzeiger = Restsekunden.
+   Stoppuhr: Minuten- und Sekundenzeiger. Die Ziffern bleiben klein unter der Mitte stehen.
+   ============================================================ */
+const ANALOG_KEY = "fokus_analog";
+const AN_C = 130;                    // Mitte im viewBox 0 0 260 260 (wie der Ring)
+let analogOn = false;
+try { analogOn = localStorage.getItem(ANALOG_KEY) === "1"; } catch {}
+
+function analogFace() {
+  const pt = (r, deg) => [AN_C + r * Math.sin(deg * Math.PI / 180), AN_C - r * Math.cos(deg * Math.PI / 180)].map(n => n.toFixed(2));
+  let ticks = "", nums = "";
+  for (let i = 0; i < 60; i++) {
+    const major = i % 5 === 0;
+    const [x1, y1] = pt(108, i * 6), [x2, y2] = pt(major ? 96 : 101, i * 6);
+    ticks += `<line class="an-tick${major ? " major" : ""}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;
+    if (major) { const [x, y] = pt(82, i * 6); nums += `<text class="an-num" x="${x}" y="${y}">${i}</text>`; }
+  }
+  return `<svg class="analog-face" viewBox="0 0 260 260" aria-hidden="true">
+    <circle class="an-dial" cx="${AN_C}" cy="${AN_C}" r="114"/>
+    <path class="an-wedge" d=""/>
+    ${ticks}${nums}
+    <line class="an-min" x1="${AN_C}" y1="${AN_C + 10}" x2="${AN_C}" y2="${AN_C - 62}"/>
+    <line class="an-sec" x1="${AN_C}" y1="${AN_C + 18}" x2="${AN_C}" y2="${AN_C - 100}"/>
+    <circle class="an-cap" cx="${AN_C}" cy="${AN_C}" r="5"/>
+  </svg>`;
+}
+
+// Keil von 12 Uhr im Uhrzeigersinn bis zum Winkel deg (0–360)
+function analogWedge(deg) {
+  const r = 108;
+  if (deg <= 0) return "";
+  if (deg >= 359.99) return `M${AN_C} ${AN_C - r}A${r} ${r} 0 1 1 ${AN_C} ${AN_C + r}A${r} ${r} 0 1 1 ${AN_C} ${AN_C - r}Z`;
+  const a = deg * Math.PI / 180;
+  const x = AN_C + r * Math.sin(a), y = AN_C - r * Math.cos(a);
+  return `M${AN_C} ${AN_C}L${AN_C} ${AN_C - r}A${r} ${r} 0 ${deg > 180 ? 1 : 0} 1 ${x.toFixed(2)} ${y.toFixed(2)}Z`;
+}
+
+// sec: Restzeit (Countdown) bzw. gelaufene Zeit in Sekunden, mit Nachkommastellen für flüssige Zeiger
+function paintAnalog(face, sec, countdown) {
+  if (!face || !analogOn) return;
+  sec = Math.max(0, sec);
+  face.classList.toggle("is-countdown", countdown);
+  const rot = (cls, deg) => face.querySelector(cls).setAttribute("transform", `rotate(${deg.toFixed(2)} ${AN_C} ${AN_C})`);
+  rot(".an-sec", (sec % 60) * 6);
+  if (countdown) face.querySelector(".an-wedge").setAttribute("d", analogWedge(Math.min(sec, 3600) / 10));
+  else rot(".an-min", (sec / 60 % 60) * 6);
+}
+
+function setAnalog(on) {
+  analogOn = on;
+  try { localStorage.setItem(ANALOG_KEY, on ? "1" : "0"); } catch {}
+  document.body.classList.toggle("analog", on);
+  ["analogBtn", "zenAnalogBtn"].forEach(id => {
+    const b = $(id);
+    if (b) { b.classList.toggle("active", on && id === "analogBtn"); b.setAttribute("aria-pressed", String(on)); }
+  });
+  if (on) { drawRing(); paintClocks(); }
+}
+
+/* ============================================================
    TIMER
    ============================================================ */
 const MODE_TEXT = { focus: "mode.focusText", short: "mode.short", long: "mode.long" };
 const CIRC = 2 * Math.PI * 114;     // Umfang des Kreises
 $("ringFg").style.strokeDasharray = CIRC;
+$("ringFg").closest("svg").insertAdjacentHTML("afterend", analogFace());
 
 let mode = "focus";
 let totalSec = phaseSec("focus");
@@ -230,6 +293,10 @@ function drawRing() {
   const frac = totalSec && !over ? left / totalSec : 0;
   $("ringFg").style.strokeDashoffset = CIRC * (1 - frac);
   applyWarmth(frac);
+  // Überzeit zählt aufwärts wie eine Stoppuhr
+  const face = $("ringFg").closest(".ring-wrap").querySelector(".analog-face");
+  if (over) paintAnalog(face, (Date.now() - over.since) / 1000, false);
+  else paintAnalog(face, left, true);
 }
 
 function animateRing() {
@@ -1204,6 +1271,7 @@ const CLOCK_PRESETS = [10, 60, 300, 600];   // Schnellwahl in Sekunden
 let clocks = load("pomo_clocks", []);
 if (!Array.isArray(clocks)) clocks = [];
 let clockTick = null;
+let zenClockId = null;                 // maximierte Uhr (Nur-Timer-Ansicht)
 let clockEndTimer = null;
 const saveClocks = () => save("pomo_clocks", clocks);
 
@@ -1275,6 +1343,7 @@ function paintClocks() {
     // Ring wie beim Pomodoro: Timer = Restzeit, Stoppuhr = läuft einmal pro Minute voll
     const frac = c.type === "timer" ? (c.dur ? clockLeft(c) / (c.dur * 1000) : 0) : clockElapsed(c) % 60000 / 60000;
     li.querySelector(".ring .fg").style.strokeDashoffset = CIRC * (1 - frac);
+    paintAnalog(li.querySelector(".analog-face"), (c.type === "timer" ? clockLeft(c) : clockElapsed(c)) / 1000, c.type === "timer");
   });
 }
 
@@ -1295,6 +1364,8 @@ function renderClocks() {
   for (const type in CLOCK_LISTS) renderClockList(type);
   paintClocks();
   clockEnsureTick();
+  // Maximierte Uhr gelöscht (auch auf einem anderen Gerät): Vollansicht beenden
+  if (zenClockId && !document.querySelector(".clock-item.zen-target")) setZen(false);
 }
 
 function renderClockList(type) {
@@ -1310,13 +1381,16 @@ function renderClockList(type) {
       .filter(Boolean).join(`<span class="colon">:</span>`);
     const laps = c.laps || [];
     return `
-      <li class="clock-item ${timer ? "is-timer" : "is-watch"} ${c.start ? "running" : ""} ${clockDone(c) ? "done" : ""}" data-id="${c.id}">
+      <li class="clock-item ${timer ? "is-timer" : "is-watch"} ${c.start ? "running" : ""} ${clockDone(c) ? "done" : ""} ${c.id === zenClockId ? "zen-target" : ""}" data-id="${c.id}">
+        <button class="clock-zen" type="button" title="${esc(t("clocks.max"))}" aria-label="${esc(t("clocks.max"))}"><img class="icon" src="../img/expand.svg" alt=""></button>
+        <div class="clock-zen-name">${esc(c.name)}</div>
         ${timer ? `<div class="modes clock-presets">${CLOCK_PRESETS.map(sec => `<button type="button" data-sec="${sec}" class="${c.dur === sec ? "active" : ""}">${esc(sec < 60 ? t("dur.sec", { n: sec }) : t("dur.min", { n: sec / 60 }))}</button>`).join("")}</div>` : ""}
-        <div class="ring-wrap">
+        <div class="ring-wrap ${timer && idle ? "an-off" : ""}">
           <svg class="ring" viewBox="0 0 260 260" aria-hidden="true">
             <circle class="bg" cx="130" cy="130" r="114"/>
             <circle class="fg" cx="130" cy="130" r="114" style="stroke-dasharray:${CIRC}"/>
           </svg>
+          ${timer && idle ? "" : analogFace()}
           <div class="time">
             ${timer && idle
               ? `<div class="clock-set ${h ? "with-h" : ""}">${setFields}</div>`
@@ -1343,6 +1417,7 @@ function renderClockList(type) {
     const update = () => { saveClocks(); renderClocks(); };
     li.querySelector(".clock-name").onchange = e => { c.name = e.target.value.trim() || c.name; e.target.value = c.name; saveClocks(); };
     li.querySelector(".clock-del").onclick = () => { clocks = clocks.filter(x => x !== c); update(); };
+    li.querySelector(".clock-zen").onclick = () => setZen(true, c.id);
     li.querySelector(".clock-start").onclick = () => {
       if (c.start) { c.acc = clockElapsed(c); c.start = null; }
       else { if (clockDone(c)) c.acc = 0; c.start = Date.now(); if (c.type === "timer") askNotify(); }
@@ -3296,9 +3371,28 @@ cloud.onRemote("pomo_subject", v => { if (document.activeElement !== $("subject"
    Zeigt nur das Timer-Feld gross auf dem ganzen Bildschirm.
    Beenden mit dem X oben rechts oder mit Esc.
    ============================================================ */
-function setZen(on) {
+// clockId: diese Uhr maximieren. Ohne Angabe: den Pomodoro bzw. auf den Reitern Timer/Stoppuhr
+// die laufende (sonst die erste) Uhr dieses Reiters – gibt es noch keine, wird eine angelegt.
+function setZen(on, clockId) {
   if (on) setLayoutEdit(false);          // Felder-Bearbeitung passt nicht zur Vollbild-Ansicht
-  if (on) setTimerTab("timerCanvas");    // Vollbild zeigt immer den Pomodoro-Timer
+  document.querySelectorAll(".zen-card").forEach(c => c.classList.remove("zen-card"));
+  const hadClock = zenClockId;
+  zenClockId = null;
+  if (on) {
+    const tab = document.querySelector(".tview.active")?.id;
+    const type = clockId ? clocks.find(c => c.id === clockId)?.type : { clockTimerCanvas: "timer", clockWatchCanvas: "watch" }[tab];
+    if (type) {
+      if (!clockId) {
+        if (!clocks.some(c => c.type === type)) addClock(type);
+        const list = clocks.filter(c => c.type === type);
+        clockId = (list.find(c => c.start) || list[0]).id;
+      }
+      zenClockId = clockId;
+      setTimerTab(type === "timer" ? "clockTimerCanvas" : "clockWatchCanvas");
+      renderClocks();
+    } else setTimerTab("timerCanvas");
+    document.querySelector(".tview.active > .card")?.classList.add("zen-card");
+  } else if (hadClock) renderClocks();
   document.body.classList.toggle("zen", on);
 
   const btn = $("zenToggleBtn");
@@ -3314,12 +3408,15 @@ function setZen(on) {
 // Die Canvas-Hoehe wird im freien Layout per Inline-Style gesetzt – in der
 // Vollbild-Ansicht muss sie weg, damit das Timer-Feld den Platz ganz fuellt.
 function freeClearCanvasHeight() {
-  const box = $("timerCanvas");
+  const box = document.querySelector(".tview.active");
   if (box) box.style.removeProperty("height");
 }
 
 if ($("zenToggleBtn")) $("zenToggleBtn").onclick = () => setZen(!document.body.classList.contains("zen"));
 if ($("zenExitBtn")) $("zenExitBtn").onclick = () => setZen(false);
+$("analogBtn").onclick = () => setAnalog(!analogOn);
+$("zenAnalogBtn").onclick = () => setAnalog(!analogOn);
+setAnalog(analogOn);
 
 document.addEventListener("keydown", e => {
   if (e.key === "Escape" && document.body.classList.contains("zen")) setZen(false);
@@ -3334,16 +3431,26 @@ document.querySelectorAll("nav button").forEach(b => {
 
 /* ============================================================
    TASTENKÜRZEL (Pomodoro-Timer)
-   Leertaste Start/Pause · R Reset · N Skip · F Nur-Timer-Ansicht
+   Leertaste Start/Pause · R Reset · N Skip · F Nur-Timer-Ansicht · A analog/digital
+   (F und A auch bei Timer/Stoppuhr; maximierte Uhr: Leertaste Start/Pause, R Reset)
    Nicht beim Tippen, nicht bei offenen Dialogen oder im Layout-Modus.
    ============================================================ */
 document.addEventListener("keydown", e => {
   if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
   if (e.target.closest?.("input, textarea, select, button, a, [contenteditable]")) return;
-  if (!$("timer").classList.contains("active") || !document.body.classList.contains("tab-pomodoro")) return;
+  if (!$("timer").classList.contains("active")) return;
   if (document.body.classList.contains("layout-edit") || document.querySelector(".modal:not([hidden])")) return;
   const k = e.key.toLowerCase();
+  if (k === "a") { e.preventDefault(); setAnalog(!analogOn); return; }
+  if (k === "f") { e.preventDefault(); setZen(!document.body.classList.contains("zen")); return; }
+  const zenClock = document.querySelector(".clock-item.zen-target");
+  if (document.body.classList.contains("zen") && zenClock) {
+    const sel = { " ": ".clock-start", r: ".clock-reset" }[k];
+    const btn = sel && zenClock.querySelector(sel);
+    if (btn) { e.preventDefault(); btn.click(); }
+    return;
+  }
+  if (!document.body.classList.contains("tab-pomodoro")) return;
   const act = { " ": "startBtn", r: "resetBtn", n: "skipBtn" }[k];
   if (act) { e.preventDefault(); $(act).click(); }
-  else if (k === "f") { e.preventDefault(); setZen(!document.body.classList.contains("zen")); }
 });
