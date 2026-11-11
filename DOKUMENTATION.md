@@ -4,7 +4,7 @@ Stand: 11. November 2026 · Repository: https://github.com/Namir1234/Podomoro-Ti
 
 Diese Dokumentation fasst das ganze Projekt zusammen: was die App kann, wie sie
 aufgebaut ist und wie sie sich vom ersten Commit bis heute entwickelt hat.
-Die Chronik weiter unten ist aus der Git-Historie erstellt (111 Commits,
+Die Chronik weiter unten ist aus der Git-Historie erstellt (113 Commits,
 6. Oktober bis 11. November 2026) und wird bei jedem Commit und Push nachgeführt.
 
 ---
@@ -40,7 +40,13 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
 - Übersicht „Heute“: Fortschritt mit Tagesziel, Statistik, Zitat-Karte
 - Statistik „Pausen & Überzeit“: Pausenminuten (heute/Woche), überzogene Pause
   und mehr gearbeitete Zeit (Woche) sowie Gesamtwerte
-- Nur-Timer-Ansicht (Timer gross, alles andere ausgeblendet)
+- Nur-Timer-Ansicht (Timer gross, alles andere ausgeblendet) – für den
+  Pomodoro und für jeden eigenen Timer und jede Stoppuhr (Knopf ⤢ oben rechts
+  in der Uhr, oder „Nur Timer“ auf dem Reiter Timer/Stoppuhr)
+- Analoge Anzeige („Analog“ oben, Taste A): Zifferblatt statt Ziffern für
+  Pomodoro, Timer und Stoppuhr; bei Countdowns zeigt ein Keil die
+  Restminuten, bei der Stoppuhr Minuten- und Sekundenzeiger; die Zeit steht
+  klein darunter. Pro Gerät gespeichert
 - Umschalter oben auf der Timer-Seite: **Pomodoro**, **Timer**, **Stoppuhr** –
   beliebig viele eigene Timer und Stoppuhren (mit Runden), laufen auch nach
   dem Neuladen weiter
@@ -55,7 +61,8 @@ an und gleicht sie über **Supabase** zwischen Geräten ab.
 - Statistik-Verlauf wählbar: 7 Tage (Minuten), 12 Wochen oder 12 Monate
   (Stunden); Export aller Sessions und Pausen als CSV (Excel-tauglich)
 - Tastenkürzel auf der Pomodoro-Seite: Leertaste Start/Pause, R Reset,
-  N Skip, F Nur Timer
+  N Skip, F Nur Timer, A Analog (F und A auch bei Timer/Stoppuhr; in der
+  maximierten Uhr Leertaste Start/Pause und R Reset)
 - Startseite mit Screenshots (erzeugt mit `npm run screenshots`) und Link
   zum Quellcode
 - Zitate: grosser Pool, zufällige Auswahl, eigene Zitate mit Autor
@@ -776,7 +783,7 @@ aufräumen, vorzeigbar machen, ausbauen).
 | Zeit | Hash | Commit | Branch | Umfang |
 | --- | --- | --- | --- | --- |
 | 11:19 | `a7d00ea` | Felder in beiden Designs gleich gross: Original uebernimmt Abstaende und Schriftgroessen von Coral | claude/field-size-consistency-320fcf | 8, +308 / −188 |
-| 11:25 | (dieser Commit) | Dokumentation nachgefuehrt: Felder gleich gross | claude/field-size-consistency-320fcf | Doku |
+| 11:25 | `11906d4` | Dokumentation nachgefuehrt: Felder gleich gross | claude/field-size-consistency-320fcf | Doku |
 
 - **`a7d00ea`** – Rückmeldung mit zwei Screenshots: Wechselt man das Design,
   sind die Felder verschieden gross (z.B. „Heute“ und „Zeiten einstellen“
@@ -816,6 +823,53 @@ aufräumen, vorzeigbar machen, ausbauen).
   Screenshots, Zahlen und offene Punkte nachgeführt. Nach dem Test durch
   Namir in `main` übernommen (Fast-Forward) und gepusht nach `origin/main`.
 
+### Phase 19 – Timer und Stoppuhr maximieren, analoge Anzeige (11. November 2026)
+
+| Zeit | Hash | Commit | Branch | Umfang |
+| --- | --- | --- | --- | --- |
+| 11:38 | `d4d0204` | Timer und Stoppuhr maximierbar, analoge Anzeige als Zifferblatt | feature/uhren-maximieren-analog | 15, +234 / −30 |
+| 11:45 | (dieser Commit) | Dokumentation nachgefuehrt: Uhren maximieren und analog | feature/uhren-maximieren-analog | Doku |
+
+- **`d4d0204`** – Wunsch: Timer und Stoppuhr sollen sich wie der Pomodoro
+  maximieren lassen, und die Zeit soll man auch analog anzeigen können.
+  - **Maximieren**: Jede Uhr hat oben rechts einen Knopf ⤢. „Nur Timer“ und
+    Taste F gehen jetzt auf allen drei Reitern (vorher nur beim Pomodoro):
+    bei Timer/Stoppuhr wird die laufende, sonst die erste Uhr maximiert (gibt
+    es keine, wird eine angelegt). Maximiert stehen Name, Zeit, Knöpfe (und
+    Runden) gross in der Mitte; Leertaste Start/Pause, R Reset, Esc/X beendet.
+    Technisch: `setZen(on, clockId)` markiert das Feld mit `.zen-card`; die
+    Vollbild-Regeln in beiden Design-Stylesheets gelten jetzt für `.zen-card`
+    statt nur für das Pomodoro-Feld.
+  - **Analog**: Knopf „Analog“ oben (und neben dem X in der Vollansicht),
+    Taste A, gespeichert pro Gerät (`fokus_analog`). Zifferblatt als SVG
+    (`analogFace()` in `js/pomodoro.js`) mit 60 Strichen und Zahlen 0–55.
+    Pomodoro und Timer: Keil = verbleibende Minuten (eine Runde = 60 min),
+    Sekundenzeiger = Restsekunden, beide laufen gegen 0. Stoppuhr und
+    Pomodoro-Überzeit: Minuten- und Sekundenzeiger. Die Ziffern bleiben klein
+    unter der Mitte. Ein Timer, der noch nicht gestartet ist, bleibt digital,
+    damit man die Zeit eintippen kann.
+  - Neues Stylesheet `style/uhren.css` für beide Designs (Farben aus den
+    Design-Variablen) – die Feldgrössen bleiben in Original und Coral gleich
+    (mit `tools/compare-designs.js` nachgemessen). Icon `img/analog.svg`.
+    Texte in allen 5 Sprachen. `CACHE_NAME` auf `fokus-cache-v45`.
+  - Geprüft in Electron, beide Designs, 1280 px und Handy (390 px): Maximieren
+    per Knopf und per „Nur Timer“, Umschalten analog/digital, Esc; keine
+    Fehler in der Konsole; `npm test` ok.
+
+  | Vorher (Stoppuhr, kein „Nur Timer“) | Nachher: Stoppuhr analog |
+  | --- | --- |
+  | ![Vorher](img/doku/uhren-analog/vorher-stoppuhr.png) | ![Nachher Stoppuhr analog](img/doku/uhren-analog/nachher-stoppuhr-analog.png) |
+  | **Stoppuhr maximiert** | **Pomodoro analog** |
+  | ![Stoppuhr maximiert](img/doku/uhren-analog/nachher-stoppuhr-maximiert.png) | ![Pomodoro analog](img/doku/uhren-analog/nachher-pomodoro-analog.png) |
+  | **Pomodoro maximiert, analog** | **Timer analog (Design Original)** |
+  | ![Pomodoro maximiert](img/doku/uhren-analog/nachher-pomodoro-maximiert.png) | ![Timer analog Original](img/doku/uhren-analog/nachher-timer-analog-original.png) |
+  | **Timer maximiert auf dem Handy** | |
+  | ![Timer maximiert Handy](img/doku/uhren-analog/nachher-timer-maximiert-handy.png) | |
+
+- Doku-Commit: Funktionsliste, Chronik mit Screenshots und Zahlen
+  nachgeführt. Nach dem Test durch Namir in `main` übernommen (Fast-Forward)
+  und gepusht nach `origin/main`.
+
 ---
 
 ## 4. Zahlen
@@ -823,7 +877,7 @@ aufräumen, vorzeigbar machen, ausbauen).
 | | |
 | --- | --- |
 | Zeitraum | 6. Oktober – 11. November 2026 |
-| Commits | 111 (davon 2 Merges) |
+| Commits | 113 (davon 2 Merges) |
 | Aktive Tage | 15 (6., 7., 8., 9., 21., 22. Okt., 1., 2., 3., 4., 5., 6., 8., 9., 11. Nov.) |
 | Meiste Commits an einem Tag | 7. Oktober (17) |
 | Grösster Commit | `26003a3` Windows- und iOS-App (+5713 Zeilen) |
