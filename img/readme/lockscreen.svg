@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 460" width="1200" height="460" role="img" aria-label="iPhone-Sperrbildschirm mit Live Activity und Dynamic Island">
+  <title>Live Activity auf dem iPhone</title>
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#3a2621"/><stop offset="1" stop-color="#14110e"/>
+    </linearGradient>
+    <clipPath id="screen"><rect x="132" y="40" width="216" height="380" rx="34"/></clipPath>
+  </defs>
+  <style>
+    text { font-family: 'Segoe UI', -apple-system, 'Helvetica Neue', Arial, sans-serif; }
+    .bar { transform-box: fill-box; transform-origin: left; animation: shrink 10s linear infinite; }
+    @keyframes shrink { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+    .iring { stroke-dasharray: 44; transform-box: fill-box; transform-origin: center; transform: rotate(-90deg); animation: d1 10s linear infinite; }
+    @keyframes d1 { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 44; } }
+    .bigring { stroke-dasharray: 101; transform-box: fill-box; transform-origin: center; transform: rotate(-90deg); animation: d2 10s linear infinite; }
+    @keyframes d2 { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 101; } }
+    .t { opacity: 0; animation: t 10s steps(1) infinite; }
+    @keyframes t { 0% { opacity: 1; } 20% { opacity: 0; } }
+    .t2 { animation-delay: 2s; } .t3 { animation-delay: 4s; } .t4 { animation-delay: 6s; } .t5 { animation-delay: 8s; }
+    .float { animation: float 6s ease-in-out infinite; }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    .item { opacity: 0; animation: item 0.7s cubic-bezier(0.16,1,0.3,1) forwards; }
+    @keyframes item { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
+    .btn { transform-box: fill-box; transform-origin: center; animation: tap 5s infinite; }
+    @keyframes tap { 0%,70%,80%,100% { transform: scale(1); } 75% { transform: scale(0.85); } }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } .item, .t1 { opacity: 1; } }
+  </style>
+  <rect width="1200" height="460" rx="20" fill="#1c1814"/>
+
+  <g class="float">
+    <rect x="124" y="32" width="232" height="396" rx="42" fill="#0b0908" stroke="#ede9e4" stroke-opacity="0.25" stroke-width="2"/>
+    <g clip-path="url(#screen)">
+      <rect x="132" y="40" width="216" height="380" fill="url(#wall)"/>
+      <!-- Dynamic Island, die auf- und zugeht -->
+      <rect x="196" y="52" width="88" height="26" rx="13" fill="#000">
+        <animate attributeName="x" values="196;150;150;196;196" keyTimes="0;0.08;0.4;0.48;1" dur="10s" repeatCount="indefinite" calcMode="spline" keySplines="0.16 1 0.3 1;0 0 1 1;0.16 1 0.3 1;0 0 1 1"/>
+        <animate attributeName="width" values="88;180;180;88;88" keyTimes="0;0.08;0.4;0.48;1" dur="10s" repeatCount="indefinite" calcMode="spline" keySplines="0.16 1 0.3 1;0 0 1 1;0.16 1 0.3 1;0 0 1 1"/>
+        <animate attributeName="height" values="26;54;54;26;26" keyTimes="0;0.08;0.4;0.48;1" dur="10s" repeatCount="indefinite" calcMode="spline" keySplines="0.16 1 0.3 1;0 0 1 1;0.16 1 0.3 1;0 0 1 1"/>
+        <animate attributeName="rx" values="13;27;27;13;13" keyTimes="0;0.08;0.4;0.48;1" dur="10s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Inhalt der grossen Island -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.06;0.1;0.38;0.42;1" dur="10s" repeatCount="indefinite"/>
+        <circle cx="178" cy="79" r="15" fill="none" stroke="#2e2722" stroke-width="4"/>
+        <circle class="bigring" cx="178" cy="79" r="15" fill="none" stroke="#eb8975" stroke-width="4" style="stroke-dasharray:95"/>
+        <text x="202" y="74" font-size="10" font-weight="600" fill="#eb8975">FOKUS</text>
+        <text x="202" y="90" font-size="16" font-weight="700" fill="#ede9e4">18:42</text>
+      </g>
+      <!-- kleine Island: Ring rechts -->
+      <g opacity="1">
+        <animate attributeName="opacity" values="1;0;0;1;1" keyTimes="0;0.03;0.46;0.5;1" dur="10s" repeatCount="indefinite"/>
+        <circle cx="272" cy="65" r="7" fill="none" stroke="#2e2722" stroke-width="2.5"/>
+        <circle class="iring" cx="272" cy="65" r="7" fill="none" stroke="#eb8975" stroke-width="2.5"/>
+      </g>
+
+      <text x="240" y="140" text-anchor="middle" font-size="13" fill="#ede9e4" fill-opacity="0.8">Mittwoch, 11. November</text>
+      <text x="240" y="196" text-anchor="middle" font-size="60" font-weight="600" fill="#ede9e4">9:41</text>
+
+      <!-- Live Activity -->
+      <rect x="144" y="300" width="192" height="100" rx="20" fill="#000" fill-opacity="0.55"/>
+      <text x="160" y="324" font-size="11" font-weight="700" fill="#eb8975" letter-spacing="1">FOKUS · MATHE</text>
+      <g font-size="28" font-weight="700" fill="#ede9e4">
+        <text class="t t1" x="160" y="358">18:42</text>
+        <text class="t t2" x="160" y="358">18:41</text>
+        <text class="t t3" x="160" y="358">18:40</text>
+        <text class="t t4" x="160" y="358">18:39</text>
+        <text class="t t5" x="160" y="358">18:38</text>
+      </g>
+      <g class="btn"><circle cx="282" cy="346" r="15" fill="#eb8975" fill-opacity="0.25"/><g fill="#eb8975"><rect x="276" y="339" width="4" height="14" rx="1"/><rect x="284" y="339" width="4" height="14" rx="1"/></g></g>
+      <circle cx="318" cy="346" r="15" fill="#ede9e4" fill-opacity="0.15"/><rect x="312" y="340" width="12" height="12" rx="2" fill="#ede9e4"/>
+      <rect x="160" y="376" width="160" height="6" rx="3" fill="#ede9e4" fill-opacity="0.15"/>
+      <rect class="bar" x="160" y="376" width="160" height="6" rx="3" fill="#eb8975"/>
+    </g>
+  </g>
+
+  <!-- Erklaerung rechts -->
+  <text x="460" y="96" font-size="15" font-weight="600" fill="#eb8975" letter-spacing="3">iOS · LIVE ACTIVITY</text>
+  <text x="460" y="146" font-size="36" font-weight="700" fill="#ede9e4">Der Timer auf dem Sperrbildschirm</text>
+  <g font-size="18" fill="#a9a29b">
+    <g class="item" style="animation-delay:0.2s"><circle cx="472" cy="204" r="5" fill="#eb8975"/><text x="490" y="210">Countdown und Balken zaehlt iOS selbst – die App muss nicht offen sein</text></g>
+    <g class="item" style="animation-delay:0.4s"><circle cx="472" cy="248" r="5" fill="#eb8975"/><text x="490" y="254">Dynamic Island mit Ring, der sich leert</text></g>
+    <g class="item" style="animation-delay:0.6s"><circle cx="472" cy="292" r="5" fill="#eb8975"/><text x="490" y="298">Pause / Weiter und Stopp direkt auf dem Sperrbildschirm (ab iOS 17)</text></g>
+    <g class="item" style="animation-delay:0.8s"><circle cx="472" cy="336" r="5" fill="#eb8975"/><text x="490" y="342">Am Ende eine Mitteilung mit Ton · Musik laeuft weiter</text></g>
+  </g>
+</svg>

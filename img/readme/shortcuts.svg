@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" width="1200" height="300" role="img" aria-label="Tastenkuerzel: Leertaste Start/Pause, R Reset, N Skip, F Nur Timer">
+  <title>Tastenkuerzel</title>
+  <!-- 8 s, jede Taste 2 s -->
+  <style>
+    text { font-family: 'Segoe UI', -apple-system, 'Helvetica Neue', Arial, sans-serif; }
+    .key { animation: press 8s infinite; }
+    .k2 { animation-delay: 2s; } .k3 { animation-delay: 4s; } .k4 { animation-delay: 6s; }
+    @keyframes press { 0% { transform: translateY(0); } 3% { transform: translateY(6px); } 9% { transform: translateY(6px); } 13%,100% { transform: translateY(0); } }
+    .cap { animation: cap 8s infinite both; }
+    @keyframes cap { 0%,100% { fill: #2a241f; stroke: #ede9e4; stroke-opacity: 0.18; } 3%,20% { fill: #3a2621; stroke: #eb8975; stroke-opacity: 1; } 25% { fill: #2a241f; stroke: #ede9e4; stroke-opacity: 0.18; } }
+    .ring { transform-box: fill-box; transform-origin: center; animation: ring 8s infinite; opacity: 0; }
+    @keyframes ring { 0% { opacity: 0.8; transform: scale(1); } 12% { opacity: 0; transform: scale(1.25); } 100% { opacity: 0; } }
+    .lab { animation: lab 8s infinite both; }
+    @keyframes lab { 0%,100% { fill: #a9a29b; } 3%,22% { fill: #ede9e4; } 25% { fill: #a9a29b; } }
+    .scr { opacity: 0; animation: scr 8s infinite; }
+    @keyframes scr { 0% { opacity: 0; transform: translateY(8px); } 3%,22% { opacity: 1; transform: none; } 25%,100% { opacity: 0; transform: translateY(-8px); } }
+    .cursor { animation: blink 1s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } .scr.k1 { opacity: 1; } }
+  </style>
+  <rect width="1200" height="300" rx="20" fill="#1c1814"/>
+  <text x="60" y="56" font-size="15" font-weight="600" fill="#eb8975" letter-spacing="3">TASTENKUERZEL</text>
+
+  <!-- Tasten: Unterteil -->
+  <g fill="#120f0c">
+    <rect x="60" y="106" width="300" height="88" rx="14"/>
+    <rect x="380" y="106" width="88" height="88" rx="14"/>
+    <rect x="488" y="106" width="88" height="88" rx="14"/>
+    <rect x="596" y="106" width="88" height="88" rx="14"/>
+  </g>
+  <g class="key k1"><rect class="cap k1" x="60" y="100" width="300" height="84" rx="14" stroke-width="2"/><rect class="ring k1" x="60" y="100" width="300" height="84" rx="14" fill="none" stroke="#eb8975" stroke-width="3"/><text x="210" y="150" text-anchor="middle" font-size="20" font-weight="600" fill="#ede9e4">Leertaste</text></g>
+  <g class="key k2"><rect class="cap k2" x="380" y="100" width="88" height="84" rx="14" stroke-width="2"/><rect class="ring k2" x="380" y="100" width="88" height="84" rx="14" fill="none" stroke="#eb8975" stroke-width="3"/><text x="424" y="152" text-anchor="middle" font-size="28" font-weight="700" fill="#ede9e4">R</text></g>
+  <g class="key k3"><rect class="cap k3" x="488" y="100" width="88" height="84" rx="14" stroke-width="2"/><rect class="ring k3" x="488" y="100" width="88" height="84" rx="14" fill="none" stroke="#eb8975" stroke-width="3"/><text x="532" y="152" text-anchor="middle" font-size="28" font-weight="700" fill="#ede9e4">N</text></g>
+  <g class="key k4"><rect class="cap k4" x="596" y="100" width="88" height="84" rx="14" stroke-width="2"/><rect class="ring k4" x="596" y="100" width="88" height="84" rx="14" fill="none" stroke="#eb8975" stroke-width="3"/><text x="640" y="152" text-anchor="middle" font-size="28" font-weight="700" fill="#ede9e4">F</text></g>
+
+  <g font-size="15" text-anchor="middle">
+    <text class="lab k1" x="210" y="232">Start / Pause</text>
+    <text class="lab k2" x="424" y="232">Reset</text>
+    <text class="lab k3" x="532" y="232">Skip</text>
+    <text class="lab k4" x="640" y="232">Nur Timer</text>
+  </g>
+
+  <!-- Mini-Anzeige -->
+  <rect x="760" y="84" width="380" height="140" rx="14" fill="#241f1a" stroke="#ede9e4" stroke-opacity="0.12"/>
+  <g font-size="40" font-weight="700" fill="#ede9e4" text-anchor="middle">
+    <g class="scr k1"><text x="950" y="160">24:59</text><text x="950" y="196" font-size="14" font-weight="600" fill="#86a861" letter-spacing="2">LAEUFT</text></g>
+    <g class="scr k2"><text x="950" y="160">25:00</text><text x="950" y="196" font-size="14" font-weight="600" fill="#a9a29b" letter-spacing="2">ZURUECKGESETZT</text></g>
+    <g class="scr k3"><text x="950" y="160">05:00</text><text x="950" y="196" font-size="14" font-weight="600" fill="#86a861" letter-spacing="2">KURZE PAUSE</text></g>
+    <g class="scr k4"><text x="950" y="164" font-size="56">05:00</text></g>
+  </g>
+  <style>.scr.k1, .cap.k1, .ring.k1, .lab.k1 { animation-delay: 0s; } .scr.k2, .cap.k2, .ring.k2, .lab.k2 { animation-delay: 2s; } .scr.k3, .cap.k3, .ring.k3, .lab.k3 { animation-delay: 4s; } .scr.k4, .cap.k4, .ring.k4, .lab.k4 { animation-delay: 6s; }</style>
+</svg>

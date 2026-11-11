@@ -21,11 +21,13 @@
 Die Daten liegen auf dem Geraet (`localStorage`). Wer will, meldet sich an und gleicht sie<br>
 ueber Supabase zwischen Geraeten ab. Derselbe Code laeuft als **Webseite**, als **Windows-Programm** und als **iOS-App**.
 
-**[▶ Live ausprobieren](https://namir1234.github.io/Podomoro-Timer/)** · im Browser oeffnen oder ueber „Zum Home-Bildschirm“ / „App installieren“ als App einrichten
+**[Live ausprobieren](https://namir1234.github.io/Podomoro-Timer/)** · im Browser oeffnen oder ueber „Zum Home-Bildschirm“ / „App installieren“ als App einrichten
+
+<img src="img/readme/stack.svg" alt="Technik: HTML, CSS, JavaScript, Service Worker, Electron, Capacitor, Supabase, Swift, WidgetKit, GitHub Actions" width="100%">
 
 <img src="img/readme/divider.svg" width="100%" alt="">
 
-## ✨ Was die App kann
+<img src="img/readme/title-funktionen.svg" alt="Was die App kann" width="100%">
 
 <img src="img/readme/features.svg" alt="Funktionen: Pomodoro und eigene Timer, Statistik, To-dos mit Fokuszeit, Tagesziel und Streak, Live-Sync, 5 Sprachen und 2 Designs" width="100%">
 
@@ -35,14 +37,14 @@ ueber Supabase zwischen Geraeten ab. Derselbe Code laeuft als **Webseite**, als 
 <summary><b>Alle Funktionen als Liste</b></summary>
 <br>
 
-- ⏱️ Pomodoro mit Fokus, kurzer und langer Pause; dazu beliebig viele eigene Timer und Stoppuhren
-- 🔥 Tagesziel, Streak, Ueberzeit („mehr gearbeitet“ / „Pause ueberzogen“)
-- 📊 Statistik pro Tag, Woche und Fach, Verlauf ueber 7 Tage, 12 Wochen oder 12 Monate, Export als CSV
-- ✅ To-dos mit Faelligkeitsdatum; ▶ startet den Timer mit dem To-do als Fach und zeigt die investierte Zeit
-- 🧩 Felder frei verschieben und in der Groesse aendern, Nur-Timer-Ansicht
-- ⌨️ Tastenkuerzel: <kbd>Leertaste</kbd> Start/Pause, <kbd>R</kbd> Reset, <kbd>N</kbd> Skip, <kbd>F</kbd> Nur Timer
-- 🔄 Live-Sync zwischen Geraeten, Timer auf dem Sperrbildschirm (Handy)
-- 🌍 Deutsch, Englisch, Franzoesisch, Italienisch, Ungarisch; zwei Designs (Coral, Original)
+- Pomodoro mit Fokus, kurzer und langer Pause; dazu beliebig viele eigene Timer und Stoppuhren
+- Tagesziel, Streak, Ueberzeit („mehr gearbeitet“ / „Pause ueberzogen“)
+- Statistik pro Tag, Woche und Fach, Verlauf ueber 7 Tage, 12 Wochen oder 12 Monate, Export als CSV
+- To-dos mit Faelligkeitsdatum; ▶ startet den Timer mit dem To-do als Fach und zeigt die investierte Zeit
+- Felder frei verschieben und in der Groesse aendern, Nur-Timer-Ansicht
+- Tastenkuerzel: <kbd>Leertaste</kbd> Start/Pause, <kbd>R</kbd> Reset, <kbd>N</kbd> Skip, <kbd>F</kbd> Nur Timer
+- Live-Sync zwischen Geraeten, Timer auf dem Sperrbildschirm (Handy)
+- Deutsch, Englisch, Franzoesisch, Italienisch, Ungarisch; zwei Designs (Coral, Original)
 
 </details>
 
@@ -52,11 +54,35 @@ ueber Supabase zwischen Geraeten ab. Derselbe Code laeuft als **Webseite**, als 
 
 <img src="img/readme/divider.svg" width="100%" alt="">
 
-## 📸 So sieht es aus
+<img src="img/readme/title-statistik.svg" alt="Statistik, die motiviert" width="100%">
+
+<img src="img/readme/stats.svg" alt="Statistik: Minuten pro Woche, Sessions, Streak, Verlauf ueber 12 Wochen und Verteilung nach Fach" width="100%">
+
+<img src="img/readme/divider.svg" width="100%" alt="">
+
+<img src="img/readme/title-sync.svg" alt="Offline zuerst, synchron online" width="100%">
+
+<img src="img/readme/sync.svg" alt="Sync-Ablauf: Aenderungen gehen ueber Supabase an alle Geraete; offline merkt sich die App offene Aenderungen" width="100%">
+
+<img src="img/readme/divider.svg" width="100%" alt="">
+
+<img src="img/readme/title-designs.svg" alt="Zwei Designs, ein Klick" width="100%">
+
+<img src="img/readme/designs.svg" alt="Design-Wechsel zwischen Coral und Original" width="100%">
+
+<img src="img/readme/divider.svg" width="100%" alt="">
+
+<img src="img/readme/title-tasten.svg" alt="Alles per Tastatur" width="100%">
+
+<img src="img/readme/shortcuts.svg" alt="Tastenkuerzel: Leertaste Start/Pause, R Reset, N Skip, F Nur Timer" width="100%">
+
+<img src="img/readme/divider.svg" width="100%" alt="">
+
+<img src="img/readme/title-screens.svg" alt="So sieht es aus" width="100%">
 
 <img src="img/screens/stats.png" alt="Statistik mit Verlauf ueber 12 Wochen" width="100%">
 
-| ⏱️ Timer | ✅ To-dos | 📱 Handy |
+| Timer | To-dos | Handy |
 | :---: | :---: | :---: |
 | <img src="img/screens/timer.png" alt="Timer"> | <img src="img/screens/todo.png" alt="To-dos mit Fokuszeit"> | <img src="img/screens/mobile.png" alt="Timer auf dem Handy"> |
 
@@ -64,13 +90,15 @@ ueber Supabase zwischen Geraeten ab. Derselbe Code laeuft als **Webseite**, als 
 
 <img src="img/readme/divider.svg" width="100%" alt="">
 
-## 🚀 Ein Code, drei Plattformen
+<img src="img/readme/title-plattformen.svg" alt="Ein Code, drei Plattformen" width="100%">
 
 <img src="img/readme/platforms.svg" alt="Web/PWA, Windows (Electron) und iOS (Capacitor) mit Live Activity" width="100%">
 
+<img src="img/readme/lockscreen.svg" alt="iPhone-Sperrbildschirm mit Live Activity und Dynamic Island" width="100%">
+
 </div>
 
-## 🗂️ Aufbau
+## Aufbau
 
 | Ordner | Inhalt |
 | --- | --- |
@@ -89,7 +117,7 @@ setzt eine Content-Security-Policy. Beide App-Varianten laden aus `dist/`.
 > Die animierten Grafiken in diesem README liegen in `img/readme/` – reine SVGs mit CSS-Animationen,
 > die auch `prefers-reduced-motion` respektieren.
 
-## 🌐 Web
+## Web
 
 Die Dateien im Projektordner sind direkt die Webseite – `pages/index.html`
 oeffnen oder den Ordner auf einen Webserver legen. `sw.js` macht sie
@@ -100,7 +128,7 @@ offlinefaehig.
 > sonst bekommen Nutzer die alte Fassung.
 
 
-## ☁️ Login und Cloud-Sync
+## Login und Cloud-Sync
 
 <details>
 <summary><b>Einrichten und Abgleich</b> – aufklappen</summary>
@@ -147,7 +175,7 @@ abgeglichen.
 
 </details>
 
-## 🪟 Windows
+## Windows
 
 <details>
 <summary><b>Befehle und Hinweise</b> – aufklappen</summary>
@@ -172,7 +200,7 @@ ueber `file://`. Das gibt der App einen festen Origin, damit der
 
 </details>
 
-## 🍎 iOS
+## iOS
 
 <details>
 <summary><b>Live Activity, Cloud-Build und Xcode</b> – aufklappen</summary>
@@ -239,7 +267,7 @@ Nach jeder Aenderung am Web-Code `npm run ios:sync` ausfuehren.
 
 </details>
 
-## 🎨 App-Icon
+## App-Icon
 
 <details>
 <summary><b>Icons pro Design</b> – aufklappen</summary>
